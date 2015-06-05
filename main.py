@@ -350,7 +350,7 @@ MyScreenManager:
     name: 'welcome'
     Image:
         source: 'bg2.png'
-        allow_stretch: True
+        allow_stretch: False
         keep_ratio: False
         size_hint: 1, 1
     GridLayout:
@@ -1455,10 +1455,10 @@ class ScreenManagerApp(App):
             'stringexample': 'some_string',
             'pathexample': '/some/path'})
 
-    def build_settings(self, settings):
-        settings.add_json_panel('Panel Name',
-                                self.config,
-                                data=settings_json)
+    #def build_settings(self, settings):
+    #    settings.add_json_panel('Panel Name',
+    #                            self.config,
+    #                            data=settings_json)
 
     def on_config_change(self, config, section,
                          key, value):
