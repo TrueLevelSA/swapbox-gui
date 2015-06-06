@@ -6,7 +6,7 @@ from kivy.lang import Builder
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from kivy.uix.camera import Camera
+#from kivy.uix.camera import Camera
 
 
 # Kivy's install_twisted_rector MUST be called early on!
@@ -120,9 +120,9 @@ class MyScreenManager(ScreenManager):
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
         # This is the code executing in the new thread.
-        cmd = 'zbarcam --prescale=320x320 /dev/video0 --raw'
+        cmd = 'zbarcam --prescale=320x320 /dev/video0'
         execute = pexpect.spawn(cmd, [], 300)
-        # qr_code = os.system(cmd)
+        #qr_code = os.system(cmd)
         # print qr_code
         # self.qr_thread_update_label_text(qr_code)
         # # Note: infinite looooop    
@@ -138,8 +138,11 @@ class MyScreenManager(ScreenManager):
                 execute.expect('\n')
                 # Get last line fron expect
                 line = execute.before
-                if line != "" and line != None:
-                    self.qr_thread_update_label_text(line)
+                print line
+                print "contains qr: "
+                print line.startswith("QR-Code:")
+                if line != "" and line != None and line.startswith("QR-Code:"):
+                    self.qr_thread_update_label_text(line[8:])
                     #wal.close()
                     execute.close(True)
                     break
