@@ -1,4 +1,4 @@
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 from kivy.app import App
 from kivy.base import runTouchApp
@@ -46,11 +46,31 @@ import json
 #Window.size = (800, 600)
 #Window.fullscreen = True
 
+PASSWORDS = {
+    u'peter': u'secret1',
+    u'joe': u'secret2'
+}
+
 class MyComponent(ApplicationSession):
 
     """
     A simple WAMP app component run from the Kivy UI.
     """
+
+    def onChallenge(self, challenge):
+        print challenge
+        if challenge.method == u"wampcra":
+            if u'salt' in challenge.extra:
+                key = auth.derive_key(PASSWORDS[USER].encode('utf8'),
+                                      challenge.extra['salt'].encode('utf8'),
+                                      challenge.extra.get('iterations', None),
+                                      challenge.extra.get('keylen', None))
+            else:
+                key = PASSWORDS[USER].encode('utf8')
+            signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
+            return signature.decode('ascii')
+        else:
+            raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
 
     def onJoin(self, details):
         print("session ready", self.config.extra)
@@ -1419,7 +1439,8 @@ class ScreenManagerApp(App):
         self.session = None
 
         # run our WAMP application component    #188.226.230.145
-        runner = ApplicationRunner(url = u"ws://188.226.236.79:8080/ws", realm = u"realm1", extra = dict(ui=self))
+        #runner = ApplicationRunner(url = u"ws://188.226.236.79:8080/ws", realm = u"realm1", extra = dict(ui=self))
+        runner = ApplicationRunner(url = u"ws://127.0.0.1:8080/ws", realm = u"realm1", extra = dict(ui=self))
         runner.run(MyComponent, start_reactor=False)
 
         self.settings_cls = SettingsWithSidebar
