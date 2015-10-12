@@ -13,6 +13,8 @@ from kivy.uix.button import Button
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 
+from twisted.internet.defer import inlineCallbacks
+
 from autobahn.twisted.wamp import ApplicationSession
 from autobahn.twisted.wamp import ApplicationRunner
 
@@ -50,12 +52,16 @@ PASSWORDS = {
     u'peter': u'secret1',
     u'joe': u'secret2'
 }
+USER = "peter"
 
 class MyComponent(ApplicationSession):
 
     """
     A simple WAMP app component run from the Kivy UI.
     """
+    def onConnect(self):
+      print("connected. joining realm {} as user {} ...".format(self.config.realm, USER))
+      self.join(self.config.realm, [u"wampcra"], USER)
 
     def onChallenge(self, challenge):
         print challenge
@@ -83,6 +89,17 @@ class MyComponent(ApplicationSession):
         self.subscribe(ui.root.update_ticker, u"CHF")
         self.subscribe(ui.root.update_sell_ticker, u"CHFSELL")
 
+    @inlineCallbacks
+    def start_btm_process_task(self):
+      ## call a procedure we are allowed to call (so this should succeed)
+      ##
+      try:
+         res = yield self.call(u'com.example.call_start_btm_process_task', u"BUY")
+         print("call result: {}".format(res))
+      except Exception as e:
+         print("call error: {}".format(e))
+
+
 class ColorDownButton(Button):
     """
     Button with a possibility to change the color on on_press (similar to background_down in normal Button widget)
@@ -105,14 +122,12 @@ class ColorDownButton(Button):
 
 class WelcomeScreen(Screen):
     pass
-
 class ScanWalletScreen(Screen):
     pass
 class BuyScreen(Screen):
     pass
 class BuyFinishScreen(Screen):
     pass
-
 class SellSelectScreen(Screen):
     pass
 
@@ -136,6 +151,9 @@ class MyScreenManager(ScreenManager):
     def sendcoins_thread(self):
         # Worker thread to call the backend when transaction complete to actually send the coins
         pass
+
+         
+
     def start_qr_thread(self):
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
@@ -373,7 +391,7 @@ MyScreenManager:
     name: 'welcome'
     Image:
         source: 'bg2.png'
-        allow_stretch: False
+        allow_stretch: True
         keep_ratio: False
         size_hint: 1, 1
     GridLayout:
@@ -611,7 +629,7 @@ MyScreenManager:
                     background_color_normal: 0,0,0,0.4
                     background_color_down: 0,0,0,0.6
                     font_size: 30
-                    on_release: app.root.current = 'scanwallet'; app.root.start_qr_thread()
+                    on_release: app.root.current = 'scanwallet'; app.root.start_btm_process_task() #; app.root.start_qr_thread()
                 ColorDownButton: 
                     text: 'CASH'
                     color: 1,1,1,1
@@ -1439,8 +1457,8 @@ class ScreenManagerApp(App):
         self.session = None
 
         # run our WAMP application component    #188.226.230.145
-        #runner = ApplicationRunner(url = u"ws://188.226.236.79:8080/ws", realm = u"realm1", extra = dict(ui=self))
-        runner = ApplicationRunner(url = u"ws://127.0.0.1:8080/ws", realm = u"realm1", extra = dict(ui=self))
+        runner = ApplicationRunner(url = u"ws://localhost:8080/ws", realm = u"realm1", extra = dict(ui=self))
+        #runner = ApplicationRunner(url = u"ws://127.0.0.1:8080/ws", realm = u"realm1", extra = dict(ui=self))
         runner.run(MyComponent, start_reactor=False)
 
         self.settings_cls = SettingsWithSidebar
@@ -1453,9 +1471,24 @@ class ScreenManagerApp(App):
         """
         Called from WAMP session when attached to router.
         """
-        self.print_message("WAMP session connected!")
+        self.print_message("WAMP session connected! is this doing anythinhg?")
         self.session = session
 
+
+    @inlineCallbacks
+    def start_btm_process(self):
+    
+      ## call a procedure we are allowed to call (so this should succeed)
+      ##
+      try:
+         print dir(self)
+         print "self.root"
+         print dir(self.root)
+
+         res = yield self.root.manager.session.call(u'com.example.call_start_btm_process_task', "BUY")
+         print("call result: {}".format(res))
+      except Exception as e:
+         print("call error: {}".format(e))
 
     # def send_message(self, *args):
     #     """
