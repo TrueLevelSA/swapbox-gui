@@ -1,24 +1,31 @@
 __version__ = "1.3.0"
 
+
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-#from kivy.uix.camera import Camera
-
-
 # Kivy's install_twisted_rector MUST be called early on!
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 
+
+#from kivy.uix.camera import Camera
+from kivy.uix.floatlayout import FloatLayout
+from kivy.properties import NumericProperty, ObjectProperty
+
+
 from twisted.internet.defer import inlineCallbacks
 
-from autobahn.twisted.wamp import ApplicationSession
-from autobahn.twisted.wamp import ApplicationRunner
+from autobahn.twisted.wamp import ApplicationSession, ApplicationRunner
 
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
+from autobahn.wamp.types import CallOptions
+
+from autobahn.wamp import auth
+
+from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 
 #for settings window
 from kivy.uix.settings import SettingsWithSidebar
@@ -31,7 +38,7 @@ import time
 import random
 
 
-from kivy.clock import Clock, mainthread
+from kivy.clock import Clock###, mainthread
 from functools import partial
 import threading
 import time
@@ -48,13 +55,18 @@ import json
 #Window.size = (800, 600)
 #Window.fullscreen = True
 
+import crosstalk_client_settings
+CROSSBAR_CLIENT_SETTER_TASKS = crosstalk_client_settings.CROSSBAR_CLIENT_SETTER_TASKS
+CROSSBAR_CLIENT_WIDGET_GETTER_TASKS = crosstalk_client_settings.CROSSBAR_CLIENT_WIDGET_GETTER_TASKS
+CROSSBAR_DOMAIN = crosstalk_client_settings.CROSSBAR_DOMAIN
+
+
 PASSWORDS = {
-    u'peter': u'secret1',
-    u'joe': u'secret2'
+    u'peter': u'secret1'
 }
 USER = "peter"
 
-class MyComponent(ApplicationSession):
+class WampComponent(ApplicationSession):
 
     """
     A simple WAMP app component run from the Kivy UI.
@@ -64,16 +76,20 @@ class MyComponent(ApplicationSession):
       self.join(self.config.realm, [u"wampcra"], USER)
 
     def onChallenge(self, challenge):
-        print challenge
+        #print challenge
         if challenge.method == u"wampcra":
             if u'salt' in challenge.extra:
+                print "deriving key"
                 key = auth.derive_key(PASSWORDS[USER].encode('utf8'),
                                       challenge.extra['salt'].encode('utf8'),
-                                      challenge.extra.get('iterations', None),
-                                      challenge.extra.get('keylen', None))
+                                      challenge.extra.get('iterations', 100),
+                                      challenge.extra.get('keylen', 16))
+                print key
             else:
+                print "using password"
                 key = PASSWORDS[USER].encode('utf8')
             signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
+            print signature.decode('ascii')
             return signature.decode('ascii')
         else:
             raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
@@ -86,18 +102,9 @@ class MyComponent(ApplicationSession):
         ui.on_session(self)
         
         # subscribe to WAMP PubSub event and call the Kivy UI component when events are received
-        self.subscribe(ui.root.update_ticker, u"CHF")
-        self.subscribe(ui.root.update_sell_ticker, u"CHFSELL")
-
-    @inlineCallbacks
-    def start_btm_process_task(self):
-      ## call a procedure we are allowed to call (so this should succeed)
-      ##
-      try:
-         res = yield self.call(u'com.example.call_start_btm_process_task', u"BUY")
-         print("call result: {}".format(res))
-      except Exception as e:
-         print("call error: {}".format(e))
+        self.subscribe(ui.update_ticker, u"com.example.CHF")
+        print("subscribe to CHF")
+        #self.subscribe(ui.manager.update_sell_ticker, u"CHFSELL")
 
 
 class ColorDownButton(Button):
@@ -137,22 +144,134 @@ class VerifyScreen(Screen):
             self.display.text = express[:-1]
     pass
 
-class ColourScreen(Screen):
-    colour = ListProperty([1., 0., 0., 1.])
 
 class MyScreenManager(ScreenManager):
+    pass
 
-    stop = threading.Event()
-    stop_scan = threading.Event()
-    current_ticker = Decimal(0)
+    
+    
+# root_widget = Builder.load_string('''
+# #:import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+# ''')
+
+class RootWidget(FloatLayout):
+    '''This the class representing your root widget.
+       By default it is inherited from ScreenManager,
+       you can use any other layout/widget depending on your usage.
+    '''
+    root_manager = ObjectProperty()
+    current_btm_process_id = NumericProperty()
+
+    def validate_phonenumber(self, cli):
+      if len(cli) > 6:
+        z = phonenumbers.parse(cli, None)
+        try:
+          r = phonenumbers.is_valid_number(z)
+          return r
+        except:
+          return False
+
+    #@inlineCallbacks
+    def on_session(self, session):
+        """
+        Called from WAMP session when attached to Crossbar router.
+        """
+        self.print_message("WAMP session connected!")
+        
+        self.session = session
+
+        self.root_manager.current = 'welcome'
+
+    def print_message(self, msg, test=None):
+        print msg + "\n"
+
+
+    ### START SETTER TASKS STUFF ###
+
+    def returnData(self, d, result_global_var):
+      if result_global_var != 'None':
+        setattr(self, result_global_var, int(d))
+        print d
+      return d
+    #ns = {}
+    #returnfunc = compile('def returnData(d):    return d', '<string>', 'exec')
+    callopts = compile('from autobahn.wamp.types import CallOptions', '<string>', 'exec')
+    #exec returnfunc in ns
+    exec callopts in locals()
+    for st in CROSSBAR_CLIENT_SETTER_TASKS:
+      code = compile(st.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,st.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnData, "'+st.get('result_global_var')+'")', '<string>', 'exec')
+      exec code in locals()
+      
+    ### END SETTER TASKS STUFF ###
+
+    ### START WIDGET GETTER TASKS STUFF ###
+    def add_cb_widget(self, kv_widget, kv_container, item_id, text_field, **kwargs):
+      ns = {}
+      factoryimport = compile('from kivy.factory import Factory', '<string>', 'exec')
+      exec factoryimport in ns
+      widgetfactory = compile('widget = Factory.'+kv_widget+'()', '<string>', 'exec')
+      exec widgetfactory in ns
+      ns['widget'].id = str(item_id)
+      widget = self.widget_properties(ns['widget'], **kwargs)
+      if text_field != 'None':
+        widget.text = kwargs[text_field]
+      print "addming widget to " + kv_container
+      addwidget = compile('self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
+      exec addwidget in locals(), globals()
+      
+    def remove_all_cb_widgets(self, container):
+        #self.pizzas_widget.clear_widgets()
+        removewidget = compile('self.'+container+'.clear_widgets()', '<string>', 'exec')
+        exec removewidget in locals()#, globals()
+      
+    def widget_properties(self, widget, **kwargs):
+      for key in kwargs:
+        setattr(widget, key, kwargs[key])
+      return widget
+
+    def returnWidgetData(self, d, kv_widget, kv_container, text_field):
+      print "WIDGET DATA"
+      print d
+      r = json.loads(d)
+      for item in r:
+        self.add_cb_widget(kv_widget, kv_container, item.get("pk"), text_field, **item.get("fields"))
+      return d
+
+    for wgt in CROSSBAR_CLIENT_WIDGET_GETTER_TASKS:
+      #nsp = {'pizzas_container': pizzas_container}
+      
+      nsp={}
+      ic = compile('from autobahn.wamp.types import CallOptions', '<string>', 'exec')
+      code = compile(wgt.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,wgt.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnWidgetData, "'+wgt.get('kivy_widget')+'", "'+wgt.get('kivy_widget_container')+'", "'+wgt.get('txt_field')+'")', '<string>', 'exec')
+      exec ic in nsp
+      exec code in nsp#locals()
+      vars()[wgt.get('cb_rpc')] = nsp[wgt.get('cb_rpc')]
+    
+    ### END WIDGET GETTER TASKS STUFF ###
+
+    # @inlineCallbacks
+    # def start_btm_process(self):
+    
+    #   ## call a procedure we are allowed to call (so this should succeed)
+    #   ##
+    #   #try:
+    #   if self.session: 
+    #       res = yield self.session.call(u'com.example.call_start_btm_process_task', "BUY")
+    #       print("call result: {}".format(res))
+    #       #except Exception as e:
+    #       #   print("call error: {}".format(e))
+    # stop = threading.Event()
+    # stop_scan = threading.Event()
+    # current_ticker = Decimal(0)
     
     def start_sendcoins_thread(self):
         threading.Thread(target=self.sendcoins_thread).start()
     def sendcoins_thread(self):
         # Worker thread to call the backend when transaction complete to actually send the coins
+        #unneeded now
         pass
 
-         
 
     def start_qr_thread(self):
         threading.Thread(target=self.qr_thread).start()
@@ -191,9 +310,9 @@ class MyScreenManager(ScreenManager):
                 print "timeout"
                 break
         return
-    @mainthread
+    ###@mainthread
     def qr_thread_update_label_text(self, new_text):
-        label = self.get_screen('buy').ids["'to_address'"]
+        label = self.root_manager.get_screen('buy').ids["'to_address'"]
         text = str(new_text)
         print "the text"
         print text
@@ -201,8 +320,13 @@ class MyScreenManager(ScreenManager):
         if address[0] == "bitcoin":
             label.text = address[1].rstrip()
             print address[1]
-            self.current = 'buy'
+            self.root_manager.current = 'buy'
             self.start_cashin_thread()
+
+            #send call to backend with currency and customer crypto address
+            print "CHECK THIS YO"
+            print self.current_btm_process_id
+            self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
         else:
             label.text = "Invalid QR Code"         
     
@@ -273,12 +397,12 @@ class MyScreenManager(ScreenManager):
         #process the transaction
 
         #get the total, hacky for now
-        total_quote_label = self.get_screen('buy').ids["'total_quote'"]
+        total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
         gettotal = total_quote_label.text.split(" ")
         newtotal = int(gettotal[0].split("[b]")[1])
         if newtotal > 0:
             #and the addy
-            address_label = self.get_screen('buy').ids["'to_address'"]
+            address_label = self.root.get_screen('buy').ids["'to_address'"]
 
             headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
             payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
@@ -287,18 +411,18 @@ class MyScreenManager(ScreenManager):
             print r.text
 
             #reset the labels
-            label = self.get_screen('buy').ids["'cashin10'"]
+            label = self.root.get_screen('buy').ids["'cashin10'"]
             label.text = 'x'+str(0)
-            label = self.get_screen('buy').ids["'cashin20'"]
+            label = self.root.get_screen('buy').ids["'cashin20'"]
             label.text = 'x'+str(0)
-            label = self.get_screen('buy').ids["'cashin50'"]
+            label = self.root.get_screen('buy').ids["'cashin50'"]
             label.text = 'x'+str(0)
-            label = self.get_screen('buy').ids["'cashin100'"]
+            label = self.root.get_screen('buy').ids["'cashin100'"]
             label.text = 'x'+str(0)
-            label = self.get_screen('buy').ids["'cashin200'"]
+            label = self.root.get_screen('buy').ids["'cashin200'"]
             label.text = 'x'+str(0)
 
-            total_quote_label = self.get_screen('buy').ids["'total_quote'"]
+            total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
             total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(0)+' Fr. = '+str(0)+' BTC[/b][/font]'
 
         return   
@@ -306,19 +430,19 @@ class MyScreenManager(ScreenManager):
     def cashin_update_label_text(self, new_credit):
         credit = str(new_credit)
         cr = credit.split(":")
-        total_quote_label = self.get_screen('buy').ids["'total_quote'"]
+        total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
         gettotal = total_quote_label.text.split(" ")
         newtotal = int(gettotal[0].split("[b]")[1]) + int(cr[1])
         newtotalquote = Decimal(newtotal) / Decimal(self.current_ticker)
         newtotalquote_rounded = newtotalquote.quantize(Decimal('.00000001'), rounding=ROUND_DOWN)
         total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(newtotal)+' Fr. = '+str(newtotalquote_rounded)+' BTC[/b][/font]'
 
-        amount_sending_finished_label = self.get_screen('buyfinish').ids["'amount_sending_finished'"]
+        amount_sending_finished_label = self.root.get_screen('buyfinish').ids["'amount_sending_finished'"]
         amount_sending_finished_label.text = 'WE ARE SENDING YOUR '+str(newtotalquote_rounded)+' BITCOINS'
 
         if cr[1] == "10":
             #self.channel1_count += 1
-            label = self.get_screen('buy').ids["'cashin10'"]
+            label = self.root.get_screen('buy').ids["'cashin10'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
@@ -327,1168 +451,132 @@ class MyScreenManager(ScreenManager):
             #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
         if cr[1] == "20":
             #self.channel2_count += 1
-            label = self.get_screen('buy').ids["'cashin20'"]
+            label = self.root.get_screen('buy').ids["'cashin20'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "50":
             #self.channel3_count += 1
-            label = self.get_screen('buy').ids["'cashin50'"]
+            label = self.root.get_screen('buy').ids["'cashin50'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "100":
             #self.channel4_count += 1
-            label = self.get_screen('buy').ids["'cashin100'"]
+            label = self.root.get_screen('buy').ids["'cashin100'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "200":
             #self.channel5_count += 1
-            label = self.get_screen('buy').ids["'cashin200'"]
+            label = self.root.get_screen('buy').ids["'cashin200'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
              
-    def new_colour_screen(self):
-        name = str(time.time())
-        s = ColourScreen(name=name,
-                         colour=[random.random() for _ in range(3)] + [1])
-        self.add_widget(s)
-        self.current = name
+
     def update_ticker(self, msg, hacky_fix=None):
         """
         Called from WAMP app component when message was received in a PubSub event.
         """
-        label = self.get_screen('welcome').ids["'ticker_label'"]
+        label = self.root.get_screen('welcome').ids["'ticker_label'"]
         label.text = '[b]FOR '+msg+' Fr.[/b]'
-        btc_buy_label = self.get_screen('welcome').ids["'btc_buy'"]
+        btc_buy_label = self.root.get_screen('welcome').ids["'btc_buy'"]
         btc_buy_label.text = msg
-        btc_buyfinish_label = self.get_screen('buy').ids["'buyfinishbtcprice'"]
+        btc_buyfinish_label = self.root.get_screen('buy').ids["'buyfinishbtcprice'"]
         btc_buyfinish_label.text = '[font=MyriadPro-Bold.otf][b]1 BTC = '+msg+' BTC[/b][/font]'
         self.current_ticker = Decimal(msg)
     def update_sell_ticker(self, msg, hacky_fix=None):
         """
         Called from WAMP app component when message was received in a PubSub event.
         """
-        btc_sell_label = self.get_screen('welcome').ids["'btc_sell'"]
+        btc_sell_label = self.root.get_screen('welcome').ids["'btc_sell'"]
         btc_sell_label.text = msg
 
-root_widget = Builder.load_string('''
-#:import SlideTransition kivy.uix.screenmanager.SlideTransition
-MyScreenManager:
-    transition: SlideTransition()
-    WelcomeScreen:
-    VerifyScreen:
-    ScanWalletScreen:
-    BuyScreen:
-    BuyFinishScreen:
-    SellSelectScreen:
+        return
 
+    ###@mainthread
+    def generate_thread_update_label_text(self, new_text):
+        label = self.get_screen('generate').ids["'generate_status'"]
+        text = str(new_text)
+        print "the text"
+        print text
+        label.text = text         
 
-<WelcomeScreen>:
-    id: 'welcome_screen'
-    name: 'welcome'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
-        BoxLayout:
-            orientation: 'vertical'
-            padding: 40
-            spacing: 10,0
-            height: 10,0
-            Label:
-                text: '[b][font=MyriadPro-Bold.otf]1 BITCOIN[/font][/b]'
-                markup: True
-                halign: 'left'
-                text_size: self.size
-                size_hint: (1, None)
-                color: 1,1,1,1
-                font_size: 70
-            Label:
-                id: 'ticker_label'
-                text: '[b]FOR 0 Fr.[/b]'
-                markup: True
-                halign: 'left'
-                text_size: self.size
-                size_hint: (1, None)
-                height: 70
-                color: 1,1,1,1
-                font_size: 70
-            #pricing/ticker grid
-            GridLayout:
-                cols: 3
-                spacing: 10,0
-                Label:
-                    text: '[b]Currency[/b]'
-                    markup: True
-                    font_size: 40
-                    color: 0,0,0,1
-                    background_color: 0,0,0,0
-                    canvas.before:
-                        Color:
-                            rgba: 1, 1, 1, 0.4
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: '[b]We Sell[/b]'
-                    markup: True
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.4
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: '[b]We Buy[/b]'
-                    markup: True
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.4
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: 'BTC'
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    id: 'btc_buy'
-                    text: '0.00'
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    id: 'btc_sell'
-                    text: '0.00'
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                Label:
-                    text: ''
-                    font_size: 40
-                    color: 0,0,0,1
-                    canvas.before:
-                        Color:
-                            rgba: 1,1,1,0.2
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-
-
-            BoxLayout:
-                height: 100
-                spacing: 10
-                padding: 0,10
-                size_hint: (1, None)
-                ColorDownButton:
-                    text: 'SEND'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    #on_release: app.root.current = 'verify'
-                ColorDownButton:
-                    text: 'BITCOIN'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    on_release: app.root.current = 'scanwallet'; app.root.start_btm_process_task() #; app.root.start_qr_thread()
-                ColorDownButton: 
-                    text: 'CASH'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    #on_release: app.open_settings()
-                    #on_release: app.root.current = 'sellselect'
-
-# <VerifyScreen>:
-#     name: 'verify'
-#     Image:
-#         source: 'bg2.png'
-#         allow_stretch: True
-#         keep_ratio: False
-#     BoxLayout:
-#         orientation: 'vertical'
-#         padding: 20
-#         spacing: 5
-#         background_color: 1,0,0,0
-#         # Label:
-#         #     text: 'Please enter your phone number'
-#         #     font_size: 30
-#         #     size_hint: 1,0.4
-#         #     color: 0.5,0.5,0.5,1
-#         TextInput:
-#             id: input
-#             hint_text: 'Please enter your phone number'
-#             size_hint: 1, None
-#             readonly: True
-#             multiline: False
-#             font_size: 30
-#             border: 1,1,1,1
-
-#         GridLayout:
-#             rows: 4
-#             cols: 3
-#             spacing: 10
-#             padding: 150, 10
-#             ColorDownButton:
-#                     text: '1'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '2'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '3'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '4'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '5'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '6'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '7'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '8'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '9'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: 'C'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '0'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '+'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#         BoxLayout:
-#             height: 100
-#             size_hint: (1, None)
-#             Button:
-#                 text: 'Go Back'
-#                 font_size: 30
-#                 on_release: app.root.current = 'welcome'
-#             Button:
-#                 text: 'Continue'
-#                 font_size: 30
-#                 on_release: app.root.current = 'scanwallet'
-
-<ScanWalletScreen>:
-    name: 'scanwallet'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
-        BoxLayout:
-            orientation: 'vertical'
-            padding: 10,0
-            spacing: 10,0
-            Label:
-                text: '[b][font=MyriadPro-Bold.otf]WALLET SCAN[/font][/b]'
-                markup: True
-                halign: 'left'
-                text_size: self.size
-                size_hint: (1, None)
-                color: 1,1,1,1
-                font_size: 70
-            Label:
-                text: '[font=MyriadPro-Bold.otf][b]Please present your QR code[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                height: 50
-                line_height: 0.5
-                markup: True
-                size_hint: (1, None)
-                color: 0,0,0,1
-                font_size: 50
-                text_size: self.size
-                
-            #pricing/ticker grid
-
-            GridLayout:
-                cols: 2
-                Label:
-                    text: 'please wait, camera loading ..'
-                    width: 20
-                    size_hint: (20, 50)
-                    canvas:
-                        Color:
-                            rgba: 0, 0, 0, 0.4
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-                
-                Image:
-                    source: 'phoneqr.png'
-                    size_hint: (10, 10)
-                    width: 10
-                    height: 10
-                    canvas.before:
-                        Color:
-                            rgba: 1, 1, 1, 0.4
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-            
-            BoxLayout:
-                height: 100
-                spacing: 10
-                padding: 10
-                size_hint: (1, None)
-                Label:
-                    text: ''
-                Label:
-                    text: ''
-                Label:
-                    text: ''
-                # ColorDownButton:
-                #     text: 'CANCEL'
-                #     color: 1,1,1,0
-                #     background_color: 0,0,0,0
-                #     background_olor_normal: 0,0,0,0
-                #     background_color_down: 0,0,0,0
-                #     font_size: 30
-                # ColorDownButton:
-                #     text: 'SCAN'
-                #     color: 1,1,1,0
-                #     background_color_normal: 0,0,0,0
-                #     background_color_down: 0,0,0,0
-                #     font_size: 30
-                #     #on_release: app.root.current = 'buy'
-                # ColorDownButton: 
-                #     text: 'CANCEL'
-                #     color: 1,1,1,0
-                #     background_color_normal: 0,0,0,0
-                #     background_color_down: 0,0,0,0
-                #     font_size: 30
-                #     #on_release: app.root.current = 'welcome'; app.root.stop_scanning()
-
-
-<BuyScreen>:
-    name: 'buy'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
-        BoxLayout:
-            orientation: 'vertical'
-            padding: 10,0
-            spacing: 10,0
-            height: 10
-            Label:
-                text: '[b][font=MyriadPro-Bold.otf]INSERT CASH[/font][/b]'
-                markup: True
-                halign: 'left'
-                text_size: self.size
-                size_hint: (1, None)
-                color: 1,1,1,1
-                font_size: 70
-            Label:
-                text: '[font=MyriadPro-Bold.otf][b]Insert fiat crap in machine[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                markup: True
-                size_hint: (1, None)
-                height: 50
-                color: 0,0,0,1
-                font_size: 50
-                text_size: self.size
-            Label:
-                id: 'total_quote'
-                text: '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                markup: True
-                size_hint: (1, None)
-                height: 60
-                color: 1,1,1,1
-                font_size: 60
-                text_size: self.size
-
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: 0,0
-                canvas.before:
-                    Color:
-                        rgba: 1,1,1,0.2
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                Label:
-                    text: '[font=MyriadPro-Bold.otf][b]FIAT MONEY "BANQUE NATIONALE SUISSE"[/b][/font]'
-                    halign: 'left'
-                    valign: 'top'
-                    markup: True
-                    size_hint: (1, None)
-                    font_size: 26
-                    color: 0,0,0,1
-                BoxLayout:
-                    spacing: 10,0
-                    padding: 50,0
-                    GridLayout:
-                        cols: 2
-                        spacing: 10,0
-                        size_hint: .3,1
-                        Label:
-                            text: '10'
-                            font_size: 30
-                            color: 1,1,1,1
-                        Label:
-                            id: 'cashin10'
-                            text: 'x0'
-                            font_size: 30
-                            color: 1,1,1,1
-                            halign: 'left'
-                            canvas.before:
-                                Color:
-                                    rgba: 0, 0, 0, 0.2
-                                Rectangle:
-                                    size: self.size
-                                    pos: self.pos
-                        Label:
-                            text: '20'
-                            font_size: 30
-                            color: 1,1,1,1
-                        Label:
-                            id: 'cashin20'
-                            text: 'x0'
-                            font_size: 30
-                            color: 1,1,1,1
-                            canvas.before:
-                                Color:
-                                    rgba: 0, 0, 0, 0.2
-                                Rectangle:
-                                    size: self.size
-                                    pos: self.pos
-                        Label:
-                            text: '50'
-                            font_size: 30
-                            color: 1,1,1,1
-                        Label:
-                            id: 'cashin50'
-                            text: 'x0'
-                            font_size: 30
-                            color: 1,1,1,1
-                            canvas.before:
-                                Color:
-                                    rgba: 0, 0, 0, 0.2
-                                Rectangle:
-                                    size: self.size
-                                    pos: self.pos
-                        Label:
-                            text: '100'
-                            font_size: 30
-                            color: 1,1,1,1
-                        Label:
-                            id: 'cashin100'
-                            text: 'x0'
-                            font_size: 30
-                            color: 1,1,1,1
-                            canvas.before:
-                                Color:
-                                    rgba: 0, 0, 0, 0.2
-                                Rectangle:
-                                    size: self.size
-                                    pos: self.pos
-                        Label:
-                            text: '200'
-                            font_size: 30
-                            color: 1,1,1,1
-                        Label:
-                            id: 'cashin200'
-                            text: 'x0'
-                            font_size: 30
-                            color: 1,1,1,1
-                            canvas.before:
-                                Color:
-                                    rgba: 0, 0, 0, 0.2
-                                Rectangle:
-                                    size: self.size
-                                    pos: self.pos
-                    BoxLayout:
-                        orientation: 'vertical'
-                        Label:
-                            id: 'buyfinishbtcprice'
-                            text: '[font=MyriadPro-Bold.otf][b]1 BTC = 235 BTC[/b][/font]'
-                            markup: True
-                            halign: 'right'
-                            font_size: 40
-                            text_size: self.size
-                            color: 1,1,1,1
-                            
-                        Label:
-                            text: '[font=MyriadPro-Bold.otf][b]Limite 500 Fr.[/b][/font]'
-                            markup: True
-                            halign: 'right'
-                            font_size: 40
-                            text_size: self.size
-                            color: 1,1,1,1
-                    
-                Label:
-                    padding: 0,0 
-                    spacing: 0
-                    id: 'to_address'
-                    text: 'N/A'
-                    font_size: 26
-                    color: 1,1,1,1
-
-            BoxLayout:
-                height: 100
-                spacing: 10
-                padding: 10
-                size_hint: (1, None)
-                ColorDownButton:
-                    text: 'CANCEL'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0,0
-                    font_size: 30
-                ColorDownButton:
-                    text: 'SCAN'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0
-                    font_size: 30
-                ColorDownButton: 
-                    text: 'FINISH'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    on_release: app.root.current = 'buyfinish'; app.root.stop.set()
-
-<BuyFinishScreen>:
-    name: 'buyfinish'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
-        BoxLayout:
-            orientation: 'vertical'
-            padding: 40
-            spacing: 10
-            height: 10
-            Label:
-                text: '[b][font=MyriadPro-Bold.otf]CONFIRMATION[/font][/b]'
-                markup: True
-                halign: 'left'
-                text_size: self.size
-                size_hint: (1, None)
-                color: 1,1,1,1
-                font_size: 70
-            Label:
-                text: '[font=MyriadPro-Bold.otf][b]Thank You[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                markup: True
-                size_hint: (1, None)
-                color: 0,0,0,1
-                font_size: 50
-                text_size: self.size
-            #confirmation box 
-            BoxLayout:
-                id: 'amount_sending_finished'
-                orientation: 'vertical'
-                size_hint: (1, None)
-                Label:
-                    text: 'WE ARE SENDING YOUR BITCOINS'
-                    color: 0,0,0,1
-            BoxLayout:
-                height: 100
-                spacing: 10
-                size_hint: (1, None)
-                ColorDownButton:
-                    text: 'CANCEL'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0,0
-                    font_size: 30
-                ColorDownButton:
-                    text: 'SCAN'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0,0
-                    font_size: 30
-                ColorDownButton: 
-                    text: 'CLOSE'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    on_release: app.root.current = 'welcome'
-
-<SellSelectScreen>:
-    name: 'sellselect'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
-        BoxLayout:
-            orientation: 'vertical'
-            padding: 10,0
-            spacing: 10,0
-            height: 10
-            Label:
-                text: '[font=MyriadPro-Bold.otf][b]BUY FIAT MONEY[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                markup: True
-                size_hint: (1, None)
-                height: 50
-                color: 0,0,0,1
-                font_size: 50
-                text_size: self.size
-            Label:
-                text: '[font=MyriadPro-Bold.otf][b]220 Fr. = 0.91245678 BTC[/b][/font]'
-                halign: 'left'
-                valign: 'top'
-                markup: True
-                size_hint: (1, None)
-                height: 60
-                color: 1,1,1,1
-                font_size: 60
-                text_size: self.size
-
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: 10,0
-                canvas.before:
-                    Color:
-                        rgba: 1,1,1,0.2
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                BoxLayout:
-                    spacing: 10,0
-                    padding: 20
-                    GridLayout:
-                        cols: 3
-                        spacing: 10
-                        #size_hint: .3,1
-                        ColorDownButton:
-                            text: '20 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        ColorDownButton:
-                            text: '200 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        Label:
-                            markup: True
-                            text: '[color=ffffff]1 BTC[/color] [color=1c6434]235CHF[/color]'
-                            font_size: 35
-                        ColorDownButton:
-                            text: '20 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        ColorDownButton:
-                            text: '200 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        Label:
-                            markup: True
-                            text: '[color=ffffff]Limit[/color]  [color=c11d24]500CHF[/color]'
-                            font_size: 35
-                        ColorDownButton:
-                            text: '50 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        ColorDownButton:
-                            text: '400 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        Label:
-                            text:''
-                        ColorDownButton:
-                            text: '100 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-                        ColorDownButton:
-                            text: 'OTHER'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
-                            on_release: app.root.current = 'verify'
-            BoxLayout:
-                height: 100
-                spacing: 10
-                padding: 10
-                size_hint: (1, None)
-                ColorDownButton:
-                    text: 'CANCEL'
-                    color: 1,1,1,1
-                    #background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                ColorDownButton:
-                    text: 'SCAN'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0
-                    font_size: 30
-                ColorDownButton: 
-                    text: 'FINISH'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    on_release: app.root.current = 'buyfinish'
-
-
-#<BuyScreen>:
-#    name: 'buy'
-#    Image:
-#        source: 'bg2.png'
-#        allow_stretch: True
-#        keep_ratio: False
-#    BoxLayout:
-#        orientation: 'vertical'
-#        Label:
-#            text: 'Please insert fiat crap!'
-#            font_size: 30
-#        BoxLayout:
-#            height: 100
-#            size_hint: (1, None)
-#            Button:
-#                text: 'Go Back'
-#                font_size: 30
-#                on_release: app.root.current = 'welcome'
-#            Button:
-#                text: 'Continue'
-#                font_size: 30
-#                on_release: app.root.new_colour_screen()
-
-<ColourScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: 'colour {:.2},{:.2},{:.2} screen'.format(*root.colour[:3])
-            font_size: 30
-        Widget:
-            canvas:
-                Color:
-                    rgba: root.colour
-                Ellipse:
-                    pos: self.pos
-                    size: self.size
-        BoxLayout:
-            Button:
-                text: 'goto first screen'
-                font_size: 30
-                on_release: app.root.current = 'welcome'
-            Button:
-                text: 'get random colour screen'
-                font_size: 30
-                on_release: app.root.new_colour_screen()
-''')
-
-class ScreenManagerApp(App):
-    def stop_scan(self):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(new_text)
+        qr.make(fit=True)
+        img = self.get_screen('generate').ids["'generate_qr'"]
+        imgn = qr.make_image()
+        print imgn
+        print dir(imgn)
+        #data = io.BytesIO(open("image.png", "rb").read())
+        print "before coreimage"
+        #imgo = CoreImage(imgn)
+        print "after coreimage"
+        #print imgo
+        print dir(img)
+        #img.canvas.clear()
+        img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
+        imgn.save(img_tmp_file, 'PNG')
+        img_tmp_file.close()
+        self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
+        
+    
+    def stop_scanning(self):
         # The Kivy event loop is about to stop, set a stop signal;
         # otherwise the app window will close, but the Python process will
         # keep running until all secondary threads exit.
-        self.root.stop_scan.set()
+        print "set self.stop.set"
+        self.stop.set()
+    
+    
+
+class AtmClientApp(App):
+    # def stop_scan(self):
+    #     # The Kivy event loop is about to stop, set a stop signal;
+    #     # otherwise the app window will close, but the Python process will
+    #     # keep running until all secondary threads exit.
+    #     self.root.stop_scan.set()
     def build(self):
         # WAMP session
+
+        self.root = RootWidget()
+      
+        #Clock.schedule_once(self.start_wamp_component, 1)
+        self.start_wamp_component()
+
+
+        return self.root 
+        #return RootWidget()
+
+    def start_wamp_component(self, t=None):
+        """
+        Create a WAMP session and start the WAMP component
+        """
         self.session = None
+        
+        # adapt to fit the Crossbar.io instance you're using
+        url, realm = u"ws://localhost:8080/ws", u"realm1"
 
-        # run our WAMP application component    #188.226.230.145
-        runner = ApplicationRunner(url = u"ws://localhost:8080/ws", realm = u"realm1", extra = dict(ui=self))
-        #runner = ApplicationRunner(url = u"ws://127.0.0.1:8080/ws", realm = u"realm1", extra = dict(ui=self))
-        runner.run(MyComponent, start_reactor=False)
+        # Create our WAMP application component
+        runner = ApplicationRunner(url=url,
+                                   realm=realm,
+                                   extra=dict(ui=self.root))
 
-        self.settings_cls = SettingsWithSidebar
-        self.use_kivy_settings = False
-        setting = self.config.get('example', 'boolexample')
-        root = root_widget
-        return root_widget
-        #return Interface()
-    def on_session(self, session):
-        """
-        Called from WAMP session when attached to router.
-        """
-        self.print_message("WAMP session connected! is this doing anythinhg?")
-        self.session = session
+        # Start our WAMP application component without starting the reactor because
+        # that was already started by kivy
+        runner.run(WampComponent, start_reactor=False)
 
 
-    @inlineCallbacks
-    def start_btm_process(self):
-    
-      ## call a procedure we are allowed to call (so this should succeed)
-      ##
-      try:
-         print dir(self)
-         print "self.root"
-         print dir(self.root)
+if __name__ == '__main__':
+    AtmClientApp().run()
 
-         res = yield self.root.manager.session.call(u'com.example.call_start_btm_process_task', "BUY")
-         print("call result: {}".format(res))
-      except Exception as e:
-         print("call error: {}".format(e))
 
     # def send_message(self, *args):
     #     """
@@ -1499,27 +587,24 @@ class ScreenManagerApp(App):
     #         self.session.publish(u"com.example.kivy", str(self.textbox.text))
     #         self.textbox.text = ""
 
-    def print_message(self, msg, test=None):
-        print msg + "\n"
-        #print test
+    # def print_message(self, msg, test=None):
+    #     print msg + "\n"
+    #     #print test
     
 
-    def build_config(self, config):
-        config.setdefaults('example', {
-            'boolexample': True,
-            'numericexample': 10,
-            'optionsexample': 'option2',
-            'stringexample': 'some_string',
-            'pathexample': '/some/path'})
+    # def build_config(self, config):
+    #     config.setdefaults('example', {
+    #         'boolexample': True,
+    #         'numericexample': 10,
+    #         'optionsexample': 'option2',
+    #         'stringexample': 'some_string',
+    #         'pathexample': '/some/path'})
 
-    #def build_settings(self, settings):
-    #    settings.add_json_panel('Panel Name',
-    #                            self.config,
-    #                            data=settings_json)
+    # #def build_settings(self, settings):
+    # #    settings.add_json_panel('Panel Name',
+    # #                            self.config,
+    # #                            data=settings_json)
 
-    def on_config_change(self, config, section,
-                         key, value):
-        print config, section, key, value
-
-
-ScreenManagerApp().run()
+    # def on_config_change(self, config, section,
+    #                      key, value):
+    #     print config, section, key, value
