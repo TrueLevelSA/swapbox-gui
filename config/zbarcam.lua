@@ -1,4 +1,4 @@
-if (get_window_name()=="zbar barcode reader") then
+if (get_window_name()=="MyVideo") then
   undecorate_window()
   set_window_geometry(315,100,320,320)
   make_always_on_top()

@@ -21,7 +21,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 #for settings window
 from kivy.uix.settings import SettingsWithSidebar
 
-from settingsjson import settings_json
+#from settingsjson import settings_json
 
 
 
@@ -44,7 +44,14 @@ import json
 #for fullscreen
 #from kivy.core.window import Window
 #Window.size = (800, 600)
-#Window.fullscreen = True
+#Window.fullscreen = False
+
+from kivy.config import Config
+Config.set('graphics', 'fullscreen', 'fake')
+Config.set('kivy', 'exit_on_escape', 1)
+Config.set('kivy', 'desktop', 1)
+
+Config.write()
 
 class MyComponent(ApplicationSession):
 
@@ -120,7 +127,8 @@ class MyScreenManager(ScreenManager):
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
         # This is the code executing in the new thread.
-        cmd = 'zbarcam --prescale=320x320 /dev/video0'
+        #cmd = 'zbarcam --prescale=320x320 /dev/video0'
+        cmd = '/home/pi/Prog/zbar-build/test/a.out'
         execute = pexpect.spawn(cmd, [], 300)
         #qr_code = os.system(cmd)
         # print qr_code
@@ -141,8 +149,9 @@ class MyScreenManager(ScreenManager):
                 print line
                 print "contains qr: "
                 print line.startswith("QR-Code:")
-                if line != "" and line != None and line.startswith("QR-Code:"):
-                    self.qr_thread_update_label_text(line[8:])
+                if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
+                #if line != "" and line != None and line.startswith("QR-Code:"):
+                    self.qr_thread_update_label_text(line[22:])
                     #wal.close()
                     execute.close(True)
                     break
@@ -159,6 +168,7 @@ class MyScreenManager(ScreenManager):
         text = str(new_text)
         print "the text"
         print text
+        text = text.replace('\"','')
         address = text.split(":")
         if address[0] == "bitcoin":
             label.text = address[1].rstrip()
