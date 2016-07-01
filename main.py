@@ -148,9 +148,10 @@ class MyScreenManager(ScreenManager):
                 line = execute.before
                 print line
                 print "contains qr: "
-                print line.startswith("QR-Code:")
+                print line.startswith("decoded QR-Code symbol")
                 if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
                 #if line != "" and line != None and line.startswith("QR-Code:"):
+                    print "runnning update label thread"
                     self.qr_thread_update_label_text(line[22:])
                     #wal.close()
                     execute.close(True)
@@ -168,7 +169,8 @@ class MyScreenManager(ScreenManager):
         text = str(new_text)
         print "the text"
         print text
-        text = text.replace('\"','')
+        text = text.replace('\"','').strip()
+        print text
         address = text.split(":")
         if address[0] == "bitcoin":
             label.text = address[1].rstrip()
