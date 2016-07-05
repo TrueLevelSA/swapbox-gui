@@ -1,1 +1,7 @@
+autobahn
 pexpect
+requests
+cython
+twisted
+pyserial
+kivy
