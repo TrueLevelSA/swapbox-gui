@@ -32,11 +32,7 @@ from kivy.uix.settings import SettingsWithSidebar
 
 #from settingsjson import settings_json
 
-
-
 import time
-import random
-
 
 from kivy.clock import Clock###, mainthread
 from functools import partial
@@ -49,6 +45,9 @@ from decimal import Decimal, ROUND_UP, ROUND_DOWN
 
 import requests
 import json
+# for phone number validation
+import phonenumbers
+import os
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -155,8 +154,7 @@ class VerifyScreen(Screen):
 class MyScreenManager(ScreenManager):
     pass
 
-    
-    
+
 # root_widget = Builder.load_string('''
 # #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 
@@ -171,15 +169,15 @@ class RootWidget(FloatLayout):
     current_btm_process_id = NumericProperty()
 
     def validate_phonenumber(self, cli):
-      if len(cli) > 6:
-        z = phonenumbers.parse(cli, None)
-        try:
-          r = phonenumbers.is_valid_number(z)
-          return r
-        except:
-          return False
+        if len(cli) > 6:
+            z = phonenumbers.parse(cli, None)
+            try:
+                r = phonenumbers.is_valid_number(z)
+                return r
+            except:
+                return False
 
-    #@inlineCallbacks
+    # @inlineCallbacks
     def on_session(self, session):
         """
         Called from WAMP session when attached to Crossbar router.
@@ -284,14 +282,18 @@ class RootWidget(FloatLayout):
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
         # This is the code executing in the new thread.
-        #cmd = 'zbarcam --prescale=320x320 /dev/video0'
-        cmd = '/home/pi/Prog/zbar-build/test/a.out'
+        #
+        if os.uname()[4].startswith("arm"):
+            cmd = '/home/pi/Prog/zbar-build/test/a.out'
+        else:    
+            cmd = 'zbarcam --prescale=320x320 /dev/video0'
+
         execute = pexpect.spawn(cmd, [], 300)
-        #qr_code = os.system(cmd)
+        # qr_code = os.system(cmd)
         # print qr_code
         # self.qr_thread_update_label_text(qr_code)
-        # # Note: infinite looooop    
-        
+        # # Note: infinite looooop  
+
         while True:
             # if self.stop.is_set():
             #     print "cancel qr scan"
@@ -304,15 +306,17 @@ class RootWidget(FloatLayout):
                 # Get last line fron expect
                 line = execute.before
                 print line
-                print "contains qr: "
-                print line.startswith("decoded QR-Code symbol")
-                if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
-                #if line != "" and line != None and line.startswith("QR-Code:"):
-                    print "runnning update label thread"
-                    self.qr_thread_update_label_text(line[22:])
-                    #wal.close()
-                    execute.close(True)
-                    break
+                if os.uname()[4].startswith("arm"):
+                    if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
+                        self.qr_thread_update_label_text(line[22:])
+                        # wal.close()
+                        execute.close(True)
+                        break
+                else:
+                    if line != "" and line != None and line.startswith("QR-Code:"):
+                        self.qr_thread_update_label_text(line[8:])
+                        execute.close(True)
+                        break
             except pexpect.EOF:
                 # Ok maybe not a complete infinite loooop but you get what i mean
                 break
@@ -491,11 +495,11 @@ class RootWidget(FloatLayout):
         """
         Called from WAMP app component when message was received in a PubSub event.
         """
-        label = self.root.get_screen('welcome').ids["'ticker_label'"]
+        label = self.root_manager.get_screen('welcome').ids["'ticker_label'"]
         label.text = '[b]FOR '+msg+' Fr.[/b]'
-        btc_buy_label = self.root.get_screen('welcome').ids["'btc_buy'"]
+        btc_buy_label = self.root_manager.get_screen('welcome').ids["'btc_buy'"]
         btc_buy_label.text = msg
-        btc_buyfinish_label = self.root.get_screen('buy').ids["'buyfinishbtcprice'"]
+        btc_buyfinish_label = self.root_manager.get_screen('buy').ids["'buyfinishbtcprice'"]
         btc_buyfinish_label.text = '[font=MyriadPro-Bold.otf][b]1 BTC = '+msg+' BTC[/b][/font]'
         self.current_ticker = Decimal(msg)
     def update_sell_ticker(self, msg, hacky_fix=None):
@@ -572,7 +576,7 @@ class AtmClientApp(App):
         Create a WAMP session and start the WAMP component
         """
         self.session = None
-        
+
         # adapt to fit the Crossbar.io instance you're using
         url, realm = u"ws://82.196.2.166:8080/ws", u"realm1"
 
