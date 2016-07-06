@@ -287,7 +287,7 @@ class RootWidget(FloatLayout):
     def qr_thread(self):
         # This is the code executing in the new thread.
         #
-		# cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
+        # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
         pifacedigital = pifacedigitalio.PifaceDigital()
         pifacedigital.output.pins[0].turn_on() # this command does the same thing..
         pifacedigital.leds[0].turn_on() # as this command
@@ -320,17 +320,17 @@ class RootWidget(FloatLayout):
                         self.qr_thread_update_label_text(line[22:])
                         # wal.close()
                         execute.close(True)
-						#pifacedigital(ligth_off)
-	                    pifacedigital.output.pins[0].turn_off() # this command does the same thing..
-	                    pifacedigital.leds[0].turn_off() # as this command
+                        # pifacedigital(ligth_off)
+                        pifacedigital.output.pins[0].turn_off()  # this command does the same thing..
+                        pifacedigital.leds[0].turn_off()  # as this command
                         break
                 else:
                     if line != "" and line != None and line.startswith("QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
                         execute.close(True)
-						#pifacedigital(ligth_off)
-                    	pifacedigital.output.pins[0].turn_off() # this command does the same thing..
-                    	pifacedigital.leds[0].turn_off() # as this command
+                        #pifacedigital(ligth_off)
+                        pifacedigital.output.pins[0].turn_off() # this command does the same thing..
+                        pifacedigital.leds[0].turn_off() # as this command
                         break
             except pexpect.EOF:
                 # Ok maybe not a complete infinite loooop but you get what i mean
