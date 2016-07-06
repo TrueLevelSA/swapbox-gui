@@ -109,8 +109,8 @@ class WampComponent(ApplicationSession):
         ui.on_session(self)
         
         # subscribe to WAMP PubSub event and call the Kivy UI component when events are received
-        self.subscribe(ui.update_ticker, u"com.example.CHF")
-        print("subscribe to CHF")
+        self.subscribe(ui.update_ticker, u"com.example.chf")
+        print("subscribe to chf")
         #self.subscribe(ui.manager.update_sell_ticker, u"CHFSELL")
 
 
@@ -574,7 +574,7 @@ class AtmClientApp(App):
         self.session = None
         
         # adapt to fit the Crossbar.io instance you're using
-        url, realm = u"ws://localhost:8080/ws", u"realm1"
+        url, realm = u"ws://82.196.2.166:8080/ws", u"realm1"
 
         # Create our WAMP application component
         runner = ApplicationRunner(url=url,
