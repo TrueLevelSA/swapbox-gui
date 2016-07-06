@@ -51,7 +51,8 @@ import phonenumbers
 import os
 
 #For pifacedigital relay
-import pifacedigitalio
+if os.uname()[4].startswith("arm"):
+    import pifacedigitalio
 
 #for fullscreen
 #from kivy.core.window import Window
