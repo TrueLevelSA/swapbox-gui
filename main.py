@@ -49,6 +49,8 @@ from decimal import Decimal, ROUND_UP, ROUND_DOWN
 
 import requests
 import json
+#For pifacedigital relay
+import pifacedigitalio
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -107,7 +109,7 @@ class WampComponent(ApplicationSession):
         # get the Kivy UI component this session was started from
         ui = self.config.extra['ui']
         ui.on_session(self)
-        
+
         # subscribe to WAMP PubSub event and call the Kivy UI component when events are received
         self.subscribe(ui.update_ticker, u"com.example.CHF")
         print("subscribe to CHF")
@@ -155,8 +157,8 @@ class VerifyScreen(Screen):
 class MyScreenManager(ScreenManager):
     pass
 
-    
-    
+
+
 # root_widget = Builder.load_string('''
 # #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 
@@ -185,7 +187,7 @@ class RootWidget(FloatLayout):
         Called from WAMP session when attached to Crossbar router.
         """
         self.print_message("WAMP session connected!")
-        
+
         self.session = session
 
         self.root_manager.current = 'welcome'
@@ -209,7 +211,7 @@ class RootWidget(FloatLayout):
     for st in CROSSBAR_CLIENT_SETTER_TASKS:
       code = compile(st.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,st.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnData, "'+st.get('result_global_var')+'")', '<string>', 'exec')
       exec code in locals()
-      
+
     ### END SETTER TASKS STUFF ###
 
     ### START WIDGET GETTER TASKS STUFF ###
@@ -226,12 +228,12 @@ class RootWidget(FloatLayout):
       print "addming widget to " + kv_container
       addwidget = compile('self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
       exec addwidget in locals(), globals()
-      
+
     def remove_all_cb_widgets(self, container):
         #self.pizzas_widget.clear_widgets()
         removewidget = compile('self.'+container+'.clear_widgets()', '<string>', 'exec')
         exec removewidget in locals()#, globals()
-      
+
     def widget_properties(self, widget, **kwargs):
       for key in kwargs:
         setattr(widget, key, kwargs[key])
@@ -247,23 +249,23 @@ class RootWidget(FloatLayout):
 
     for wgt in CROSSBAR_CLIENT_WIDGET_GETTER_TASKS:
       #nsp = {'pizzas_container': pizzas_container}
-      
+
       nsp={}
       ic = compile('from autobahn.wamp.types import CallOptions', '<string>', 'exec')
       code = compile(wgt.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,wgt.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnWidgetData, "'+wgt.get('kivy_widget')+'", "'+wgt.get('kivy_widget_container')+'", "'+wgt.get('txt_field')+'")', '<string>', 'exec')
       exec ic in nsp
       exec code in nsp#locals()
       vars()[wgt.get('cb_rpc')] = nsp[wgt.get('cb_rpc')]
-    
+
     ### END WIDGET GETTER TASKS STUFF ###
 
     # @inlineCallbacks
     # def start_btm_process(self):
-    
+
     #   ## call a procedure we are allowed to call (so this should succeed)
     #   ##
     #   #try:
-    #   if self.session: 
+    #   if self.session:
     #       res = yield self.session.call(u'com.example.call_start_btm_process_task', "BUY")
     #       print("call result: {}".format(res))
     #       #except Exception as e:
@@ -271,7 +273,7 @@ class RootWidget(FloatLayout):
     # stop = threading.Event()
     # stop_scan = threading.Event()
     # current_ticker = Decimal(0)
-    
+
     def start_sendcoins_thread(self):
         threading.Thread(target=self.sendcoins_thread).start()
     def sendcoins_thread(self):
@@ -284,14 +286,18 @@ class RootWidget(FloatLayout):
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
         # This is the code executing in the new thread.
+        # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
+        pifacedigital = pifacedigitalio.PifaceDigital()
+        pifacedigital.output.pins[0].turn_on() # this command does the same thing..
+        pifacedigital.leds[0].turn_on() # as this command
         #cmd = 'zbarcam --prescale=320x320 /dev/video0'
         cmd = '/home/pi/Prog/zbar-build/test/a.out'
         execute = pexpect.spawn(cmd, [], 300)
         #qr_code = os.system(cmd)
         # print qr_code
         # self.qr_thread_update_label_text(qr_code)
-        # # Note: infinite looooop    
-        
+        # # Note: infinite looooop
+
         while True:
             # if self.stop.is_set():
             #     print "cancel qr scan"
@@ -312,6 +318,9 @@ class RootWidget(FloatLayout):
                     self.qr_thread_update_label_text(line[22:])
                     #wal.close()
                     execute.close(True)
+                    #pifacedigital(ligth_off)
+                    pifacedigital.output.pins[0].turn_off() # this command does the same thing..
+                    pifacedigital.leds[0].turn_off() # as this command
                     break
             except pexpect.EOF:
                 # Ok maybe not a complete infinite loooop but you get what i mean
@@ -340,8 +349,8 @@ class RootWidget(FloatLayout):
             print self.current_btm_process_id
             self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
         else:
-            label.text = "Invalid QR Code"         
-    
+            label.text = "Invalid QR Code"
+
     def stop_scanning(self):
         # The Kivy event loop is about to stop, set a stop signal;
         # otherwise the app window will close, but the Python process will
@@ -362,11 +371,11 @@ class RootWidget(FloatLayout):
         var = 1
         i = 0
         #self.stopflag = False
-        
+
 
         while not self.stop.is_set():
             poll = k.poll()
-            
+
             if len(poll) > 1:
                 if len(poll[1]) == 2:
                     print poll[1][0]
@@ -381,7 +390,7 @@ class RootWidget(FloatLayout):
                         print "Read on Channel " + str(poll[1][1])
                     if poll[1][0] == '0xe6':
                         print "Fraud on Channel " + str(poll[1][1])
-                                            
+
                     if poll[1][0] == '0xee':
                         print "Credit on Channel " + str(poll[1][1])
                         if poll[1][1] == 1:
@@ -389,7 +398,7 @@ class RootWidget(FloatLayout):
                             #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
                         if poll[1][1] == 2:
                             self.cashin_update_label_text("CHF:20")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)            
+                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)
                         if poll[1][1] == 3:
                             self.cashin_update_label_text("CHF:50")
                             #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:50"), -1)
@@ -403,7 +412,7 @@ class RootWidget(FloatLayout):
                         #    wx.CallAfter(self.SendInfo, "CHF:200")
                         #wx.CallAfter(self.SendInfo, k.unit_data())
                     i = 0
-                        
+
             time.sleep(0.5)
         self.stop.clear()
         #process the transaction
@@ -418,7 +427,7 @@ class RootWidget(FloatLayout):
 
             headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
             payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
-            
+
             r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
             print r.text
 
@@ -437,7 +446,7 @@ class RootWidget(FloatLayout):
             total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
             total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(0)+' Fr. = '+str(0)+' BTC[/b][/font]'
 
-        return   
+        return
     #@mainthread
     def cashin_update_label_text(self, new_credit):
         credit = str(new_credit)
@@ -485,7 +494,7 @@ class RootWidget(FloatLayout):
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
-             
+
 
     def update_ticker(self, msg, hacky_fix=None):
         """
@@ -513,7 +522,7 @@ class RootWidget(FloatLayout):
         text = str(new_text)
         print "the text"
         print text
-        label.text = text         
+        label.text = text
 
         qr = qrcode.QRCode(
             version=1,
@@ -538,16 +547,16 @@ class RootWidget(FloatLayout):
         imgn.save(img_tmp_file, 'PNG')
         img_tmp_file.close()
         self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
-        
-    
+
+
     def stop_scanning(self):
         # The Kivy event loop is about to stop, set a stop signal;
         # otherwise the app window will close, but the Python process will
         # keep running until all secondary threads exit.
         print "set self.stop.set"
         self.stop.set()
-    
-    
+
+
 
 class AtmClientApp(App):
     # def stop_scan(self):
@@ -559,12 +568,12 @@ class AtmClientApp(App):
         # WAMP session
 
         self.root = RootWidget()
-      
+
         #Clock.schedule_once(self.start_wamp_component, 1)
         self.start_wamp_component()
 
 
-        return self.root 
+        return self.root
         #return RootWidget()
 
     def start_wamp_component(self, t=None):
@@ -572,7 +581,7 @@ class AtmClientApp(App):
         Create a WAMP session and start the WAMP component
         """
         self.session = None
-        
+
         # adapt to fit the Crossbar.io instance you're using
         url, realm = u"ws://localhost:8080/ws", u"realm1"
 
@@ -602,7 +611,7 @@ if __name__ == '__main__':
     # def print_message(self, msg, test=None):
     #     print msg + "\n"
     #     #print test
-    
+
 
     # def build_config(self, config):
     #     config.setdefaults('example', {
