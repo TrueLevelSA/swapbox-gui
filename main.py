@@ -59,9 +59,10 @@ if os.uname()[4].startswith("arm"):
 #Window.fullscreen = False
 
 from kivy.config import Config
-Config.set('graphics', 'fullscreen', 'fake')
+#Config.set('graphics', 'fullscreen', 'fake')
 Config.set('kivy', 'exit_on_escape', 1)
-Config.set('kivy', 'desktop', 1)
+#Config.set('kivy', 'desktop', 1)
+Config.set('kivy', 'invert_x', 1)
 
 Config.write()
 
@@ -336,8 +337,8 @@ class RootWidget(FloatLayout):
         # This is the code executing in the new thread.
         #
         # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
-        pifacedigital = pifacedigitalio.PifaceDigital()
-        pifacedigital.output.pins[0].turn_on() # this command does the same thing..
+        pifacedigital = pifacedigitalio.PiFaceDigital()
+        pifacedigital.output_pins[0].turn_on() # this command does the same thing..
         pifacedigital.leds[0].turn_on() # as this command
 
         if os.uname()[4].startswith("arm"):
@@ -369,7 +370,7 @@ class RootWidget(FloatLayout):
                         # wal.close()
                         execute.close(True)
                         # pifacedigital(ligth_off)
-                        pifacedigital.output.pins[0].turn_off()  # this command does the same thing..
+                        pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
                         pifacedigital.leds[0].turn_off()  # as this command
                         break
                 else:
@@ -377,7 +378,7 @@ class RootWidget(FloatLayout):
                         self.qr_thread_update_label_text(line[8:])
                         execute.close(True)
                         #pifacedigital(ligth_off)
-                        pifacedigital.output.pins[0].turn_off() # this command does the same thing..
+                        pifacedigital.output_pins[0].turn_off() # this command does the same thing..
                         pifacedigital.leds[0].turn_off() # as this command
                         break
             except pexpect.EOF:
