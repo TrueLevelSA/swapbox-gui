@@ -1,6 +1,5 @@
 __version__ = "1.3.0"
 
-
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
@@ -83,11 +82,12 @@ class WampComponent(ApplicationSession):
     A simple WAMP app component run from the Kivy UI.
     """
     def onConnect(self):
-      print("connected. joining realm {} as user {} ...".format(self.config.realm, USER))
-      self.join(self.config.realm, [u"wampcra"], USER)
+        print("connected. joining realm {} as user {} ...".format(
+            self.config.realm, USER))
+        self.join(self.config.realm, [u"wampcra"], USER)
 
     def onChallenge(self, challenge):
-        #print challenge
+        # print challenge
         if challenge.method == u"wampcra":
             if u'salt' in challenge.extra:
                 print "deriving key"
@@ -99,11 +99,14 @@ class WampComponent(ApplicationSession):
             else:
                 print "using password"
                 key = PASSWORDS[USER].encode('utf8')
-            signature = auth.compute_wcs(key, challenge.extra['challenge'].encode('utf8'))
+            signature = auth.compute_wcs(
+                key, challenge.extra['challenge'].encode('utf8'))
             print signature.decode('ascii')
             return signature.decode('ascii')
         else:
-            raise Exception("don't know how to compute challenge for authmethod {}".format(challenge.method))
+            raise Exception(
+                "don't know how to compute challenge for authmethod {}".format(
+                    challenge.method))
 
     def onJoin(self, details):
         print("session ready", self.config.extra)
@@ -115,12 +118,13 @@ class WampComponent(ApplicationSession):
         # subscribe to WAMP PubSub event and call the Kivy UI component when events are received
         self.subscribe(ui.update_ticker, u"com.example.chf")
         print("subscribe to chf")
-        #self.subscribe(ui.manager.update_sell_ticker, u"CHFSELL")
+        # self.subscribe(ui.manager.update_sell_ticker, u"CHFSELL")
 
 
 class ColorDownButton(Button):
     """
-    Button with a possibility to change the color on on_press (similar to background_down in normal Button widget)
+    Button with a possibility to change the color on on_press
+    (similar to background_down in normal Button widget)
     """
     background_color_normal = ListProperty([0, 0, 0, 0.4])
     background_color_down = ListProperty([0, 0, 0, 0.6])
@@ -140,14 +144,23 @@ class ColorDownButton(Button):
 
 class WelcomeScreen(Screen):
     pass
+
+
 class ScanWalletScreen(Screen):
     pass
+
+
 class BuyScreen(Screen):
     pass
+
+
 class BuyFinishScreen(Screen):
     pass
+
+
 class SellSelectScreen(Screen):
     pass
+
 
 class VerifyScreen(Screen):
     def backward(self, express):
@@ -166,7 +179,8 @@ class MyScreenManager(ScreenManager):
 # ''')
 
 class RootWidget(FloatLayout):
-    '''This the class representing your root widget.
+    '''
+       This the class representing your root widget.
        By default it is inherited from ScreenManager,
        you can use any other layout/widget depending on your usage.
     '''
@@ -197,68 +211,101 @@ class RootWidget(FloatLayout):
         print msg + "\n"
 
 
-    ### START SETTER TASKS STUFF ###
+    # START SETTER TASKS STUFF #
 
     def returnData(self, d, result_global_var):
-      if result_global_var != 'None':
-        setattr(self, result_global_var, int(d))
-        print d
-      return d
-    #ns = {}
-    #returnfunc = compile('def returnData(d):    return d', '<string>', 'exec')
-    callopts = compile('from autobahn.wamp.types import CallOptions', '<string>', 'exec')
-    #exec returnfunc in ns
+        if result_global_var != 'None' and result_global_var != 'NaN':
+            setattr(self, result_global_var, int(d))
+        else:
+            setattr(self, result_global_var, d)
+        return d
+    # ns = {}
+    callopts = compile(
+      'from autobahn.wamp.types import CallOptions', '<string>', 'exec')
+    # exec returnfunc in ns
     exec callopts in locals()
     for st in CROSSBAR_CLIENT_SETTER_TASKS:
-      code = compile(st.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,st.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnData, "'+st.get('result_global_var')+'")', '<string>', 'exec')
-      exec code in locals()
+        code = compile(
+          st.get('cb_rpc')+' = lambda self, *args, **kwargs: self.session.call\
+          ("'+'.'.join([CROSSBAR_DOMAIN, st.get('cb_rpc')])+'", *args, **kwargs)\
+        .addCallback(self.returnData, "'+st.get('result_global_var')+'")',
+          '<string>', 'exec')
+        exec code in locals()
 
-    ### END SETTER TASKS STUFF ###
+    # END SETTER TASKS STUFF #
 
-    ### START WIDGET GETTER TASKS STUFF ###
-    def add_cb_widget(self, kv_widget, kv_container, item_id, text_field, **kwargs):
-      ns = {}
-      factoryimport = compile('from kivy.factory import Factory', '<string>', 'exec')
-      exec factoryimport in ns
-      widgetfactory = compile('widget = Factory.'+kv_widget+'()', '<string>', 'exec')
-      exec widgetfactory in ns
-      ns['widget'].id = str(item_id)
-      widget = self.widget_properties(ns['widget'], **kwargs)
-      if text_field != 'None':
-        widget.text = kwargs[text_field]
-      print "addming widget to " + kv_container
-      addwidget = compile('self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
-      exec addwidget in locals(), globals()
+    # START WIDGET GETTER TASKS STUFF #
+    def add_cb_widget(
+      self, kv_widget, kv_container, item_id, text_field, checked, **kwargs):
+        ns = {}
+        factoryimport = compile(
+          'from kivy.factory import Factory', '<string>', 'exec')
+        exec factoryimport in ns
+
+        widgetfactory = compile(
+          'widget = Factory.'+kv_widget+'()', '<string>', 'exec')
+        exec widgetfactory in ns
+
+        ns['widget'].id = str(item_id)
+        widget = self.widget_properties(ns['widget'], **kwargs)
+        if text_field != 'None':
+            widget.text = kwargs[text_field]
+
+        if checked:
+            widget.is_checked = True
+            self.current_address_id = int(item_id)
+        addwidget = compile(
+          'self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
+        exec addwidget in locals(), globals()
 
     def remove_all_cb_widgets(self, container):
-        #self.pizzas_widget.clear_widgets()
-        removewidget = compile('self.'+container+'.clear_widgets()', '<string>', 'exec')
-        exec removewidget in locals()#, globals()
+        # self.pizzas_widget.clear_widgets()
+        removewidget = compile(
+          'self.'+container+'.clear_widgets()', '<string>', 'exec')
+        exec removewidget in locals()  # , globals()
 
     def widget_properties(self, widget, **kwargs):
-      for key in kwargs:
-        setattr(widget, key, kwargs[key])
-      return widget
+        for key in kwargs:
+            setattr(widget, key, kwargs[key])
+        return widget
 
     def returnWidgetData(self, d, kv_widget, kv_container, text_field):
-      print "WIDGET DATA"
-      print d
-      r = json.loads(d)
-      for item in r:
-        self.add_cb_widget(kv_widget, kv_container, item.get("pk"), text_field, **item.get("fields"))
-      return d
+        print d
+        r = json.loads(d)
+        count = 0
+        for item in r:
+            self.add_cb_widget(
+              kv_widget,
+              kv_container,
+              item.get("pk"),
+              text_field,
+              False,
+              **item.get("fields")
+              )
+            count += 1
+        return d
 
     for wgt in CROSSBAR_CLIENT_WIDGET_GETTER_TASKS:
-      #nsp = {'pizzas_container': pizzas_container}
+        # nsp = {'pizzas_container': pizzas_container}
 
-      nsp={}
-      ic = compile('from autobahn.wamp.types import CallOptions', '<string>', 'exec')
-      code = compile(wgt.get('cb_rpc')+' = lambda self, *args: self.session.call("'+'.'.join([CROSSBAR_DOMAIN,wgt.get('cb_rpc')])+'", *args, options=CallOptions(disclose_me = True)).addCallback(self.returnWidgetData, "'+wgt.get('kivy_widget')+'", "'+wgt.get('kivy_widget_container')+'", "'+wgt.get('txt_field')+'")', '<string>', 'exec')
-      exec ic in nsp
-      exec code in nsp#locals()
-      vars()[wgt.get('cb_rpc')] = nsp[wgt.get('cb_rpc')]
+        nsp = {}
+        ic = compile(
+          'from autobahn.wamp.types import CallOptions', '<string>', 'exec')
+        if wgt.get('kv_name'):
+            kv_name = wgt.get('kv_name')
+        else:
+            kv_name = wgt.get('cb_rpc')
+        code = compile(
+          kv_name+' = lambda self, *args, **kwargs: self.session.call\
+          ("'+'.'.join([CROSSBAR_DOMAIN, wgt.get('cb_rpc')])+'", *args, **kwargs)\
+        .addCallback(self.returnWidgetData, "'+wgt.get('kivy_widget')+'", \
+          "'+wgt.get('kivy_widget_container')+'", "'+wgt.get('txt_field')+'")',
+          '<string>', 'exec')
+        exec ic in nsp
+        exec code in nsp  # locals()
+        vars()[kv_name] = nsp[wgt.get('cb_rpc')]
 
-    ### END WIDGET GETTER TASKS STUFF ###
+    # END WIDGET GETTER TASKS STUFF #
 
     # @inlineCallbacks
     # def start_btm_process(self):
@@ -277,11 +324,11 @@ class RootWidget(FloatLayout):
 
     def start_sendcoins_thread(self):
         threading.Thread(target=self.sendcoins_thread).start()
+
     def sendcoins_thread(self):
         # Worker thread to call the backend when transaction complete to actually send the coins
-        #unneeded now
+        # unneeded now
         pass
-
 
     def start_qr_thread(self):
         threading.Thread(target=self.qr_thread).start()
@@ -303,7 +350,7 @@ class RootWidget(FloatLayout):
         # print qr_code
         # self.qr_thread_update_label_text(qr_code)
         # # Note: infinite looooop
-        
+
         while True:
             # if self.stop.is_set():
             #     print "cancel qr scan"
@@ -346,7 +393,7 @@ class RootWidget(FloatLayout):
         text = str(new_text)
         print "the text"
         print text
-        text = text.replace('\"','').strip()
+        text = text.replace('\"', '').strip()
         print text
         address = text.split(":")
         if address[0] == "bitcoin":
