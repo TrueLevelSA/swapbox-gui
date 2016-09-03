@@ -49,9 +49,15 @@ import json
 import phonenumbers
 import os
 
+RELAY_METHOD = 'gpio'
+# RELAY_METHOD = 'piface'
+
 #For pifacedigital relay
 if os.uname()[4].startswith("arm"):
-    import pifacedigitalio
+    if RELAY_METHOD == 'piface':
+        import pifacedigitalio
+    elif RELAY_METHOD == 'gpio':
+        import RPi.GPIO as GPIO
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -337,9 +343,14 @@ class RootWidget(FloatLayout):
         # This is the code executing in the new thread.
         #
         # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
-        pifacedigital = pifacedigitalio.PiFaceDigital()
-        pifacedigital.output_pins[0].turn_on() # this command does the same thing..
-        pifacedigital.leds[0].turn_on() # as this command
+        if RELAY_METHOD == 'piface':
+            pifacedigital = pifacedigitalio.PiFaceDigital()
+            pifacedigital.output_pins[0].turn_on() # this command does the same thing..
+            pifacedigital.leds[0].turn_on() # as this command
+        elif RELAY_METHOD == 'gpio':
+            GPIO.setmode(GPIO.BOARD)
+            GPIO.setup(7, GPIO.OUT)
+            GPIO.output(7, GPIO.LOW)
 
         if os.uname()[4].startswith("arm"):
             cmd = '/home/pi/Prog/zbar-build/test/a.out'
@@ -369,17 +380,23 @@ class RootWidget(FloatLayout):
                         self.qr_thread_update_label_text(line[22:])
                         # wal.close()
                         execute.close(True)
-                        # pifacedigital(ligth_off)
-                        pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
-                        pifacedigital.leds[0].turn_off()  # as this command
+                        if RELAY_METHOD == 'piface':
+                            # pifacedigital(ligth_off)
+                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
+                            pifacedigital.leds[0].turn_off()  # as this command
+                        elif RELAY_METHOD == 'gpio'
+                            GPIO.output(7, GPIO.HIGH)
                         break
                 else:
                     if line != "" and line != None and line.startswith("QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
                         execute.close(True)
-                        #pifacedigital(ligth_off)
-                        pifacedigital.output_pins[0].turn_off() # this command does the same thing..
-                        pifacedigital.leds[0].turn_off() # as this command
+                        if RELAY_METHOD == 'piface':
+                            # pifacedigital(ligth_off)
+                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
+                            pifacedigital.leds[0].turn_off()  # as this command
+                        elif RELAY_METHOD == 'gpio'
+                            GPIO.output(7, GPIO.HIGH)
                         break
             except pexpect.EOF:
                 # Ok maybe not a complete infinite loooop but you get what i mean
