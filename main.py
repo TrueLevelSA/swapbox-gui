@@ -384,7 +384,7 @@ class RootWidget(FloatLayout):
                             # pifacedigital(ligth_off)
                             pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
                             pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio'
+                        elif RELAY_METHOD == 'gpio':
                             GPIO.output(7, GPIO.HIGH)
                         break
                 else:
@@ -395,7 +395,7 @@ class RootWidget(FloatLayout):
                             # pifacedigital(ligth_off)
                             pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
                             pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio'
+                        elif RELAY_METHOD == 'gpio':
                             GPIO.output(7, GPIO.HIGH)
                         break
             except pexpect.EOF:
