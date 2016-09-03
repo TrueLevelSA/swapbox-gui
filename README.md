@@ -32,6 +32,10 @@ in /boot/config.txt set:
 
     gpu_mem=256
 
+in /etc/uv4l/uv4l-raspicam.conf To adjust raspberry preview window size and location:
+
+    
+
 For inverted screen (bblack machine)
 -------------------
 
