@@ -58,6 +58,7 @@ if os.uname()[4].startswith("arm"):
         import pifacedigitalio
     elif RELAY_METHOD == 'gpio':
         import RPi.GPIO as GPIO
+        GPIO.cleanup()
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -325,8 +326,9 @@ class RootWidget(FloatLayout):
     #       print("call result: {}".format(res))
     #       #except Exception as e:
     #       #   print("call error: {}".format(e))
-    # stop = threading.Event()
-    # stop_scan = threading.Event()
+    stop = threading.Event()
+    stop_scan = threading.Event()
+    stopcashin = threading.Event()
     # current_ticker = Decimal(0)
 
     def start_sendcoins_thread(self):
@@ -350,6 +352,7 @@ class RootWidget(FloatLayout):
         elif RELAY_METHOD == 'gpio':
             GPIO.setmode(GPIO.BOARD)
             GPIO.setup(7, GPIO.OUT)
+            GPIO.output(7, GPIO.HIGH)
             GPIO.output(7, GPIO.LOW)
 
         if os.uname()[4].startswith("arm"):
@@ -432,7 +435,7 @@ class RootWidget(FloatLayout):
         # otherwise the app window will close, but the Python process will
         # keep running until all secondary threads exit.
         print "set self.stop.set"
-        self.stop.set()
+        self.stop_scan.set()
 
     def start_cashin_thread(self):
         threading.Thread(target=self.cashin_thread).start()
@@ -449,7 +452,7 @@ class RootWidget(FloatLayout):
         #self.stopflag = False
 
 
-        while not self.stop.is_set():
+        while not self.stopcashin.is_set():
             poll = k.poll()
 
             if len(poll) > 1:
@@ -491,6 +494,8 @@ class RootWidget(FloatLayout):
 
             time.sleep(0.5)
         self.stop.clear()
+        self.stop_scan.clear()
+        self.stopcashin.clear()
         #process the transaction
 
         #get the total, hacky for now
@@ -626,12 +631,11 @@ class RootWidget(FloatLayout):
 
 
     def stop_scanning(self):
-        # The Kivy event loop is about to stop, set a stop signal;
-        # otherwise the app window will close, but the Python process will
-        # keep running until all secondary threads exit.
         print "set self.stop.set"
-        self.stop.set()
-
+        self.stop_scan.set()
+    def stop_cashin(self):
+        print "set stop.cashin"
+        self.stopcashin.set()
 
 
 class AtmClientApp(App):

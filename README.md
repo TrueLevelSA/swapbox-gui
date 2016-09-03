@@ -53,3 +53,8 @@ in /boot/config.txt to set resolution for shitty screen (480x848)
 in /boot/config.txt to rotate screen 180 deg:
 
     display_rotate=2
+
+Run (with logfile)
+------------------
+
+    python main.py > logoutput.txt
