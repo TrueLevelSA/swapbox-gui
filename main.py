@@ -34,7 +34,7 @@ from kivy.uix.settings import SettingsWithSidebar
 import time
 
 
-from kivy.clock import Clock###, mainthread
+from kivy.clock import Clock, mainthread
 from functools import partial
 import threading
 import time
@@ -532,19 +532,19 @@ class RootWidget(FloatLayout):
     def cashin_update_label_text(self, new_credit):
         credit = str(new_credit)
         cr = credit.split(":")
-        total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
+        total_quote_label = self.root_manager.get_screen('buy').ids["'total_quote'"]
         gettotal = total_quote_label.text.split(" ")
         newtotal = int(gettotal[0].split("[b]")[1]) + int(cr[1])
         newtotalquote = Decimal(newtotal) / Decimal(self.current_ticker)
         newtotalquote_rounded = newtotalquote.quantize(Decimal('.00000001'), rounding=ROUND_DOWN)
         total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(newtotal)+' Fr. = '+str(newtotalquote_rounded)+' BTC[/b][/font]'
 
-        amount_sending_finished_label = self.root.get_screen('buyfinish').ids["'amount_sending_finished'"]
+        amount_sending_finished_label = self.root_manager.get_screen('buyfinish').ids["'amount_sending_finished'"]
         amount_sending_finished_label.text = 'WE ARE SENDING YOUR '+str(newtotalquote_rounded)+' BITCOINS'
 
         if cr[1] == "10":
             #self.channel1_count += 1
-            label = self.root.get_screen('buy').ids["'cashin10'"]
+            label = self.root_manager.get_screen('buy').ids["'cashin10'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
@@ -553,25 +553,25 @@ class RootWidget(FloatLayout):
             #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
         if cr[1] == "20":
             #self.channel2_count += 1
-            label = self.root.get_screen('buy').ids["'cashin20'"]
+            label = self.root_manager.get_screen('buy').ids["'cashin20'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "50":
             #self.channel3_count += 1
-            label = self.root.get_screen('buy').ids["'cashin50'"]
+            label = self.root_manager.get_screen('buy').ids["'cashin50'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "100":
             #self.channel4_count += 1
-            label = self.root.get_screen('buy').ids["'cashin100'"]
+            label = self.root_manager.get_screen('buy').ids["'cashin100'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
         if cr[1] == "200":
             #self.channel5_count += 1
-            label = self.root.get_screen('buy').ids["'cashin200'"]
+            label = self.root_manager.get_screen('buy').ids["'cashin200'"]
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
