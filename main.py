@@ -382,6 +382,7 @@ class RootWidget(FloatLayout):
                     if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
                         self.qr_thread_update_label_text(line[22:])
                         # wal.close()
+                        print "found qr: %s" % line[22:]
                         execute.close(True)
                         if RELAY_METHOD == 'piface':
                             # pifacedigital(ligth_off)
