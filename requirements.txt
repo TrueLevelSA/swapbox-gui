@@ -1,7 +1,10 @@
 pexpect
-requests
-cython
-pyserial
+Cython
+pygame
 kivy
-pifacedigitalio
+pillow
 pyyaml
+pyzmq
+requests
+pyserial
+pifacedigitalio

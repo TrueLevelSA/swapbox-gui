@@ -34,7 +34,7 @@ in /boot/config.txt set:
 
 in /etc/uv4l/uv4l-raspicam.conf To adjust raspberry preview window size and location:
 
-    
+
 
 For inverted screen (bblack machine)
 -------------------
@@ -58,3 +58,8 @@ Run (with logfile)
 ------------------
 
     python main.py > logoutput.txt
+
+
+TO-DO
+-----
+- Implement new SSP lib

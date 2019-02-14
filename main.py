@@ -34,7 +34,7 @@ import threading
 import time
 import pexpect
 #for Note Validator
-import eSSP
+#import eSSP
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
 
 import requests
@@ -140,11 +140,11 @@ class RootWidget(FloatLayout):
         ns = {}
         factoryimport = compile(
           'from kivy.factory import Factory', '<string>', 'exec')
-        exec factoryimport in ns
+        exec(factoryimport, ns)
 
         widgetfactory = compile(
           'widget = Factory.'+kv_widget+'()', '<string>', 'exec')
-        exec widgetfactory in ns
+        exec(widgetfactory, ns)
 
         ns['widget'].id = str(item_id)
         widget = self.widget_properties(ns['widget'], **kwargs)
@@ -156,13 +156,13 @@ class RootWidget(FloatLayout):
             self.current_address_id = int(item_id)
         addwidget = compile(
           'self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
-        exec addwidget in locals(), globals()
+        exec(addwidget, locals(), globals())
 
     def remove_all_cb_widgets(self, container):
         # self.pizzas_widget.clear_widgets()
         removewidget = compile(
           'self.'+container+'.clear_widgets()', '<string>', 'exec')
-        exec removewidget in locals()  # , globals()
+        exec(removewidget, locals())  # , globals()
 
     def widget_properties(self, widget, **kwargs):
         for key in kwargs:
@@ -170,7 +170,7 @@ class RootWidget(FloatLayout):
         return widget
 
     def returnWidgetData(self, d, kv_widget, kv_container, text_field):
-        print d
+        print(d)
         r = json.loads(d)
         count = 0
         for item in r:
@@ -237,12 +237,12 @@ class RootWidget(FloatLayout):
                 execute.expect('\n')
                 # Get last line fron expect
                 line = execute.before
-                print line
+                print(line)
                 if os.uname()[4].startswith("arm"):
                     if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
                         self.qr_thread_update_label_text(line[22:])
                         # wal.close()
-                        print "found qr: %s" % line[22:]
+                        print("found qr: %s" % line[22:])
                         execute.close(True)
                         if RELAY_METHOD == 'piface':
                             # pifacedigital(ligth_off)
@@ -266,27 +266,27 @@ class RootWidget(FloatLayout):
                 # Ok maybe not a complete infinite loooop but you get what i mean
                 break
             except pexpect.TIMEOUT:
-                print "timeout"
+                print("timeout")
                 break
         return
     ###@mainthread
     def qr_thread_update_label_text(self, new_text):
         label = self.root_manager.get_screen('buy').ids["'to_address'"]
         text = str(new_text)
-        print "the text"
-        print text
+        print("the text")
+        print(text)
         text = text.replace('\"', '').strip()
-        print text
+        print(text)
         address = text.split(":")
         if address[0] == "bitcoin":
             label.text = address[1].rstrip()
-            print address[1]
+            print(address[1])
             self.root_manager.current = 'buy'
             self.start_cashin_thread()
 
             #send call to backend with currency and customer crypto address
-            print "CHECK THIS YO"
-            print self.current_btm_process_id
+            print("CHECK THIS YO")
+            print(self.current_btm_process_id)
             self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
         else:
             label.text = "Invalid QR Code"
@@ -295,7 +295,7 @@ class RootWidget(FloatLayout):
         # The Kivy event loop is about to stop, set a stop signal;
         # otherwise the app window will close, but the Python process will
         # keep running until all secondary threads exit.
-        print "set self.stop.set"
+        print("set self.stop.set")
         self.stop_scan.set()
 
     def start_cashin_thread(self):
@@ -303,10 +303,10 @@ class RootWidget(FloatLayout):
     def cashin_thread(self):
         """Run Worker Thread."""
         k = eSSP.eSSP('/dev/ttyUSB0')
-        print k.sync()
-        print k.enable_higher_protocol()
-        print k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00')
-        print k.enable()
+        print(k.sync())
+        print(k.enable_higher_protocol())
+        print(k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00'))
+        print(k.enable())
         #Publisher().subscribe(self.stoprun, "stoprun")
         var = 1
         i = 0
@@ -318,21 +318,21 @@ class RootWidget(FloatLayout):
 
             if len(poll) > 1:
                 if len(poll[1]) == 2:
-                    print poll[1][0]
+                    print(poll[1][0])
                     if poll[1][0] == '0xef':
                         if poll[1][1] == 1 or poll[1][1] == 3:
                             while i < 2:
                                 k.hold()
-                                print "Hold " + str(i)
+                                print("Hold " + str(i))
                                 time.sleep(0.5)
                                 i += 1
                     if poll[1][0] == '0xef':
-                        print "Read on Channel " + str(poll[1][1])
+                        print("Read on Channel " + str(poll[1][1]))
                     if poll[1][0] == '0xe6':
-                        print "Fraud on Channel " + str(poll[1][1])
+                        print("Fraud on Channel " + str(poll[1][1]))
 
                     if poll[1][0] == '0xee':
-                        print "Credit on Channel " + str(poll[1][1])
+                        print("Credit on Channel " + str(poll[1][1]))
                         if poll[1][1] == 1:
                             self.cashin_update_label_text("CHF:10")
                             #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
@@ -371,7 +371,7 @@ class RootWidget(FloatLayout):
             payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
 
             r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
-            print r.text
+            print(r.text)
 
             #reset the labels
             label = self.root.get_screen('buy').ids["'cashin10'"]
@@ -441,8 +441,8 @@ class RootWidget(FloatLayout):
     def generate_thread_update_label_text(self, new_text):
         label = self.get_screen('generate').ids["'generate_status'"]
         text = str(new_text)
-        print "the text"
-        print text
+        print("the text")
+        print(text)
         label.text = text
 
         qr = qrcode.QRCode(
@@ -455,14 +455,14 @@ class RootWidget(FloatLayout):
         qr.make(fit=True)
         img = self.get_screen('generate').ids["'generate_qr'"]
         imgn = qr.make_image()
-        print imgn
-        print dir(imgn)
+        print(imgn)
+        print(dir(imgn))
         #data = io.BytesIO(open("image.png", "rb").read())
-        print "before coreimage"
+        print("before coreimage")
         #imgo = CoreImage(imgn)
-        print "after coreimage"
+        print("after coreimage")
         #print imgo
-        print dir(img)
+        print(dir(img))
         #img.canvas.clear()
         img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
         imgn.save(img_tmp_file, 'PNG')
@@ -471,10 +471,10 @@ class RootWidget(FloatLayout):
 
 
     def stop_scanning(self):
-        print "set self.stop.set"
+        print("set self.stop.set")
         self.stop_scan.set()
     def stop_cashin(self):
-        print "set stop.cashin"
+        print("set stop.cashin")
         self.stopcashin.set()
 
 
@@ -530,16 +530,16 @@ class AtmClientApp(App):
 
     @mainthread
     def change_language(self, lang):
-        print "change language to %s" % lang
+        print("change language to %s" % lang)
         self.l = self.lang[lang]
-        print self.l
+        print(self.l)
 
     def build(self):
         self.zmq_connect()
 
         self.lang = yaml.load(open("lang.yaml", "r"))
         self.LANGUAGES = [language for language in self.lang]
-        print self.LANGUAGES
+        print(self.LANGUAGES)
         # self.language = self.lang
 
         self.root = RootWidget()
