@@ -3,19 +3,41 @@ README
 
 This project provides a lovely kivy interface for ATM4COIN
 
-Dependencies
+Dependencies (Linux/mac)
 ------------
 
 Kivy >= 1.8.0
 zbarcam (qr scanner)
 devilspie2
 
-# Install zbar
-    on mac:
-    $ brew install zbar
 
-    on ubuntu:
-    $ apt-get install zbar-tools
+# Install zbar
+```
+# on mac:
+brew install zbar
+
+# on ubuntu:
+apt-get install zbar-tools
+```
+
+Dependencies (RasPi)
+------------
+
+Kivy >= 1.8.0
+
+
+Installation
+------------
+```
+# Install python deps
+pip3 install -r requirements.txt
+```
+
+Running
+-------
+```
+python main.py
+```
 
 
 Setup Instructions

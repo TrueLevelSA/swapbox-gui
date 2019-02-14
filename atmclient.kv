@@ -1,3 +1,8 @@
+<Background@Image>:
+    source: 'bg2.png'
+    allow_stretch: True
+    keep_ratio: False
+    size_hint: 1, 1
 <LanguageBar@GridLayout>:
     cols: 1
     width: 180
@@ -49,10 +54,7 @@
         size_hint: 1,1
         Screen:
             name: 'LoadingScreen'
-            Image:
-                source: 'bg2.png'
-                allow_stretch: True
-                keep_ratio: False
+            Background:
             Label:
                 text: 'Please Wait Connecting'
         WelcomeScreen:
@@ -66,11 +68,7 @@
 <WelcomeScreen>:
     id: 'welcome_screen'
     name: 'welcome'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
+    Background:
     GridLayout:
         cols:2
         padding: 5
@@ -291,11 +289,7 @@
 
 <ScanWalletScreen>:
     name: 'scanwallet'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
+    Background:
     GridLayout:
         cols:2
         padding: 5
@@ -363,22 +357,8 @@
                     text: ''
                 Label:
                     text: ''
-                # ColorDownButton:
-                #     text: 'CANCEL'
-                #     color: 1,1,1,0
-                #     background_color: 0,0,0,0
-                #     background_olor_normal: 0,0,0,0
-                #     background_color_down: 0,0,0,0
-                #     font_size: 30
-                # ColorDownButton:
-                #     text: 'SCAN'
-                #     color: 1,1,1,0
-                #     background_color_normal: 0,0,0,0
-                #     background_color_down: 0,0,0,0
-                #     font_size: 30
-                #     #on_release: app.root.current = 'buy'
                 ColorDownButton:
-                    text: 'CANCEL'
+                    text: app.l["cancel"]
                     color: 1,1,1,0
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
@@ -388,11 +368,7 @@
 
 <BuyScreen>:
     name: 'buy'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
+    Background:
     GridLayout:
         cols:2
         padding: 5
@@ -404,7 +380,7 @@
             spacing: 10,0
             height: 10
             Label:
-                text: '[b][font=MyriadPro-Bold.otf]INSERT CASH[/font][/b]'
+                text: '[b][font=MyriadPro-Bold.otf]{}[/font][/b]'.format(app.l["insertcash"])
                 markup: True
                 halign: 'left'
                 text_size: self.size
@@ -589,11 +565,7 @@
 
 <BuyFinishScreen>:
     name: 'buyfinish'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
+    Background:
     LanguageBar:
         BoxLayout:
             orientation: 'vertical'
@@ -653,11 +625,7 @@
 
 <SellSelectScreen>:
     name: 'sellselect'
-    Image:
-        source: 'bg2.png'
-        allow_stretch: True
-        keep_ratio: False
-        size_hint: 1, 1
+    Background:
     GridLayout:
         cols:2
         padding: 5
@@ -797,50 +765,3 @@
                     background_color_down: 0,0,0,0.6
                     font_size: 30
                     ###on_release: app.root.current = 'buyfinish'
-
-
-#<BuyScreen>:
-#    name: 'buy'
-#    Image:
-#        source: 'bg2.png'
-#        allow_stretch: True
-#        keep_ratio: False
-#    BoxLayout:
-#        orientation: 'vertical'
-#        Label:
-#            text: 'Please insert fiat crap!'
-#            font_size: 30
-#        BoxLayout:
-#            height: 100
-#            size_hint: (1, None)
-#            Button:
-#                text: 'Go Back'
-#                font_size: 30
-#                on_release: app.root.current = 'welcome'
-#            Button:
-#                text: 'Continue'
-#                font_size: 30
-#                on_release: app.root.new_colour_screen()
-
-<ColourScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: 'colour {:.2},{:.2},{:.2} screen'.format(*root.colour[:3])
-            font_size: 30
-        Widget:
-            canvas:
-                Color:
-                    rgba: root.colour
-                Ellipse:
-                    pos: self.pos
-                    size: self.size
-        BoxLayout:
-            Button:
-                text: 'goto first screen'
-                font_size: 30
-                ###on_release: app.root.current = 'welcome'
-            Button:
-                text: 'get random colour screen'
-                font_size: 30
-                ###on_release: app.root.new_colour_screen()

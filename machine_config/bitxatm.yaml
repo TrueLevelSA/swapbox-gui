@@ -1,0 +1,14 @@
+# BTM Machine client settings
+server_url: ws://localhost:8888/ws
+server_realm: realm1
+machine_id: peter
+machine_secret: secret1
+# Validator Settings
+validator_port: /dev/ttyUSB0
+validator_nv11: False
+# Camera Settings (set to false if unused)
+camera_device: false
+# LED Relay (set to false if unused)
+relay_method: false
+# set to false to use camera (signed) auth
+admin_pin: 1234

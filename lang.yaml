@@ -14,6 +14,8 @@ English:
   walletscan: SCAN WALLET
   presentqr: Please present your QR code
   cameraloading: please wait, camera loading ..
+  # buy page
+  insertcash: INSERT CASH
 
   welcome: Welcome to Atola BTM. Press on the screen to continue
   admin_menu: Admin
@@ -42,6 +44,8 @@ French:
   walletscan: SCAN WALLET
   presentqr: S'il vous plaît présenter votre code QR
   cameraloading: veuillez patienter, chargement de la caméra ..
+  # buy page
+  insertcash: INSERER DE L'ARGENT
 
   validate: Valider
   confirm: Confirmer

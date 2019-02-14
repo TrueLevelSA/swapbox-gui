@@ -3,7 +3,9 @@ Cython
 pygame
 kivy
 pillow
-pyyaml
+argument
+path.py
+strictyaml
 pyzmq
 requests
 pyserial

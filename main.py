@@ -1,6 +1,6 @@
 __version__ = "1.3.0"
 
-import yaml
+#import yaml
 
 from kivy.app import App
 from kivy.base import runTouchApp
@@ -47,17 +47,40 @@ from threading import Thread
 
 
 
-# RELAY_METHOD = 'gpio'
-# RELAY_METHOD = 'piface'
-RELAY_METHOD = None
+from path import Path
+import strictyaml
+import argument
 
-#For pifacedigital relay
+# Get config file as required arguemnt and load
+f = argument.Arguments()
+f.always("config", help="Machine Config file name")
+arguments, errors = f.parse()
+
+if arguments.get("config") is not None:
+    machine_config = strictyaml.load(Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
+else:
+    print("Config file must be specified")
+    exit(0)
+
+RELAY_METHOD = machine_config.get("relay_method")
+NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
+VALIDATOR_PORT = machine_config.get("validator_port")
+USER = machine_config.get("machine_id")
+USER_PASSWORD = machine_config.get("machine_secret")
+SERVER_URL = machine_config.get("server_url")
+SERVER_REALM = machine_config.get("server_realm")
+
+# For pifacedigital relay
 if os.uname()[4].startswith("arm"):
     if RELAY_METHOD == 'piface':
         import pifacedigitalio
     elif RELAY_METHOD == 'gpio':
         import RPi.GPIO as GPIO
         GPIO.cleanup()
+else:
+    RELAY_METHOD = None
+    ZBAR_VIDEO_DEVICE = '/dev/video1'
+
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -517,7 +540,7 @@ class AtmClientApp(App):
     #     self.root.stop_scan.set()
 
     price = ObjectProperty({'buy_price': 0, 'sell_price': 0})
-    l = ObjectProperty(yaml.load(open("lang.yaml", "r"))['English'])
+    l = ObjectProperty(strictyaml.load("lang.yaml").data['English'])
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self)
@@ -537,7 +560,9 @@ class AtmClientApp(App):
     def build(self):
         self.zmq_connect()
 
-        self.lang = yaml.load(open("lang.yaml", "r"))
+
+        self.lang = strictyaml.load("lang.yaml").data
+        #self.lang = yaml.load(open("lang.yaml", "r"))
         self.LANGUAGES = [language for language in self.lang]
         print(self.LANGUAGES)
         # self.language = self.lang
