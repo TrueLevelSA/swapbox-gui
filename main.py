@@ -1,35 +1,29 @@
 __version__ = "1.3.0"
 
+import yaml
+
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+
 # Kivy's install_twisted_rector MUST be called early on!
-from kivy.support import install_twisted_reactor
-install_twisted_reactor()
+#from kivy.support import install_twisted_reactor
+#install_twisted_reactor()
 
 
 #from kivy.uix.camera import Camera
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import NumericProperty, ObjectProperty
 
-
-from twisted.internet.defer import inlineCallbacks
-
-from autobahn.twisted.wamp import ApplicationSession, ApplicationRunner
-
-from autobahn.wamp.types import CallOptions
-
-from autobahn.wamp import auth
+from kivy.logger import Logger
 
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 
 #for settings window
 from kivy.uix.settings import SettingsWithSidebar
-
-#from settingsjson import settings_json
 
 import time
 
@@ -45,12 +39,17 @@ from decimal import Decimal, ROUND_UP, ROUND_DOWN
 
 import requests
 import json
-# for phone number validation
-import phonenumbers
+
 import os
 
-RELAY_METHOD = 'gpio'
+import zmq
+from threading import Thread
+
+
+
+# RELAY_METHOD = 'gpio'
 # RELAY_METHOD = 'piface'
+RELAY_METHOD = None
 
 #For pifacedigital relay
 if os.uname()[4].startswith("arm"):
@@ -72,61 +71,6 @@ Config.set('kivy', 'exit_on_escape', 1)
 Config.set('kivy', 'invert_x', 1)
 
 Config.write()
-
-import crosstalk_client_settings
-CROSSBAR_CLIENT_SETTER_TASKS = crosstalk_client_settings.CROSSBAR_CLIENT_SETTER_TASKS
-CROSSBAR_CLIENT_WIDGET_GETTER_TASKS = crosstalk_client_settings.CROSSBAR_CLIENT_WIDGET_GETTER_TASKS
-CROSSBAR_DOMAIN = crosstalk_client_settings.CROSSBAR_DOMAIN
-
-
-PASSWORDS = {
-    u'peter': u'secret1'
-}
-USER = "peter"
-
-class WampComponent(ApplicationSession):
-
-    """
-    A simple WAMP app component run from the Kivy UI.
-    """
-    def onConnect(self):
-        print("connected. joining realm {} as user {} ...".format(
-            self.config.realm, USER))
-        self.join(self.config.realm, [u"wampcra"], USER)
-
-    def onChallenge(self, challenge):
-        # print challenge
-        if challenge.method == u"wampcra":
-            if u'salt' in challenge.extra:
-                print "deriving key"
-                key = auth.derive_key(PASSWORDS[USER].encode('utf8'),
-                                      challenge.extra['salt'].encode('utf8'),
-                                      challenge.extra.get('iterations', 100),
-                                      challenge.extra.get('keylen', 16))
-                print key
-            else:
-                print "using password"
-                key = PASSWORDS[USER].encode('utf8')
-            signature = auth.compute_wcs(
-                key, challenge.extra['challenge'].encode('utf8'))
-            print signature.decode('ascii')
-            return signature.decode('ascii')
-        else:
-            raise Exception(
-                "don't know how to compute challenge for authmethod {}".format(
-                    challenge.method))
-
-    def onJoin(self, details):
-        print("session ready", self.config.extra)
-
-        # get the Kivy UI component this session was started from
-        ui = self.config.extra['ui']
-        ui.on_session(self)
-
-        # subscribe to WAMP PubSub event and call the Kivy UI component when events are received
-        self.subscribe(ui.update_ticker, u"com.example.chf")
-        print("subscribe to chf")
-        # self.subscribe(ui.manager.update_sell_ticker, u"CHFSELL")
 
 
 class ColorDownButton(Button):
@@ -181,11 +125,6 @@ class MyScreenManager(ScreenManager):
     pass
 
 
-# root_widget = Builder.load_string('''
-# #:import SlideTransition kivy.uix.screenmanager.SlideTransition
-
-# ''')
-
 class RootWidget(FloatLayout):
     '''
        This the class representing your root widget.
@@ -194,53 +133,6 @@ class RootWidget(FloatLayout):
     '''
     root_manager = ObjectProperty()
     current_btm_process_id = NumericProperty()
-
-    def validate_phonenumber(self, cli):
-        if len(cli) > 6:
-            z = phonenumbers.parse(cli, None)
-            try:
-                r = phonenumbers.is_valid_number(z)
-                return r
-            except:
-                return False
-
-    # @inlineCallbacks
-    def on_session(self, session):
-        """
-        Called from WAMP session when attached to Crossbar router.
-        """
-        self.print_message("WAMP session connected!")
-
-        self.session = session
-
-        self.root_manager.current = 'welcome'
-
-    def print_message(self, msg, test=None):
-        print msg + "\n"
-
-
-    # START SETTER TASKS STUFF #
-
-    def returnData(self, d, result_global_var):
-        if result_global_var != 'None' and result_global_var != 'NaN':
-            setattr(self, result_global_var, int(d))
-        else:
-            setattr(self, result_global_var, d)
-        return d
-    # ns = {}
-    callopts = compile(
-      'from autobahn.wamp.types import CallOptions', '<string>', 'exec')
-    # exec returnfunc in ns
-    exec callopts in locals()
-    for st in CROSSBAR_CLIENT_SETTER_TASKS:
-        code = compile(
-          st.get('cb_rpc')+' = lambda self, *args, **kwargs: self.session.call\
-          ("'+'.'.join([CROSSBAR_DOMAIN, st.get('cb_rpc')])+'", *args, **kwargs)\
-        .addCallback(self.returnData, "'+st.get('result_global_var')+'")',
-          '<string>', 'exec')
-        exec code in locals()
-
-    # END SETTER TASKS STUFF #
 
     # START WIDGET GETTER TASKS STUFF #
     def add_cb_widget(
@@ -293,39 +185,7 @@ class RootWidget(FloatLayout):
             count += 1
         return d
 
-    for wgt in CROSSBAR_CLIENT_WIDGET_GETTER_TASKS:
-        # nsp = {'pizzas_container': pizzas_container}
 
-        nsp = {}
-        ic = compile(
-          'from autobahn.wamp.types import CallOptions', '<string>', 'exec')
-        if wgt.get('kv_name'):
-            kv_name = wgt.get('kv_name')
-        else:
-            kv_name = wgt.get('cb_rpc')
-        code = compile(
-          kv_name+' = lambda self, *args, **kwargs: self.session.call\
-          ("'+'.'.join([CROSSBAR_DOMAIN, wgt.get('cb_rpc')])+'", *args, **kwargs)\
-        .addCallback(self.returnWidgetData, "'+wgt.get('kivy_widget')+'", \
-          "'+wgt.get('kivy_widget_container')+'", "'+wgt.get('txt_field')+'")',
-          '<string>', 'exec')
-        exec ic in nsp
-        exec code in nsp  # locals()
-        vars()[kv_name] = nsp[wgt.get('cb_rpc')]
-
-    # END WIDGET GETTER TASKS STUFF #
-
-    # @inlineCallbacks
-    # def start_btm_process(self):
-
-    #   ## call a procedure we are allowed to call (so this should succeed)
-    #   ##
-    #   #try:
-    #   if self.session:
-    #       res = yield self.session.call(u'com.example.call_start_btm_process_task', "BUY")
-    #       print("call result: {}".format(res))
-    #       #except Exception as e:
-    #       #   print("call error: {}".format(e))
     stop = threading.Event()
     stop_scan = threading.Event()
     stopcashin = threading.Event()
@@ -357,7 +217,7 @@ class RootWidget(FloatLayout):
 
         if os.uname()[4].startswith("arm"):
             cmd = '/home/pi/Prog/zbar-build/test/a.out'
-        else:    
+        else:
             cmd = 'zbarcam --prescale=320x320 /dev/video0'
 
         execute = pexpect.spawn(cmd, [], 300)
@@ -576,27 +436,6 @@ class RootWidget(FloatLayout):
             qty = label.text[1:]
             qty_new = int(qty) + 1
             label.text = 'x'+str(qty_new)
-             
-
-    def update_ticker(self, msg, hacky_fix=None):
-        """
-        Called from WAMP app component when message was received in a PubSub event.
-        """
-        label = self.root_manager.get_screen('welcome').ids["'ticker_label'"]
-        label.text = '[b]FOR '+msg+' Fr.[/b]'
-        btc_buy_label = self.root_manager.get_screen('welcome').ids["'btc_buy'"]
-        btc_buy_label.text = msg
-        btc_buyfinish_label = self.root_manager.get_screen('buy').ids["'buyfinishbtcprice'"]
-        btc_buyfinish_label.text = '[font=MyriadPro-Bold.otf][b]1 BTC = '+msg+' BTC[/b][/font]'
-        self.current_ticker = Decimal(msg)
-    def update_sell_ticker(self, msg, hacky_fix=None):
-        """
-        Called from WAMP app component when message was received in a PubSub event.
-        """
-        btc_sell_label = self.root.get_screen('welcome').ids["'btc_sell'"]
-        btc_sell_label.text = msg
-
-        return
 
     ###@mainthread
     def generate_thread_update_label_text(self, new_text):
@@ -639,74 +478,98 @@ class RootWidget(FloatLayout):
         self.stopcashin.set()
 
 
+
+# def mainthread(func):
+#     def delayed_func(*args):
+#         def callback_func(dt):
+#             func(*args)
+#         Clock.schedule_once(callback_func, 0)
+#     return delayed_func
+
+port = '5556'
+
+class ZmqThread(Thread):
+    def __init__(self, app):
+        super(ZmqThread, self).__init__()
+        self.app = app
+        self.daemon = True
+
+    def run(self):
+        app = self.app
+        zctx = zmq.Context()
+        zsock = zctx.socket(zmq.SUB)
+        zsock.connect('tcp://localhost:{}'.format(port))
+        zsock.setsockopt(zmq.SUBSCRIBE,'priceticker')
+
+
+        while True:
+            topic, msg = zsock.recv_multipart()
+            Logger.info('   Topic: %s, msg:%s' % (topic, msg))
+
+            app.on_message(msg)
+
+
 class AtmClientApp(App):
     # def stop_scan(self):
     #     # The Kivy event loop is about to stop, set a stop signal;
     #     # otherwise the app window will close, but the Python process will
     #     # keep running until all secondary threads exit.
     #     self.root.stop_scan.set()
+
+    price = ObjectProperty({'buy_price': 0, 'sell_price': 0})
+    l = ObjectProperty(yaml.load(open("lang.yaml", "r"))['English'])
+
+    def zmq_connect(self):
+        self._zthread = ZmqThread(self)
+        self._zthread.start()
+
+    @mainthread
+    def on_message(self, data):
+        print(data)
+        self.price = json.loads(data)
+
+    @mainthread
+    def change_language(self, lang):
+        print "change language to %s" % lang
+        self.l = self.lang[lang]
+        print self.l
+
     def build(self):
-        # WAMP session
+        self.zmq_connect()
+
+        self.lang = yaml.load(open("lang.yaml", "r"))
+        self.LANGUAGES = [language for language in self.lang]
+        print self.LANGUAGES
+        # self.language = self.lang
 
         self.root = RootWidget()
 
-        #Clock.schedule_once(self.start_wamp_component, 1)
-        self.start_wamp_component()
+        # eg
+        self.transactions = {
+            'id':
+                {
+                    'timestamp': 28581305,
+                    'amount_fiat': 50,
+                    'type_fiat': 'CHF',
+                    'amount_crypto': 1.2,
+                    'type_crypto': 'ETH'
+                }
+        }
+        self.redeemcodes = {
+            'code1':
+                {
+                    'fiat': 70,
+                    'type': 'CHF'
+                }
+        }
 
+
+        Logger.info('Frontend Started')
+
+        self.root.root_manager.current = 'welcome'
 
         return self.root
-        #return RootWidget()
-
-    def start_wamp_component(self, t=None):
-        """
-        Create a WAMP session and start the WAMP component
-        """
-        self.session = None
-
-        # adapt to fit the Crossbar.io instance you're using
-        url, realm = u"ws://82.196.2.166:8080/ws", u"realm1"
-
-        # Create our WAMP application component
-        runner = ApplicationRunner(url=url,
-                                   realm=realm,
-                                   extra=dict(ui=self.root))
-
-        # Start our WAMP application component without starting the reactor because
-        # that was already started by kivy
-        runner.run(WampComponent, start_reactor=False)
 
 
 if __name__ == '__main__':
     AtmClientApp().run()
-
-
-    # def send_message(self, *args):
-    #     """
-    #     Called from UI when user has entered text and pressed RETURN.
-    #     """
-    #     msg = self.textbox.text
-    #     if msg and self.session:
-    #         self.session.publish(u"com.example.kivy", str(self.textbox.text))
-    #         self.textbox.text = ""
-
-    # def print_message(self, msg, test=None):
-    #     print msg + "\n"
-    #     #print test
-
-
-    # def build_config(self, config):
-    #     config.setdefaults('example', {
-    #         'boolexample': True,
-    #         'numericexample': 10,
-    #         'optionsexample': 'option2',
-    #         'stringexample': 'some_string',
-    #         'pathexample': '/some/path'})
-
-    # #def build_settings(self, settings):
-    # #    settings.add_json_panel('Panel Name',
-    # #                            self.config,
-    # #                            data=settings_json)
-
-    # def on_config_change(self, config, section,
-    #                      key, value):
-    #     print config, section, key, value

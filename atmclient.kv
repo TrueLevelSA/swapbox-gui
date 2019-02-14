@@ -1,5 +1,36 @@
+<LanguageBar@GridLayout>:
+    cols: 1
+    width: 180
+    spacing: 10
+    size_hint: .2,1
+    #Label:
+    #    text: 'Language'
+    #    font_size: 20
+    #    height: 0.25
+    #    color: 0,0,0,1
+    Button:
+        background_normal:'flags/large/EN.png'
+        background_down:'flags/large/EN.png'
+        on_press: app.change_language('English')
+    Button:
+        background_normal:'flags/large/FR.png'
+        background_down:'flags/large/FR.png'
+        on_press: app.change_language('French')
+    Button:
+        background_normal:'flags/large/DE.png'
+        background_down:'flags/large/DE.png'
+    Button:
+        background_normal:'flags/large/IT.png'
+        background_down:'flags/large/IT.png'
+    Button:
+        background_normal:'flags/large/ES.png'
+        background_down:'flags/large/ES.png'
+    Button:
+        background_normal:'flags/large/PT.png'
+        background_down:'flags/large/PT.png'
 <RootWidget>:
     root_manager: manager
+    language: app.l
     ActionBar:
         id: _action
         size_hint: 1,0.1
@@ -11,15 +42,7 @@
                 split_str: ''
                 title: 'Key Manager'
                 with_previous: False
-            # ActionButton:
-            #     split_str: ''
-            #     text: 'Use Existing Keys'
-            #     on_release:  root.manager.current = 'existingkeys'
 
-            # ActionButton:
-            #     split_str: ''
-            #     text: 'Generate New Keys'
-            #     on_release:  root.manager.current = 'generate'; app.root.manager.start_generate_thread()
     MyScreenManager:
         id: manager
         pos_hint: {'top': 1}
@@ -31,7 +54,7 @@
                 allow_stretch: True
                 keep_ratio: False
             Label:
-                text: 'Please Wait Connecting' 
+                text: 'Please Wait Connecting'
         WelcomeScreen:
         #VerifyScreen:
         ScanWalletScreen:
@@ -52,41 +75,14 @@
         cols:2
         padding: 5
         spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
+        LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 40
             spacing: 10,0
             height: 10,0
             Label:
-                text: '[b][font=MyriadPro-Bold.otf]1 BITCOIN[/font][/b]'
+                text: '[b][font=MyriadPro-Bold.otf]1 ETHER[/font][/b]'
                 markup: True
                 halign: 'left'
                 text_size: self.size
@@ -95,7 +91,7 @@
                 font_size: 70
             Label:
                 id: 'ticker_label'
-                text: '[b]FOR 0 Fr.[/b]'
+                text: '[b]FOR {} Fr.[/b]'.format(round(float(app.price["buy_price"]), 2))
                 markup: True
                 halign: 'left'
                 text_size: self.size
@@ -108,7 +104,7 @@
                 cols: 3
                 spacing: 10,0
                 Label:
-                    text: '[b]Currency[/b]'
+                    text: '[b]{}[/b]'.format(app.l["currency"])
                     markup: True
                     font_size: 40
                     color: 0,0,0,1
@@ -142,7 +138,7 @@
                             size: self.size
                             pos: self.pos
                 Label:
-                    text: 'BTC'
+                    text: 'ETH'
                     font_size: 40
                     color: 0,0,0,1
                     canvas.before:
@@ -153,7 +149,7 @@
                             pos: self.pos
                 Label:
                     id: 'btc_buy'
-                    text: '0.00'
+                    text: '{}'.format(round(float(app.price["buy_price"]), 2))
                     font_size: 40
                     color: 0,0,0,1
                     canvas.before:
@@ -164,7 +160,7 @@
                             pos: self.pos
                 Label:
                     id: 'btc_sell'
-                    text: '0.00'
+                    text: '{}'.format(round(float(app.price["sell_price"]), 2))
                     font_size: 40
                     color: 0,0,0,1
                     canvas.before:
@@ -271,165 +267,27 @@
                 padding: 0,10
                 size_hint: (1, None)
                 ColorDownButton:
-                    text: 'SEND'
+                    text: app.l["send"]
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
                     background_color_down: 0,0,0,0.6
                     font_size: 30
                     #on_release: app.root.current = 'verify'
                 ColorDownButton:
-                    text: 'BITCOIN'
+                    text: app.l["crypto"]
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
                     background_color_down: 0,0,0,0.6
                     font_size: 30
-                    on_release: root.manager.current = 'scanwallet'; app.root.call_start_btm_process_task("BUY"); app.root.start_qr_thread()
-                ColorDownButton: 
-                    text: 'CASH'
+                    on_release: root.manager.current = 'scanwallet'; app.root.start_qr_thread()#; app.root.call_start_btm_process_task("BUY")
+                ColorDownButton:
+                    text: app.l["cash"]
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
                     background_color_down: 0,0,0,0.6
                     font_size: 30
                     #on_release: app.open_settings()
                     #on_release: app.root.current = 'sellselect'
-
-# <VerifyScreen>:
-#     name: 'verify'
-#     Image:
-#         source: 'bg2.png'
-#         allow_stretch: True
-#         keep_ratio: False
-#     BoxLayout:
-#         orientation: 'vertical'
-#         padding: 20
-#         spacing: 5
-#         background_color: 1,0,0,0
-#         # Label:
-#         #     text: 'Please enter your phone number'
-#         #     font_size: 30
-#         #     size_hint: 1,0.4
-#         #     color: 0.5,0.5,0.5,1
-#         TextInput:
-#             id: input
-#             hint_text: 'Please enter your phone number'
-#             size_hint: 1, None
-#             readonly: True
-#             multiline: False
-#             font_size: 30
-#             border: 1,1,1,1
-
-#         GridLayout:
-#             rows: 4
-#             cols: 3
-#             spacing: 10
-#             padding: 150, 10
-#             ColorDownButton:
-#                     text: '1'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '2'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '3'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '4'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '5'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '6'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '7'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '8'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '9'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: 'C'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '0'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#             ColorDownButton:
-#                     text: '+'
-#                     color: 1,1,1,0
-#                     background_color: 0,0,0,0
-#                     background_color_normal: 0,0,0,0
-#                     background_color_down: 0,0,0,0
-#                     font_size: 26
-#                     on_press: input.text += self.text
-#         BoxLayout:
-#             height: 100
-#             size_hint: (1, None)
-#             Button:
-#                 text: 'Go Back'
-#                 font_size: 30
-#                 on_release: app.root.current = 'welcome'
-#             Button:
-#                 text: 'Continue'
-#                 font_size: 30
-#                 on_release: app.root.current = 'scanwallet'
 
 <ScanWalletScreen>:
     name: 'scanwallet'
@@ -442,34 +300,7 @@
         cols:2
         padding: 5
         spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
+        LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 10,0
@@ -493,7 +324,7 @@
                 color: 0,0,0,1
                 font_size: 50
                 text_size: self.size
-                
+
             #pricing/ticker grid
 
             GridLayout:
@@ -508,7 +339,7 @@
                         Rectangle:
                             size: self.size
                             pos: self.pos
-                
+
                 Image:
                     source: 'phoneqr.png'
                     size_hint: (10, 10)
@@ -520,7 +351,7 @@
                         Rectangle:
                             size: self.size
                             pos: self.pos
-            
+
             BoxLayout:
                 height: 100
                 spacing: 10
@@ -546,7 +377,7 @@
                 #     background_color_down: 0,0,0,0
                 #     font_size: 30
                 #     #on_release: app.root.current = 'buy'
-                ColorDownButton: 
+                ColorDownButton:
                     text: 'CANCEL'
                     color: 1,1,1,0
                     background_color_normal: 0,0,0,0
@@ -566,34 +397,7 @@
         cols:2
         padding: 5
         spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
+        LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 10,0
@@ -739,7 +543,7 @@
                             font_size: 40
                             text_size: self.size
                             color: 1,1,1,1
-                            
+
                         Label:
                             text: '[font=MyriadPro-Bold.otf][b]Limite 500 Fr.[/b][/font]'
                             markup: True
@@ -747,9 +551,9 @@
                             font_size: 40
                             text_size: self.size
                             color: 1,1,1,1
-                    
+
                 Label:
-                    padding: 0,0 
+                    padding: 0,0
                     spacing: 0
                     id: 'to_address'
                     text: 'N/A'
@@ -775,7 +579,7 @@
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0
                     font_size: 30
-                ColorDownButton: 
+                ColorDownButton:
                     text: 'FINISH'
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
@@ -790,38 +594,7 @@
         allow_stretch: True
         keep_ratio: False
         size_hint: 1, 1
-    GridLayout:
-        cols:2
-        padding: 5
-        spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
+    LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 40
@@ -844,7 +617,7 @@
                 color: 0,0,0,1
                 font_size: 50
                 text_size: self.size
-            #confirmation box 
+            #confirmation box
             BoxLayout:
                 id: 'amount_sending_finished'
                 orientation: 'vertical'
@@ -870,7 +643,7 @@
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
                     font_size: 30
-                ColorDownButton: 
+                ColorDownButton:
                     text: 'CLOSE'
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
@@ -889,34 +662,7 @@
         cols:2
         padding: 5
         spacing: 2
-        GridLayout:
-            cols: 1
-            width: 180
-            spacing: 10
-            size_hint: .2,1
-            #Label:
-            #    text: 'Language'
-            #    font_size: 20
-            #    height: 0.25
-            #    color: 0,0,0,1
-            Button:
-                background_normal:'flags/large/EN.png'
-                background_down:'flags/large/EN.png'
-            Button:
-                background_normal:'flags/large/FR.png'
-                background_down:'flags/large/FR.png'
-            Button:
-                background_normal:'flags/large/DE.png'
-                background_down:'flags/large/DE.png'
-            Button:
-                background_normal:'flags/large/IT.png'
-                background_down:'flags/large/IT.png'
-            Button:
-                background_normal:'flags/large/ES.png'
-                background_down:'flags/large/ES.png'
-            Button:
-                background_normal:'flags/large/PT.png'
-                background_down:'flags/large/PT.png'
+        LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 10,0
@@ -1044,7 +790,7 @@
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0
                     font_size: 30
-                ColorDownButton: 
+                ColorDownButton:
                     text: 'FINISH'
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
