@@ -1,7 +1,5 @@
 __version__ = "1.3.0"
 
-#import yaml
-
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
@@ -13,21 +11,14 @@ from kivy.uix.button import Button
 #from kivy.support import install_twisted_reactor
 #install_twisted_reactor()
 
-
 #from kivy.uix.camera import Camera
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import NumericProperty, ObjectProperty
-
 from kivy.logger import Logger
-
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
-
 #for settings window
 from kivy.uix.settings import SettingsWithSidebar
-
 import time
-
-
 from kivy.clock import Clock, mainthread
 from functools import partial
 import threading
@@ -36,20 +27,20 @@ import pexpect
 #for Note Validator
 #import eSSP
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
-
 import requests
 import json
-
 import os
-
 import zmq
 from threading import Thread
-
-
-
 from path import Path
 import strictyaml
 import argument
+from enum import auto, Enum
+
+class Shapes(Enum):
+    CIRCLE = auto()
+    SQUARE = auto()
+    OVAL = auto()
 
 # Get config file as required arguemnt and load
 f = argument.Arguments()
@@ -65,10 +56,7 @@ else:
 RELAY_METHOD = machine_config.get("relay_method")
 NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
 VALIDATOR_PORT = machine_config.get("validator_port")
-USER = machine_config.get("machine_id")
-USER_PASSWORD = machine_config.get("machine_secret")
-SERVER_URL = machine_config.get("server_url")
-SERVER_REALM = machine_config.get("server_realm")
+
 
 # For pifacedigital relay
 if os.uname()[4].startswith("arm"):
@@ -156,57 +144,57 @@ class RootWidget(FloatLayout):
     '''
     root_manager = ObjectProperty()
     current_btm_process_id = NumericProperty()
-
-    # START WIDGET GETTER TASKS STUFF #
-    def add_cb_widget(
-      self, kv_widget, kv_container, item_id, text_field, checked, **kwargs):
-        ns = {}
-        factoryimport = compile(
-          'from kivy.factory import Factory', '<string>', 'exec')
-        exec(factoryimport, ns)
-
-        widgetfactory = compile(
-          'widget = Factory.'+kv_widget+'()', '<string>', 'exec')
-        exec(widgetfactory, ns)
-
-        ns['widget'].id = str(item_id)
-        widget = self.widget_properties(ns['widget'], **kwargs)
-        if text_field != 'None':
-            widget.text = kwargs[text_field]
-
-        if checked:
-            widget.is_checked = True
-            self.current_address_id = int(item_id)
-        addwidget = compile(
-          'self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
-        exec(addwidget, locals(), globals())
-
-    def remove_all_cb_widgets(self, container):
-        # self.pizzas_widget.clear_widgets()
-        removewidget = compile(
-          'self.'+container+'.clear_widgets()', '<string>', 'exec')
-        exec(removewidget, locals())  # , globals()
-
-    def widget_properties(self, widget, **kwargs):
-        for key in kwargs:
-            setattr(widget, key, kwargs[key])
-        return widget
-
-    def returnWidgetData(self, d, kv_widget, kv_container, text_field):
-        print(d)
-        r = json.loads(d)
-        count = 0
-        for item in r:
-            self.add_cb_widget(
-              kv_widget,
-              kv_container,
-              item.get("pk"),
-              text_field,
-              False,
-              **item.get("fields")
-              )
-            count += 1
-        return d
+    #
+    # # START WIDGET GETTER TASKS STUFF #
+    # def add_cb_widget(
+    #   self, kv_widget, kv_container, item_id, text_field, checked, **kwargs):
+    #     ns = {}
+    #     factoryimport = compile(
+    #       'from kivy.factory import Factory', '<string>', 'exec')
+    #     exec(factoryimport, ns)
+    #
+    #     widgetfactory = compile(
+    #       'widget = Factory.'+kv_widget+'()', '<string>', 'exec')
+    #     exec(widgetfactory, ns)
+    #
+    #     ns['widget'].id = str(item_id)
+    #     widget = self.widget_properties(ns['widget'], **kwargs)
+    #     if text_field != 'None':
+    #         widget.text = kwargs[text_field]
+    #
+    #     if checked:
+    #         widget.is_checked = True
+    #         self.current_address_id = int(item_id)
+    #     addwidget = compile(
+    #       'self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
+    #     exec(addwidget, locals(), globals())
+    #
+    # def remove_all_cb_widgets(self, container):
+    #     # self.pizzas_widget.clear_widgets()
+    #     removewidget = compile(
+    #       'self.'+container+'.clear_widgets()', '<string>', 'exec')
+    #     exec(removewidget, locals())  # , globals()
+    #
+    # def widget_properties(self, widget, **kwargs):
+    #     for key in kwargs:
+    #         setattr(widget, key, kwargs[key])
+    #     return widget
+    #
+    # def returnWidgetData(self, d, kv_widget, kv_container, text_field):
+    #     print(d)
+    #     r = json.loads(d)
+    #     count = 0
+    #     for item in r:
+    #         self.add_cb_widget(
+    #           kv_widget,
+    #           kv_container,
+    #           item.get("pk"),
+    #           text_field,
+    #           False,
+    #           **item.get("fields")
+    #           )
+    #         count += 1
+    #     return d
 
 
     stop = threading.Event()
@@ -315,7 +303,7 @@ class RootWidget(FloatLayout):
             #send call to backend with currency and customer crypto address
             print("CHECK THIS YO")
             print(self.current_btm_process_id)
-            self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
+            #self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
         else:
             label.text = "Invalid QR Code"
 
