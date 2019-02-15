@@ -11,7 +11,7 @@ zbarcam (qr scanner)
 devilspie2
 
 
-# Install zbar
+### Install zbar
 ```
 # on mac:
 brew install zbar

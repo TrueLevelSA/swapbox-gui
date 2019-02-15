@@ -275,7 +275,7 @@ class RootWidget(FloatLayout):
                             GPIO.output(7, GPIO.HIGH)
                         break
                 else:
-                    if line != "" and line != None and line.startswith("QR-Code:"):
+                    if line != "" and line != None and line.startswith(b"QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
                         execute.close(True)
                         if RELAY_METHOD == 'piface':
@@ -298,10 +298,15 @@ class RootWidget(FloatLayout):
         text = str(new_text)
         print("the text")
         print(text)
+        text = text.replace('b\'', '').strip()
+        text = text.replace('\\r\'', '').strip()
         text = text.replace('\"', '').strip()
+        # text = ''.join(filter(str.isalnum, text))
         print(text)
         address = text.split(":")
-        if address[0] == "bitcoin":
+        print(address)
+        if address[0] == 'bitcoin':
+            print("ok")
             label.text = address[1].rstrip()
             print(address[1])
             self.root_manager.current = 'buy'
@@ -540,7 +545,7 @@ class AtmClientApp(App):
     #     self.root.stop_scan.set()
 
     price = ObjectProperty({'buy_price': 0, 'sell_price': 0})
-    l = ObjectProperty(strictyaml.load("lang.yaml").data['English'])
+    l = ObjectProperty(strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data['English'])
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self)
@@ -555,13 +560,12 @@ class AtmClientApp(App):
     def change_language(self, lang):
         print("change language to %s" % lang)
         self.l = self.lang[lang]
-        print(self.l)
 
     def build(self):
         self.zmq_connect()
 
 
-        self.lang = strictyaml.load("lang.yaml").data
+        self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
         #self.lang = yaml.load(open("lang.yaml", "r"))
         self.LANGUAGES = [language for language in self.lang]
         print(self.LANGUAGES)

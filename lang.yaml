@@ -1,6 +1,7 @@
 English:
   language: Language
   cancel: CANCEL
+  finish: FINISH
   # welcome page
   heading1: 1 ETHER
   heading2: FOR
@@ -16,6 +17,9 @@ English:
   cameraloading: please wait, camera loading ..
   # buy page
   insertcash: INSERT CASH
+  insertcashsub: Insert fiat cash in machine
+  insertfiattitle: FIAT MONEY "BANQUE NATIONALE SUISSE"
+  limit: Limit
 
   welcome: Welcome to Atola BTM. Press on the screen to continue
   admin_menu: Admin
@@ -31,6 +35,7 @@ English:
 French:
   language: Language
   cancel: ANNULER
+  finish: FIN
   # welcome page
   heading1: 1 ETHER
   heading2: POUR
@@ -46,6 +51,9 @@ French:
   cameraloading: veuillez patienter, chargement de la caméra ..
   # buy page
   insertcash: INSERER DE L'ARGENT
+  insertcashsub: Insérer monnaie fiat dans la machine
+  insertfiattitle: MONNAIE FIAT "BANQUE NATIONALE SUISSE"
+  limit: Limite
 
   validate: Valider
   confirm: Confirmer

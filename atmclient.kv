@@ -388,7 +388,7 @@
                 color: 1,1,1,1
                 font_size: 70
             Label:
-                text: '[font=MyriadPro-Bold.otf][b]Insert fiat cash in machine[/b][/font]'
+                text: '[font=MyriadPro-Bold.otf][b]{}[/b][/font]'.format(app.l["insertcashsub"])
                 halign: 'left'
                 valign: 'top'
                 markup: True
@@ -419,7 +419,7 @@
                         size: self.size
                         pos: self.pos
                 Label:
-                    text: '[font=MyriadPro-Bold.otf][b]FIAT MONEY "BANQUE NATIONALE SUISSE"[/b][/font]'
+                    text: '[font=MyriadPro-Bold.otf][b]{}[/b][/font]'.format(app.l["insertfiattitle"])
                     halign: 'left'
                     valign: 'top'
                     markup: True
@@ -521,7 +521,7 @@
                             color: 1,1,1,1
 
                         Label:
-                            text: '[font=MyriadPro-Bold.otf][b]Limite 500 Fr.[/b][/font]'
+                            text: '[font=MyriadPro-Bold.otf][b]{} 500 Fr.[/b][/font]'.format(app.l["limit"])
                             markup: True
                             halign: 'right'
                             font_size: 40
@@ -542,26 +542,26 @@
                 padding: 10
                 size_hint: (1, None)
                 ColorDownButton:
-                    text: 'CANCEL'
+                    text: app.l["cancel"]
                     color: 1,1,1,0
                     background_color: 0,0,0,0
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
                     font_size: 30
+                # ColorDownButton:
+                #     text: 'SCAN'
+                #     color: 1,1,1,0
+                #     background_color: 0,0,0,0
+                #     background_color_normal: 0,0,0,0
+                #     background_color_down: 0,0,0
+                #     font_size: 30
                 ColorDownButton:
-                    text: 'SCAN'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0
-                    font_size: 30
-                ColorDownButton:
-                    text: 'FINISH'
+                    text: app.l["finish"]
                     color: 1,1,1,1
                     background_color_normal: 0,0,0,0.4
                     background_color_down: 0,0,0,0.6
                     font_size: 30
-                    ###on_release: app.root.current = 'buyfinish'; app.root.stop.set()
+                    on_release: app.root.current = 'buyfinish'; app.root.stop.set()
 
 <BuyFinishScreen>:
     name: 'buyfinish'
