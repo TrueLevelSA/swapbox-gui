@@ -392,7 +392,7 @@
                 text_size: self.size
             Label:
                 id: 'total_quote'
-                text: '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
+                text: '[font=MyriadPro-Bold.otf][b]{} Fr. = {} ETH[/b][/font]'.format(app.cashintotal, (round(app.cashintotal / app.price["buy_price"], 2)) if float(app.price["buy_price"]) > 0 else 0)
                 halign: 'left'
                 valign: 'top'
                 markup: True
@@ -432,7 +432,7 @@
                             color: 1,1,1,1
                         Label:
                             id: 'cashin10'
-                            text: 'x0'
+                            text: 'x{}'.format(app.cashin10)
                             font_size: 30
                             color: 1,1,1,1
                             halign: 'left'
@@ -448,7 +448,7 @@
                             color: 1,1,1,1
                         Label:
                             id: 'cashin20'
-                            text: 'x0'
+                            text: 'x{}'.format(app.cashin20)
                             font_size: 30
                             color: 1,1,1,1
                             canvas.before:
@@ -463,7 +463,7 @@
                             color: 1,1,1,1
                         Label:
                             id: 'cashin50'
-                            text: 'x0'
+                            text: 'x{}'.format(app.cashin50)
                             font_size: 30
                             color: 1,1,1,1
                             canvas.before:
@@ -478,7 +478,7 @@
                             color: 1,1,1,1
                         Label:
                             id: 'cashin100'
-                            text: 'x0'
+                            text: 'x{}'.format(app.cashin100)
                             font_size: 30
                             color: 1,1,1,1
                             canvas.before:
@@ -493,7 +493,7 @@
                             color: 1,1,1,1
                         Label:
                             id: 'cashin200'
-                            text: 'x0'
+                            text: 'x{}'.format(app.cashin200)
                             font_size: 30
                             color: 1,1,1,1
                             canvas.before:
@@ -505,8 +505,7 @@
                     BoxLayout:
                         orientation: 'vertical'
                         Label:
-                            id: 'buyfinishbtcprice'
-                            text: '[font=MyriadPro-Bold.otf][b]1 BTC = 235 BTC[/b][/font]'
+                            text: '[font=MyriadPro-Bold.otf][b]1 ETH = {} CHF[/b][/font]'.format(app.price["buy_price"])
                             markup: True
                             halign: 'right'
                             font_size: 40
@@ -525,7 +524,7 @@
                     padding: 0,0
                     spacing: 0
                     id: 'to_address'
-                    text: 'N/A'
+                    text: app.clientaddress
                     font_size: 26
                     color: 1,1,1,1
 
@@ -535,7 +534,7 @@
                 padding: 10
                 size_hint: (1, None)
                 ColorDownButton:
-                    text: app.l["cancel"]
+                    text: ''#app.l["cancel"]
                     color: 1,1,1,0
                     background_color: 0,0,0,0
                     background_color_normal: 0,0,0,0
@@ -550,7 +549,7 @@
                 #     font_size: 30
                 MainButton:
                     text: app.l["finish"]
-                    on_release: app.root.current = 'buyfinish'; app.root.stop.set()
+                    on_release: app.root.current = 'buyfinish'; app.root.stop_cashin()
 
 <BuyFinishScreen>:
     name: 'buyfinish'
@@ -579,12 +578,15 @@
                 font_size: 50
                 text_size: self.size
             #confirmation box
-            BoxLayout:
+            BoxLayout:        # label.text = address[1].rstrip()
+            # print(address[1])
+            # self.root_manager.current = 'buy'
+            # s
                 id: 'amount_sending_finished'
                 orientation: 'vertical'
                 size_hint: (1, None)
                 Label:
-                    text: '{}'.format(app.l["buyfinishedamountsending"])
+                    text: app.l["buyfinishedamountsending"].format((round(app.cashintotal / app.price["buy_price"], 2)) if float(app.price["buy_price"]) > 0 else 0)
                     color: 0,0,0,1
             BoxLayout:
                 height: 100

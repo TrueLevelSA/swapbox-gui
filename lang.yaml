@@ -23,7 +23,7 @@ English:
   # buy finish page
   buyfinishheading1: CONFIRMATION
   buyfinishheading2: Thank You
-  buyfinishedamountsending: WE ARE SENDING YOUR BITCOINS
+  buyfinishedamountsending: WE ARE SENDING YOUR {} ETHER
   # sell page
   sellheading: BUY FIAT MONEY
 
@@ -63,7 +63,7 @@ French:
   # buy finish page
   buyfinishheading1: CONFIRMATION
   buyfinishheading2: Merci
-  buyfinishedamountsending: NOUS ENVOYONS VOS BITCOINS
+  buyfinishedamountsending: NOUS ENVOYONS VOS {} ETHER
   # sell page
   sellheading: ACHETER MONNAIE FIAT
 

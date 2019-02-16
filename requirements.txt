@@ -10,3 +10,4 @@ pyzmq
 requests
 pyserial
 pifacedigitalio
+git+https://github.com/Minege/eSSP

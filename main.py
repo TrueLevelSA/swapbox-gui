@@ -22,9 +22,10 @@ import time
 from kivy.clock import Clock, mainthread
 from functools import partial
 import threading
-import time
 import pexpect
 #for Note Validator
+from eSSP.constants import Status
+from eSSP import eSSP  # Import the library
 #import eSSP
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
 import requests
@@ -53,7 +54,9 @@ else:
     print("Config file must be specified")
     exit(0)
 
+DEBUG = machine_config.get("debug")
 RELAY_METHOD = machine_config.get("relay_method")
+MOCK_VALIDATOR = machine_config.get("mock_validator")
 NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
 VALIDATOR_PORT = machine_config.get("validator_port")
 
@@ -82,7 +85,6 @@ Config.set('kivy', 'exit_on_escape', 1)
 Config.set('kivy', 'invert_x', 1)
 
 Config.write()
-
 
 class ColorDownButton(Button):
     """
@@ -135,6 +137,7 @@ class VerifyScreen(Screen):
 class MyScreenManager(ScreenManager):
     pass
 
+mockport = '5555'
 
 class RootWidget(FloatLayout):
     '''
@@ -282,7 +285,7 @@ class RootWidget(FloatLayout):
         return
     ###@mainthread
     def qr_thread_update_label_text(self, new_text):
-        label = self.root_manager.get_screen('buy').ids["'to_address'"]
+        app = App.get_running_app()
         text = str(new_text)
         print("the text")
         print(text)
@@ -294,16 +297,16 @@ class RootWidget(FloatLayout):
         address = text.split(":")
         print(address)
         if address[0] == 'bitcoin':
+            print("not for now :(")
+            # label.text = address[1].rstrip()
+            # print(address[1])
+            # self.root_manager.current = 'buy'
+            # self.start_cashin_thread()
+        elif address[0] == 'ethereum':
             print("ok")
-            label.text = address[1].rstrip()
-            print(address[1])
+            app.clientaddress = address[1].rstrip()
             self.root_manager.current = 'buy'
             self.start_cashin_thread()
-
-            #send call to backend with currency and customer crypto address
-            print("CHECK THIS YO")
-            print(self.current_btm_process_id)
-            #self.call_create_initial_buy_order_task(self.current_btm_process_id, address[1].rstrip(), address[0])
         else:
             label.text = "Invalid QR Code"
 
@@ -318,140 +321,158 @@ class RootWidget(FloatLayout):
         threading.Thread(target=self.cashin_thread).start()
     def cashin_thread(self):
         """Run Worker Thread."""
-        k = eSSP.eSSP('/dev/ttyUSB0')
-        print(k.sync())
-        print(k.enable_higher_protocol())
-        print(k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00'))
-        print(k.enable())
-        #Publisher().subscribe(self.stoprun, "stoprun")
-        var = 1
-        i = 0
-        #self.stopflag = False
+        if MOCK_VALIDATOR:
+            zctx = zmq.Context()
+            zsock = zctx.socket(zmq.SUB)
+            zsock.connect('tcp://localhost:{}'.format(mockport))
+            zsock.setsockopt_string(zmq.SUBSCRIBE,'')
 
+            while not self.stopcashin.is_set():
+                print("cashinset: %s" % self.stopcashin.is_set())
+                msg = zsock.recv_multipart()
+                if DEBUG:
+                    Logger.info(' Mock Validator msg:%s' % (msg))
+                self.cashin_update_label_text(msg[0]) # "CHF:10"
+            print("cashin stopped")
+        else:
+            #  Create a new object ( Validator Object ) and initialize it
+            validator = eSSP(com_port=VALIDATOR_PORT, ssp_address="0", nv11=False, debug=DEBUG)
 
-        while not self.stopcashin.is_set():
-            poll = k.poll()
+            while not self.stopcashin.is_set():
 
-            if len(poll) > 1:
-                if len(poll[1]) == 2:
-                    print(poll[1][0])
-                    if poll[1][0] == '0xef':
-                        if poll[1][1] == 1 or poll[1][1] == 3:
-                            while i < 2:
-                                k.hold()
-                                print("Hold " + str(i))
-                                time.sleep(0.5)
-                                i += 1
-                    if poll[1][0] == '0xef':
-                        print("Read on Channel " + str(poll[1][1]))
-                    if poll[1][0] == '0xe6':
-                        print("Fraud on Channel " + str(poll[1][1]))
-
-                    if poll[1][0] == '0xee':
-                        print("Credit on Channel " + str(poll[1][1]))
-                        if poll[1][1] == 1:
-                            self.cashin_update_label_text("CHF:10")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
-                        if poll[1][1] == 2:
-                            self.cashin_update_label_text("CHF:20")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)
-                        if poll[1][1] == 3:
-                            self.cashin_update_label_text("CHF:50")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:50"), -1)
-                        if poll[1][1] == 4:
-                            self.cashin_update_label_text("CHF:100")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:100"), -1)
-                        if poll[1][1] == 5:
-                            self.cashin_update_label_text("CHF:200")
-                            #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:200"), -1)
-                        #if poll[1][1] == 6:
-                        #    wx.CallAfter(self.SendInfo, "CHF:200")
-                        #wx.CallAfter(self.SendInfo, k.unit_data())
-                    i = 0
-
-            time.sleep(0.5)
+                # ---- Example of interaction with events ---- #
+                if validator.nv11: # If the model is an NV11, put every 100 note in the storage, and others in the stack(cashbox), but that's just for this example
+                    (note, currency,event) = validator.get_last_event()
+                    if note == 0 or currency == 0 or event == 0:
+                        pass  # Operation that do not send money info, we don't do anything with it
+                    else:
+                        if note != 4 and event == Status.SSP_POLL_CREDIT:
+                            validator.print_debug("NOT A 100 NOTE")
+                            validator.nv11_stack_next_note()
+                            validator.enable_validator()
+                        elif note == 4 and event == Status.SSP_POLL_READ:
+                            validator.print_debug("100 NOTE")
+                            validator.set_route_storage(100)  # Route to storage
+                            validator.do_actions()
+                            validator.set_route_cashbox(50)  # Everything under or equal to 50 to cashbox ( NV11 )
+                else:
+                    print("Read on Channel " + str(poll[1][1]))
+                time.sleep(0.5)
+        #
+        # k = eSSP.eSSP('/dev/ttyUSB0')
+        # print(k.sync())
+        # print(k.enable_higher_protocol())
+        # print(k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00'))
+        # print(k.enable())
+        # #Publisher().subscribe(self.stoprun, "stoprun")
+        # var = 1
+        # i = 0
+        # #self.stopflag = False
+        #
+        #
+        # while not self.stopcashin.is_set():
+        #     poll = k.poll()
+        #
+        #     if len(poll) > 1:
+        #         if len(poll[1]) == 2:
+        #             print(poll[1][0])
+        #             if poll[1][0] == '0xef':
+        #                 if poll[1][1] == 1 or poll[1][1] == 3:
+        #                     while i < 2:
+        #                         k.hold()
+        #                         print("Hold " + str(i))
+        #                         time.sleep(0.5)
+        #                         i += 1
+        #             if poll[1][0] == '0xef':
+        #                 print("Read on Channel " + str(poll[1][1]))
+        #             if poll[1][0] == '0xe6':
+        #                 print("Fraud on Channel " + str(poll[1][1]))
+        #
+        #             if poll[1][0] == '0xee':
+        #                 print("Credit on Channel " + str(poll[1][1]))
+        #                 if poll[1][1] == 1:
+        #                     self.cashin_update_label_text("CHF:10")
+        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
+        #                 if poll[1][1] == 2:
+        #                     self.cashin_update_label_text("CHF:20")
+        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)
+        #                 if poll[1][1] == 3:
+        #                     self.cashin_update_label_text("CHF:50")
+        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:50"), -1)
+        #                 if poll[1][1] == 4:
+        #                     self.cashin_update_label_text("CHF:100")
+        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:100"), -1)
+        #                 if poll[1][1] == 5:
+        #                     self.cashin_update_label_text("CHF:200")
+        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:200"), -1)
+        #                 #if poll[1][1] == 6:
+        #                 #    wx.CallAfter(self.SendInfo, "CHF:200")
+        #                 #wx.CallAfter(self.SendInfo, k.unit_data())
+        #             i = 0
+        #
+        #     time.sleep(0.5)
         self.stop.clear()
         self.stop_scan.clear()
         self.stopcashin.clear()
         #process the transaction
 
-        #get the total, hacky for now
-        total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
-        gettotal = total_quote_label.text.split(" ")
-        newtotal = int(gettotal[0].split("[b]")[1])
-        if newtotal > 0:
-            #and the addy
-            address_label = self.root.get_screen('buy').ids["'to_address'"]
-
-            headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
-            payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
+        # if newtotal > 0:
+        #     #and the addy
+        #     address_label = self.root.get_screen('buy').ids["'to_address'"]
+        #
+        #     headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
+        #     payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
 
             #r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
             #print(r.text)
 
-            #reset the labels
-            label = self.root.get_screen('buy').ids["'cashin10'"]
-            label.text = 'x'+str(0)
-            label = self.root.get_screen('buy').ids["'cashin20'"]
-            label.text = 'x'+str(0)
-            label = self.root.get_screen('buy').ids["'cashin50'"]
-            label.text = 'x'+str(0)
-            label = self.root.get_screen('buy').ids["'cashin100'"]
-            label.text = 'x'+str(0)
-            label = self.root.get_screen('buy').ids["'cashin200'"]
-            label.text = 'x'+str(0)
-
-            total_quote_label = self.root.get_screen('buy').ids["'total_quote'"]
-            total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(0)+' Fr. = '+str(0)+' BTC[/b][/font]'
-
         return
+    def cashin_reset_session(self):
+        app = App.get_running_app()
+
+        app.cashintotal = 0
+        app.cashin10 = 0
+        app.cashin20 = 0
+        app.cashin50 = 0
+        app.cashin100 = 0
+        app.cashin200 = 0
+
     #@mainthread
     def cashin_update_label_text(self, new_credit):
-        credit = str(new_credit)
-        cr = credit.split(":")
-        total_quote_label = self.root_manager.get_screen('buy').ids["'total_quote'"]
-        gettotal = total_quote_label.text.split(" ")
-        newtotal = int(gettotal[0].split("[b]")[1]) + int(cr[1])
-        newtotalquote = Decimal(newtotal) / Decimal(self.current_ticker)
-        newtotalquote_rounded = newtotalquote.quantize(Decimal('.00000001'), rounding=ROUND_DOWN)
-        total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(newtotal)+' Fr. = '+str(newtotalquote_rounded)+' BTC[/b][/font]'
+        app = App.get_running_app()
 
-        amount_sending_finished_label = self.root_manager.get_screen('buyfinish').ids["'amount_sending_finished'"]
-        amount_sending_finished_label.text = 'WE ARE SENDING YOUR '+str(newtotalquote_rounded)+' BITCOINS'
+        credit = new_credit.decode('utf-8')
+        cr = credit.split(':')
+
+        # newtotalquote = Decimal(newtotal) / Decimal(self.current_ticker)
+        #newtotalquote_rounded = newtotalquote.quantize(Decimal('.00000001'), rounding=ROUND_DOWN)
+        #total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(newtotal)+' Fr. = '+str(newtotalquote_rounded)+' BTC[/b][/font]'
+
+        # amount_sending_finished_label = self.root_manager.get_screen('buyfinish').ids["'amount_sending_finished'"]
+        # amount_sending_finished_label.text = 'WE ARE SENDING YOUR '+str(newtotalquote_rounded)+' BITCOINS'
 
         if cr[1] == "10":
             #self.channel1_count += 1
-            label = self.root_manager.get_screen('buy').ids["'cashin10'"]
-            qty = label.text[1:]
-            qty_new = int(qty) + 1
-            label.text = 'x'+str(qty_new)
-
+            app.cashin10 += 1
+            app.cashintotal += 10
             #totallabel = self.get_screen('buy').ids["'total_quote'"]
             #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
         if cr[1] == "20":
             #self.channel2_count += 1
-            label = self.root_manager.get_screen('buy').ids["'cashin20'"]
-            qty = label.text[1:]
-            qty_new = int(qty) + 1
-            label.text = 'x'+str(qty_new)
+            app.cashin20 += 1
+            app.cashintotal += 20
         if cr[1] == "50":
             #self.channel3_count += 1
-            label = self.root_manager.get_screen('buy').ids["'cashin50'"]
-            qty = label.text[1:]
-            qty_new = int(qty) + 1
-            label.text = 'x'+str(qty_new)
+            app.cashin50 += 1
+            app.cashintotal += 50
         if cr[1] == "100":
             #self.channel4_count += 1
-            label = self.root_manager.get_screen('buy').ids["'cashin100'"]
-            qty = label.text[1:]
-            qty_new = int(qty) + 1
-            label.text = 'x'+str(qty_new)
+            app.cashin100 += 1
+            app.cashintotal += 100
         if cr[1] == "200":
             #self.channel5_count += 1
-            label = self.root_manager.get_screen('buy').ids["'cashin200'"]
-            qty = label.text[1:]
-            qty_new = int(qty) + 1
-            label.text = 'x'+str(qty_new)
+            app.cashin200 += 1
+            app.cashintotal += 200
 
     ###@mainthread
     def generate_thread_update_label_text(self, new_text):
@@ -485,22 +506,12 @@ class RootWidget(FloatLayout):
         img_tmp_file.close()
         self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
 
-
     def stop_scanning(self):
         print("set self.stop.set")
         self.stop_scan.set()
     def stop_cashin(self):
         print("set stop.cashin")
         self.stopcashin.set()
-
-
-
-# def mainthread(func):
-#     def delayed_func(*args):
-#         def callback_func(dt):
-#             func(*args)
-#         Clock.schedule_once(callback_func, 0)
-#     return delayed_func
 
 port = '5556'
 
@@ -517,11 +528,10 @@ class ZmqThread(Thread):
         zsock.connect('tcp://localhost:{}'.format(port))
         zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
-
         while True:
             topic, msg = zsock.recv_multipart()
-            Logger.info('   Topic: %s, msg:%s' % (topic, msg))
-
+            if DEBUG:
+                Logger.info('   Topic: %s, msg:%s' % (topic, msg))
             app.on_message(msg)
 
 
@@ -534,6 +544,16 @@ class AtmClientApp(App):
 
     price = ObjectProperty({'buy_price': 0, 'sell_price': 0})
     l = ObjectProperty(strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data['English'])
+    # current_buy_transaction = ObjectProperty({'cashin10': 0, 'cashin20': 0, 'cashin50': 0, 'cashin100': 0, 'cashin200': 0})
+
+    # current buy vars
+    cashin10 = NumericProperty(0)
+    cashin20 = NumericProperty(0)
+    cashin50 = NumericProperty(0)
+    cashin100 = NumericProperty(0)
+    cashin200 = NumericProperty(0)
+    cashintotal = NumericProperty(0)
+    clientaddress = ObjectProperty('N/A')
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self)
@@ -554,32 +574,10 @@ class AtmClientApp(App):
 
 
         self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
-        #self.lang = yaml.load(open("lang.yaml", "r"))
         self.LANGUAGES = [language for language in self.lang]
-        print(self.LANGUAGES)
         # self.language = self.lang
 
         self.root = RootWidget()
-
-        # eg
-        self.transactions = {
-            'id':
-                {
-                    'timestamp': 28581305,
-                    'amount_fiat': 50,
-                    'type_fiat': 'CHF',
-                    'amount_crypto': 1.2,
-                    'type_crypto': 'ETH'
-                }
-        }
-        self.redeemcodes = {
-            'code1':
-                {
-                    'fiat': 70,
-                    'type': 'CHF'
-                }
-        }
-
 
         Logger.info('Frontend Started')
 
