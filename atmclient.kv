@@ -33,6 +33,11 @@
     Button:
         background_normal:'flags/large/PT.png'
         background_down:'flags/large/PT.png'
+<MainButton@ColorDownButton>:
+    color: 1,1,1,1
+    background_color_normal: 0,0,0,0.4
+    background_color_down: 0,0,0,0.6
+    font_size: 30
 <RootWidget>:
     root_manager: manager
     language: app.l
@@ -264,28 +269,16 @@
                 spacing: 10
                 padding: 0,10
                 size_hint: (1, None)
-                ColorDownButton:
+                MainButton:
                     text: app.l["send"]
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
                     #on_release: app.root.current = 'verify'
-                ColorDownButton:
+                MainButton:
                     text: app.l["crypto"]
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
                     on_release: root.manager.current = 'scanwallet'; app.root.start_qr_thread()#; app.root.call_start_btm_process_task("BUY")
-                ColorDownButton:
+                MainButton:
                     text: app.l["cash"]
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
                     #on_release: app.open_settings()
-                    #on_release: app.root.current = 'sellselect'
+                    on_release: root.manager.current = 'sellselect'
 
 <ScanWalletScreen>:
     name: 'scanwallet'
@@ -555,12 +548,8 @@
                 #     background_color_normal: 0,0,0,0
                 #     background_color_down: 0,0,0
                 #     font_size: 30
-                ColorDownButton:
+                MainButton:
                     text: app.l["finish"]
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
                     on_release: app.root.current = 'buyfinish'; app.root.stop.set()
 
 <BuyFinishScreen>:
@@ -573,7 +562,7 @@
             spacing: 10
             height: 10
             Label:
-                text: '[b][font=MyriadPro-Bold.otf]CONFIRMATION[/font][/b]'
+                text: '[b][font=MyriadPro-Bold.otf]{}[/font][/b]'.format(app.l["buyfinishheading1"])
                 markup: True
                 halign: 'left'
                 text_size: self.size
@@ -581,7 +570,7 @@
                 color: 1,1,1,1
                 font_size: 70
             Label:
-                text: '[font=MyriadPro-Bold.otf][b]Thank You[/b][/font]'
+                text: '[font=MyriadPro-Bold.otf][b]{}[/b][/font]'.format(app.l["buyfinishheading2"])
                 halign: 'left'
                 valign: 'top'
                 markup: True
@@ -595,14 +584,14 @@
                 orientation: 'vertical'
                 size_hint: (1, None)
                 Label:
-                    text: 'WE ARE SENDING YOUR BITCOINS'
+                    text: '{}'.format(app.l["buyfinishedamountsending"])
                     color: 0,0,0,1
             BoxLayout:
                 height: 100
                 spacing: 10
                 size_hint: (1, None)
                 ColorDownButton:
-                    text: 'CANCEL'
+                    text: app.l["cancel"]
                     color: 1,1,1,0
                     background_color: 0,0,0,0
                     background_color_normal: 0,0,0,0
@@ -615,12 +604,8 @@
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
                     font_size: 30
-                ColorDownButton:
+                MainButton:
                     text: 'CLOSE'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
                     ###on_release: app.root.current = 'welcome'
 
 <SellSelectScreen>:
@@ -637,7 +622,7 @@
             spacing: 10,0
             height: 10
             Label:
-                text: '[font=MyriadPro-Bold.otf][b]BUY FIAT MONEY[/b][/font]'
+                text: '[font=MyriadPro-Bold.otf][b]{}[/b][/font]'.format(app.l["sellheading"])
                 halign: 'left'
                 valign: 'top'
                 markup: True
@@ -673,95 +658,47 @@
                         cols: 3
                         spacing: 10
                         #size_hint: .3,1
-                        ColorDownButton:
+                        MainButton:
                             text: '20 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
-                        ColorDownButton:
+                        MainButton:
                             text: '200 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
                         Label:
                             markup: True
                             text: '[color=ffffff]1 BTC[/color] [color=1c6434]235CHF[/color]'
                             font_size: 35
-                        ColorDownButton:
+                        MainButton:
                             text: '20 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
-                        ColorDownButton:
+                        MainButton:
                             text: '200 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
                         Label:
                             markup: True
-                            text: '[color=ffffff]Limit[/color]  [color=c11d24]500CHF[/color]'
+                            text: '[color=ffffff]{}[/color]  [color=c11d24]500CHF[/color]'.format(app.l["limit"])
                             font_size: 35
-                        ColorDownButton:
+                        MainButton:
                             text: '50 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
-                        ColorDownButton:
+                        MainButton:
                             text: '400 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
                         Label:
                             text:''
-                        ColorDownButton:
+                        MainButton:
                             text: '100 Fr.'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
-                        ColorDownButton:
+                        MainButton:
                             text: 'OTHER'
-                            color: 1,1,1,1
-                            background_color_normal: 0,0,0,0.4
-                            background_color_down: 0,0,0,0.6
-                            font_size: 30
                             ###on_release: app.root.current = 'verify'
             BoxLayout:
                 height: 100
                 spacing: 10
                 padding: 10
                 size_hint: (1, None)
-                ColorDownButton:
-                    text: 'CANCEL'
-                    color: 1,1,1,1
-                    #background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                ColorDownButton:
-                    text: 'SCAN'
-                    color: 1,1,1,0
-                    background_color: 0,0,0,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0
-                    font_size: 30
-                ColorDownButton:
-                    text: 'FINISH'
-                    color: 1,1,1,1
-                    background_color_normal: 0,0,0,0.4
-                    background_color_down: 0,0,0,0.6
-                    font_size: 30
-                    ###on_release: app.root.current = 'buyfinish'
+                MainButton:
+                    text: app.l["cancel"]
+                    on_release: root.manager.current = 'welcome'
+                MainButton:
+                    text: app.l["finish"]

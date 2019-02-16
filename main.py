@@ -386,8 +386,8 @@ class RootWidget(FloatLayout):
             headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
             payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
 
-            r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
-            print(r.text)
+            #r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
+            #print(r.text)
 
             #reset the labels
             label = self.root.get_screen('buy').ids["'cashin10'"]
@@ -515,7 +515,7 @@ class ZmqThread(Thread):
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.SUB)
         zsock.connect('tcp://localhost:{}'.format(port))
-        zsock.setsockopt(zmq.SUBSCRIBE,'priceticker')
+        zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
 
         while True:
