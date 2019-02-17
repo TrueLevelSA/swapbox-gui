@@ -1,5 +1,5 @@
 <Background@Image>:
-    source: 'bg2.png'
+    source: 'img/bg2.png'
     allow_stretch: True
     keep_ratio: False
     size_hint: 1, 1
@@ -14,25 +14,25 @@
     #    height: 0.25
     #    color: 0,0,0,1
     Button:
-        background_normal:'flags/large/EN.png'
-        background_down:'flags/large/EN.png'
+        background_normal:'img/flags/large/EN.png'
+        background_down:'img/flags/large/EN.png'
         on_press: app.change_language('English')
     Button:
-        background_normal:'flags/large/FR.png'
-        background_down:'flags/large/FR.png'
+        background_normal:'img/flags/large/FR.png'
+        background_down:'img/flags/large/FR.png'
         on_press: app.change_language('French')
     Button:
-        background_normal:'flags/large/DE.png'
-        background_down:'flags/large/DE.png'
+        background_normal:'img/flags/large/DE.png'
+        background_down:'img/flags/large/DE.png'
     Button:
-        background_normal:'flags/large/IT.png'
-        background_down:'flags/large/IT.png'
+        background_normal:'img/flags/large/IT.png'
+        background_down:'img/flags/large/IT.png'
     Button:
-        background_normal:'flags/large/ES.png'
-        background_down:'flags/large/ES.png'
+        background_normal:'img/flags/large/ES.png'
+        background_down:'img/flags/large/ES.png'
     Button:
-        background_normal:'flags/large/PT.png'
-        background_down:'flags/large/PT.png'
+        background_normal:'img/flags/large/PT.png'
+        background_down:'img/flags/large/PT.png'
 <MainButton@ColorDownButton>:
     color: 1,1,1,1
     background_color_normal: 0,0,0,0.4
@@ -508,7 +508,7 @@
                             text: '[font=MyriadPro-Bold.otf][b]1 ETH = {} CHF[/b][/font]'.format(app.price["buy_price"])
                             markup: True
                             halign: 'right'
-                            font_size: 40
+                            font_size: 38
                             text_size: self.size
                             color: 1,1,1,1
 
@@ -549,12 +549,16 @@
                 #     font_size: 30
                 MainButton:
                     text: app.l["finish"]
-                    on_release: app.root.current = 'buyfinish'; app.root.stop_cashin()
+                    on_release: root.manager.current = 'buyfinish'; app.process_buy(); app.stop_cashin(); 
 
 <BuyFinishScreen>:
     name: 'buyfinish'
     Background:
-    LanguageBar:
+    GridLayout:
+        cols: 2
+        padding: 5
+        spacing: 2
+        LanguageBar:
         BoxLayout:
             orientation: 'vertical'
             padding: 40
@@ -578,10 +582,7 @@
                 font_size: 50
                 text_size: self.size
             #confirmation box
-            BoxLayout:        # label.text = address[1].rstrip()
-            # print(address[1])
-            # self.root_manager.current = 'buy'
-            # s
+            BoxLayout:
                 id: 'amount_sending_finished'
                 orientation: 'vertical'
                 size_hint: (1, None)
@@ -593,22 +594,22 @@
                 spacing: 10
                 size_hint: (1, None)
                 ColorDownButton:
-                    text: app.l["cancel"]
+                    text: ''
                     color: 1,1,1,0
                     background_color: 0,0,0,0
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
                     font_size: 30
                 ColorDownButton:
-                    text: 'SCAN'
+                    text: ''
                     color: 1,1,1,0
                     background_color: 0,0,0,0
                     background_color_normal: 0,0,0,0
                     background_color_down: 0,0,0,0
                     font_size: 30
                 MainButton:
-                    text: 'CLOSE'
-                    ###on_release: app.root.current = 'welcome'
+                    text: app.l["close"]
+                    on_release: root.manager.current = 'welcome'
 
 <SellSelectScreen>:
     name: 'sellselect'

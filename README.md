@@ -36,7 +36,12 @@ pip3 install -r requirements.txt
 Running
 -------
 ```
-python main.py
+python main.py develop
+```
+
+### Simulating Note validator with develop config
+```
+python mock_validator.py
 ```
 
 

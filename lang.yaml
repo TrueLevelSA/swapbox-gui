@@ -3,6 +3,7 @@ English:
   cancel: CANCEL
   finish: FINISH
   limit: Limit
+  close: CLOSE
   # welcome page
   heading1: 1 ETHER
   heading2: FOR
@@ -43,6 +44,7 @@ French:
   cancel: ANNULER
   finish: FIN
   limit: Limite
+  close: TERMINER
   # welcome page
   heading1: 1 ETHER
   heading2: POUR

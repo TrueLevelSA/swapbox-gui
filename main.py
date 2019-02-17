@@ -202,7 +202,6 @@ class RootWidget(FloatLayout):
 
     stop = threading.Event()
     stop_scan = threading.Event()
-    stopcashin = threading.Event()
     # current_ticker = Decimal(0)
 
     def start_sendcoins_thread(self):
@@ -306,7 +305,6 @@ class RootWidget(FloatLayout):
             print("ok")
             app.clientaddress = address[1].rstrip()
             self.root_manager.current = 'buy'
-            self.start_cashin_thread()
         else:
             label.text = "Invalid QR Code"
 
@@ -317,23 +315,80 @@ class RootWidget(FloatLayout):
         print("set self.stop.set")
         self.stop_scan.set()
 
-    def start_cashin_thread(self):
-        threading.Thread(target=self.cashin_thread).start()
-    def cashin_thread(self):
+
+    def cashin_reset_session(self):
+        app = App.get_running_app()
+
+        app.cashintotal = 0
+        app.cashin10 = 0
+        app.cashin20 = 0
+        app.cashin50 = 0
+        app.cashin100 = 0
+        app.cashin200 = 0
+
+    ###@mainthread
+    def generate_thread_update_label_text(self, new_text):
+        label = self.get_screen('generate').ids["'generate_status'"]
+        text = str(new_text)
+        print("the text")
+        print(text)
+        label.text = text
+
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(new_text)
+        qr.make(fit=True)
+        img = self.get_screen('generate').ids["'generate_qr'"]
+        imgn = qr.make_image()
+        print(imgn)
+        print(dir(imgn))
+        #data = io.BytesIO(open("image.png", "rb").read())
+        print("before coreimage")
+        #imgo = CoreImage(imgn)
+        print("after coreimage")
+        #print imgo
+        print(dir(img))
+        #img.canvas.clear()
+        img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
+        imgn.save(img_tmp_file, 'PNG')
+        img_tmp_file.close()
+        self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
+
+    def stop_scanning(self):
+        print("set self.stop.set")
+        self.stop_scan.set()
+
+
+class InterruptCashIn(Exception):
+    pass
+
+class CashInThread(Thread):
+
+    def __init__(self, app):
+        super(CashInThread, self).__init__()
+        self.app = app
+        self.stopcashin = threading.Event()
+        self.daemon = True
+
+    def run(self):
         """Run Worker Thread."""
         if MOCK_VALIDATOR:
             zctx = zmq.Context()
-            zsock = zctx.socket(zmq.SUB)
-            zsock.connect('tcp://localhost:{}'.format(mockport))
-            zsock.setsockopt_string(zmq.SUBSCRIBE,'')
+            self.zsock = zctx.socket(zmq.SUB)
+            self.zsock.connect('tcp://localhost:{}'.format(mockport))
+            self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
 
-            while not self.stopcashin.is_set():
-                print("cashinset: %s" % self.stopcashin.is_set())
-                msg = zsock.recv_multipart()
-                if DEBUG:
-                    Logger.info(' Mock Validator msg:%s' % (msg))
-                self.cashin_update_label_text(msg[0]) # "CHF:10"
-            print("cashin stopped")
+            while True:
+                msg = self.zsock.recv_multipart()
+                if not self.stopcashin.is_set():
+                    if DEBUG:
+                        Logger.info(' Mock Validator msg:%s' % (msg))
+                    self.app.cashin_update_label_text(msg[0]) # "CHF:10"
+
         else:
             #  Create a new object ( Validator Object ) and initialize it
             validator = eSSP(com_port=VALIDATOR_PORT, ssp_address="0", nv11=False, debug=DEBUG)
@@ -411,8 +466,6 @@ class RootWidget(FloatLayout):
         #             i = 0
         #
         #     time.sleep(0.5)
-        self.stop.clear()
-        self.stop_scan.clear()
         self.stopcashin.clear()
         #process the transaction
 
@@ -427,94 +480,8 @@ class RootWidget(FloatLayout):
             #print(r.text)
 
         return
-    def cashin_reset_session(self):
-        app = App.get_running_app()
-
-        app.cashintotal = 0
-        app.cashin10 = 0
-        app.cashin20 = 0
-        app.cashin50 = 0
-        app.cashin100 = 0
-        app.cashin200 = 0
-
-    #@mainthread
-    def cashin_update_label_text(self, new_credit):
-        app = App.get_running_app()
-
-        credit = new_credit.decode('utf-8')
-        cr = credit.split(':')
-
-        # newtotalquote = Decimal(newtotal) / Decimal(self.current_ticker)
-        #newtotalquote_rounded = newtotalquote.quantize(Decimal('.00000001'), rounding=ROUND_DOWN)
-        #total_quote_label.text = '[font=MyriadPro-Bold.otf][b]'+str(newtotal)+' Fr. = '+str(newtotalquote_rounded)+' BTC[/b][/font]'
-
-        # amount_sending_finished_label = self.root_manager.get_screen('buyfinish').ids["'amount_sending_finished'"]
-        # amount_sending_finished_label.text = 'WE ARE SENDING YOUR '+str(newtotalquote_rounded)+' BITCOINS'
-
-        if cr[1] == "10":
-            #self.channel1_count += 1
-            app.cashin10 += 1
-            app.cashintotal += 10
-            #totallabel = self.get_screen('buy').ids["'total_quote'"]
-            #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
-        if cr[1] == "20":
-            #self.channel2_count += 1
-            app.cashin20 += 1
-            app.cashintotal += 20
-        if cr[1] == "50":
-            #self.channel3_count += 1
-            app.cashin50 += 1
-            app.cashintotal += 50
-        if cr[1] == "100":
-            #self.channel4_count += 1
-            app.cashin100 += 1
-            app.cashintotal += 100
-        if cr[1] == "200":
-            #self.channel5_count += 1
-            app.cashin200 += 1
-            app.cashintotal += 200
-
-    ###@mainthread
-    def generate_thread_update_label_text(self, new_text):
-        label = self.get_screen('generate').ids["'generate_status'"]
-        text = str(new_text)
-        print("the text")
-        print(text)
-        label.text = text
-
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(new_text)
-        qr.make(fit=True)
-        img = self.get_screen('generate').ids["'generate_qr'"]
-        imgn = qr.make_image()
-        print(imgn)
-        print(dir(imgn))
-        #data = io.BytesIO(open("image.png", "rb").read())
-        print("before coreimage")
-        #imgo = CoreImage(imgn)
-        print("after coreimage")
-        #print imgo
-        print(dir(img))
-        #img.canvas.clear()
-        img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
-        imgn.save(img_tmp_file, 'PNG')
-        img_tmp_file.close()
-        self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
-
-    def stop_scanning(self):
-        print("set self.stop.set")
-        self.stop_scan.set()
-    def stop_cashin(self):
-        print("set stop.cashin")
-        self.stopcashin.set()
 
 port = '5556'
-
 class ZmqThread(Thread):
     def __init__(self, app):
         super(ZmqThread, self).__init__()
@@ -569,9 +536,52 @@ class AtmClientApp(App):
         print("change language to %s" % lang)
         self.l = self.lang[lang]
 
+
+    def start_cashin_thread(self):
+        #threading.Thread(target=self.cashin_thread).start()
+        self._cashinthread = CashInThread(self)
+        self._cashinthread.start()
+
+    def stop_cashin(self):
+        print("set stop.cashin")
+        self._cashinthread.stopcashin.set()
+
+    def process_buy(self):
+        print("process buy")
+
+
+    @mainthread
+    def cashin_update_label_text(self, new_credit):
+        print(new_credit)
+        credit = new_credit.decode('utf-8')
+        cr = credit.split(':')
+
+        if cr[1] == "10":
+            #self.channel1_count += 1
+            self.cashin10 += 1
+            self.cashintotal += 10
+            #totallabel = self.get_screen('buy').ids["'total_quote'"]
+            #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
+        if cr[1] == "20":
+            #self.channel2_count += 1
+            self.cashin20 += 1
+            self.cashintotal += 20
+        if cr[1] == "50":
+            #self.channel3_count += 1
+            self.cashin50 += 1
+            self.cashintotal += 50
+        if cr[1] == "100":
+            #self.channel4_count += 1
+            self.cashin100 += 1
+            self.cashintotal += 100
+        if cr[1] == "200":
+            #self.channel5_count += 1
+            self.cashin200 += 1
+            self.cashintotal += 200
+
     def build(self):
         self.zmq_connect()
-
+        self.start_cashin_thread()
 
         self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
         self.LANGUAGES = [language for language in self.lang]
