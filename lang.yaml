@@ -27,6 +27,7 @@ English:
   buyfinishedamountsending: WE ARE SENDING YOUR {} ETHER
   # sell page
   sellheading: BUY FIAT MONEY
+  quoteheading: 1 ETH
   other: OTHER
   # buy finish page
   sellfinishheading1: PLEASE SEND
@@ -62,6 +63,7 @@ French:
   buyfinishedamountsending: NOUS ENVOYONS VOS {} ETHER
   # sell page
   sellheading: ACHETER MONNAIE FIAT
+  quoteheading: 1 ETH
   other: AUTRE
   # buy finish page
   sellfinishheading1: PLEASE SEND
