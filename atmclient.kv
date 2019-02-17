@@ -68,6 +68,7 @@
         BuyScreen:
         BuyFinishScreen:
         SellSelectScreen:
+        SellFinishScreen:
 
 
 <WelcomeScreen>:
@@ -328,7 +329,7 @@
                             pos: self.pos
 
                 Image:
-                    source: 'phoneqr.png'
+                    source: 'img/phoneqr.png'
                     size_hint: (10, 10)
                     width: 10
                     height: 10
@@ -658,7 +659,7 @@
                         #size_hint: .3,1
                         MainButton:
                             text: '20 Fr.'
-                            ###on_release: app.root.current = 'verify'
+                            on_release: app.root.generate_qr(); root.manager.current = 'sellfinish'
                         MainButton:
                             text: '200 Fr.'
                             ###on_release: app.root.current = 'verify'
@@ -688,7 +689,7 @@
                             text: '100 Fr.'
                             ###on_release: app.root.current = 'verify'
                         MainButton:
-                            text: 'OTHER'
+                            text: app.l["other"]
                             ###on_release: app.root.current = 'verify'
             BoxLayout:
                 height: 100
@@ -700,3 +701,67 @@
                     on_release: root.manager.current = 'welcome'
                 MainButton:
                     text: app.l["finish"]
+
+<SellFinishScreen>:
+    name: 'sellfinish'
+    Background:
+    GridLayout:
+        cols: 2
+        padding: 5
+        spacing: 2
+        LanguageBar:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 40
+            spacing: 10
+            height: 10
+            Label:
+                text: '[b][font=MyriadPro-Bold.otf]{}[/font][/b]'.format(app.l["sellfinishheading1"])
+                markup: True
+                halign: 'left'
+                text_size: self.size
+                size_hint: (1, None)
+                color: 1,1,1,1
+                font_size: 70
+            Label:
+                text: '[font=MyriadPro-Bold.otf][b]{}[/b][/font]'.format(app.l["sellfinishheading2"])
+                halign: 'left'
+                valign: 'top'
+                markup: True
+                size_hint: (1, None)
+                color: 0,0,0,1
+                font_size: 50
+                text_size: self.size
+            Image:
+                id: 'generate_qr'
+
+            #confirmation box
+            BoxLayout:
+                id: 'amount_selling_finished'
+                orientation: 'vertical'
+                size_hint: (1, None)
+                Label:
+                    text: app.l["sellfinishedamountsending"].format((round(app.cashintotal / app.price["buy_price"], 2)) if float(app.price["buy_price"]) > 0 else 0)
+                    color: 0,0,0,1
+
+            BoxLayout:
+                height: 50
+                spacing: 10
+                size_hint: (1, None)
+                ColorDownButton:
+                    text: ''
+                    color: 1,1,1,0
+                    background_color: 0,0,0,0
+                    background_color_normal: 0,0,0,0
+                    background_color_down: 0,0,0,0
+                    font_size: 30
+                ColorDownButton:
+                    text: ''
+                    color: 1,1,1,0
+                    background_color: 0,0,0,0
+                    background_color_normal: 0,0,0,0
+                    background_color_down: 0,0,0,0
+                    font_size: 30
+                MainButton:
+                    text: app.l["close"]
+                    on_release: root.manager.current = 'welcome'

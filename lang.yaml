@@ -27,17 +27,11 @@ English:
   buyfinishedamountsending: WE ARE SENDING YOUR {} ETHER
   # sell page
   sellheading: BUY FIAT MONEY
-
-  welcome: Welcome to Atola BTM. Press on the screen to continue
-  admin_menu: Admin
-  connectivity: Connectivity
-  menu: Menu
-  history: History
-  calibrate: Calibrate
-  clear_comter: Clear Counters
-  cashbox: CashBoxes
-  parametres: Parametres
-  exit: Exit
+  other: OTHER
+  # buy finish page
+  sellfinishheading1: PLEASE SEND
+  sellfinishheading2: '> {} ETHER'
+  sellfinishedamountsending: YOU'RE SELLING {} ETHER
 
 French:
   language: Language
@@ -68,19 +62,8 @@ French:
   buyfinishedamountsending: NOUS ENVOYONS VOS {} ETHER
   # sell page
   sellheading: ACHETER MONNAIE FIAT
-
-  validate: Valider
-  confirm: Confirmer
-  buy: Acheter
-  sell: Vender
-  redeem: Utiliser un code
-  welcome: Bienvenue au BTM d'Atola. Appuyez sur l'écran pour continuer
-  admin_menu: Menu Administrateur
-  connectivity: Connectivitée
-  menu: Menu
-  history: Historique
-  calibrate: Calibrer
-  clear_comter: Compteur a Zero
-  cashbox: CashBoxes
-  parametres: Parametres
-  exit: Exit
+  other: AUTRE
+  # buy finish page
+  sellfinishheading1: PLEASE SEND
+  sellfinishheading2: 'approx {} ETHER'
+  sellfinishedamountsending: VOUS VENDEZ {} ETHER

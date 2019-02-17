@@ -37,6 +37,7 @@ from path import Path
 import strictyaml
 import argument
 from enum import auto, Enum
+import qrcode
 
 class Shapes(Enum):
     CIRCLE = auto()
@@ -126,11 +127,7 @@ class BuyFinishScreen(Screen):
 class SellSelectScreen(Screen):
     pass
 
-
-class VerifyScreen(Screen):
-    def backward(self, express):
-        if express:
-            self.display.text = express[:-1]
+class SellFinishScreen(Screen):
     pass
 
 
@@ -258,6 +255,7 @@ class RootWidget(FloatLayout):
     def cashin_reset_session(self):
         app = App.get_running_app()
 
+        app.clientaddress = ""
         app.cashintotal = 0
         app.cashin10 = 0
         app.cashin20 = 0
@@ -266,12 +264,9 @@ class RootWidget(FloatLayout):
         app.cashin200 = 0
 
     ###@mainthread
-    def generate_thread_update_label_text(self, new_text):
-        label = self.get_screen('generate').ids["'generate_status'"]
-        text = str(new_text)
-        print("the text")
-        print(text)
-        label.text = text
+    def generate_qr(self):
+
+        new_text = '0x123456789abcdef'
 
         qr = qrcode.QRCode(
             version=1,
@@ -281,7 +276,7 @@ class RootWidget(FloatLayout):
         )
         qr.add_data(new_text)
         qr.make(fit=True)
-        img = self.get_screen('generate').ids["'generate_qr'"]
+        img = self.root_manager.get_screen('sellfinish').ids["'generate_qr'"]
         imgn = qr.make_image()
         print(imgn)
         print(dir(imgn))
@@ -295,7 +290,7 @@ class RootWidget(FloatLayout):
         img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
         imgn.save(img_tmp_file, 'PNG')
         img_tmp_file.close()
-        self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
+        self.root_manager.get_screen('sellfinish').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
 
 
 class CashInThread(Thread):
