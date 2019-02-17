@@ -298,9 +298,6 @@ class RootWidget(FloatLayout):
         self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
 
 
-class InterruptCashIn(Exception):
-    pass
-
 class CashInThread(Thread):
 
     def __init__(self, app):
@@ -402,17 +399,6 @@ class CashInThread(Thread):
         #
         #     time.sleep(0.5)
         self.stopcashin.clear()
-        #process the transaction
-
-        # if newtotal > 0:
-        #     #and the addy
-        #     address_label = self.root.get_screen('buy').ids["'to_address'"]
-        #
-        #     headers = {'Authorization': 'ApiKey firstmachine:GUWH8Fh4q2byrwashcrnwas0vnsufwby8VBEAUSV', 'Accept': 'application/json', 'Content-Type': 'application/json'}
-        #     payload = {'amount': str(newtotal), 'currency': 'CHF', 'reference':'', 'status':'RCVE', 'order':{'comment':""}, 'withdraw_address':{'address':address_label.text}}
-
-            #r = requests.post("https://secure.atm4coin.com/api/v1/input_transaction/", headers=headers, data=json.dumps(payload))
-            #print(r.text)
 
         return
 
