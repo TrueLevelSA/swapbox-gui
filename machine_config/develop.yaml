@@ -3,8 +3,9 @@ debug: True
 mock_validator: True
 validator_port: /dev/ttyUSB0
 validator_nv11: False
-# Camera Settings (set to false if unused)
-camera_device: false
+# Camera Settings (camera_device only for ZBARCAM method)
+camera_method: ZBARCAM
+camera_device: /dev/video0
 # LED Relay (set to NONE if unused)
 relay_method: NONE
 # set to false to use camera (signed) auth

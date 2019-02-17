@@ -39,6 +39,11 @@ import argument
 from enum import auto, Enum
 import qrcode
 
+class CameraMethod(Enum):
+    ZBARCAM = auto()
+    OPENCV = auto()
+    KIVY = auto()
+
 class RelayMethod(Enum):
     PIFACE = auto()
     GPIO = auto()
@@ -57,6 +62,8 @@ else:
     exit(0)
 
 DEBUG = machine_config.get("debug")
+CAMERA_METHOD = machine_config.get("camera_method")
+ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
 RELAY_METHOD = machine_config.get("relay_method")
 MOCK_VALIDATOR = machine_config.get("mock_validator")
 NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
@@ -72,7 +79,6 @@ if os.uname()[4].startswith("arm"):
         GPIO.cleanup()
 else:
     RELAY_METHOD = None
-    ZBAR_VIDEO_DEVICE = '/dev/video1'
 
 
 #for fullscreen
@@ -175,10 +181,12 @@ class RootWidget(FloatLayout):
             GPIO.output(7, GPIO.HIGH)
             GPIO.output(7, GPIO.LOW)
 
-        if os.uname()[4].startswith("arm"):
+        if CameraMethod[CAMERA_METHOD] is CameraMethod.ZBARCAM:
+            cmd = 'zbarcam --prescale=320x320 {}'.format(ZBAR_VIDEO_DEVICE)
+        elif CameraMethod[CAMERA_METHOD] is RelayMethod.OPENCV:
             cmd = '/home/pi/Prog/zbar-build/test/a.out'
         else:
-            cmd = 'zbarcam --prescale=320x320 /dev/video0'
+            print("No CameraMethod selected")
 
         self.execute = pexpect.spawn(cmd, [], 300)
 
