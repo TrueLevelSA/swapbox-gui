@@ -39,10 +39,11 @@ import argument
 from enum import auto, Enum
 import qrcode
 
-class Shapes(Enum):
-    CIRCLE = auto()
-    SQUARE = auto()
-    OVAL = auto()
+class RelayMethod(Enum):
+    PIFACE = auto()
+    GPIO = auto()
+    NONE = auto()
+
 
 # Get config file as required arguemnt and load
 f = argument.Arguments()
@@ -64,9 +65,9 @@ VALIDATOR_PORT = machine_config.get("validator_port")
 
 # For pifacedigital relay
 if os.uname()[4].startswith("arm"):
-    if RELAY_METHOD == 'piface':
+    if RelayMethod[RELAY_METHOD] is RelayMethod.PIFACE:
         import pifacedigitalio
-    elif RELAY_METHOD == 'gpio':
+    elif RelayMethod[RELAY_METHOD] is RelayMethod.GPIO:
         import RPi.GPIO as GPIO
         GPIO.cleanup()
 else:

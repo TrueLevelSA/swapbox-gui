@@ -5,7 +5,7 @@ validator_port: /dev/ttyUSB0
 validator_nv11: False
 # Camera Settings (set to false if unused)
 camera_device: false
-# LED Relay (set to false if unused)
-relay_method: false
+# LED Relay (set to NONE if unused)
+relay_method: NONE
 # set to false to use camera (signed) auth
 admin_pin: 1234
