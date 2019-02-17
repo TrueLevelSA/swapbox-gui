@@ -147,58 +147,6 @@ class RootWidget(FloatLayout):
     '''
     root_manager = ObjectProperty()
     current_btm_process_id = NumericProperty()
-    #
-    # # START WIDGET GETTER TASKS STUFF #
-    # def add_cb_widget(
-    #   self, kv_widget, kv_container, item_id, text_field, checked, **kwargs):
-    #     ns = {}
-    #     factoryimport = compile(
-    #       'from kivy.factory import Factory', '<string>', 'exec')
-    #     exec(factoryimport, ns)
-    #
-    #     widgetfactory = compile(
-    #       'widget = Factory.'+kv_widget+'()', '<string>', 'exec')
-    #     exec(widgetfactory, ns)
-    #
-    #     ns['widget'].id = str(item_id)
-    #     widget = self.widget_properties(ns['widget'], **kwargs)
-    #     if text_field != 'None':
-    #         widget.text = kwargs[text_field]
-    #
-    #     if checked:
-    #         widget.is_checked = True
-    #         self.current_address_id = int(item_id)
-    #     addwidget = compile(
-    #       'self.'+kv_container+'.add_widget(widget)', '<string>', 'exec')
-    #     exec(addwidget, locals(), globals())
-    #
-    # def remove_all_cb_widgets(self, container):
-    #     # self.pizzas_widget.clear_widgets()
-    #     removewidget = compile(
-    #       'self.'+container+'.clear_widgets()', '<string>', 'exec')
-    #     exec(removewidget, locals())  # , globals()
-    #
-    # def widget_properties(self, widget, **kwargs):
-    #     for key in kwargs:
-    #         setattr(widget, key, kwargs[key])
-    #     return widget
-    #
-    # def returnWidgetData(self, d, kv_widget, kv_container, text_field):
-    #     print(d)
-    #     r = json.loads(d)
-    #     count = 0
-    #     for item in r:
-    #         self.add_cb_widget(
-    #           kv_widget,
-    #           kv_container,
-    #           item.get("pk"),
-    #           text_field,
-    #           False,
-    #           **item.get("fields")
-    #           )
-    #         count += 1
-    #     return d
-
 
     stop = threading.Event()
     stop_scan = threading.Event()
@@ -213,6 +161,7 @@ class RootWidget(FloatLayout):
         pass
 
     def start_qr_thread(self):
+        print("start qr")
         threading.Thread(target=self.qr_thread).start()
     def qr_thread(self):
         # This is the code executing in the new thread.
@@ -233,23 +182,14 @@ class RootWidget(FloatLayout):
         else:
             cmd = 'zbarcam --prescale=320x320 /dev/video0'
 
-        execute = pexpect.spawn(cmd, [], 300)
-        # qr_code = os.system(cmd)
-        # print qr_code
-        # self.qr_thread_update_label_text(qr_code)
-        # # Note: infinite looooop
+        self.execute = pexpect.spawn(cmd, [], 300)
 
+        # infinite loop
         while True:
-            # if self.stop.is_set():
-            #     print "cancel qr scan"
-            #     execute.close(True)
-            #     break
-            # else:
-            #     print "wtf"
             try:
-                execute.expect('\n')
+                self.execute.expect('\n')
                 # Get last line fron expect
-                line = execute.before
+                line = self.execute.before
                 print(line)
                 if os.uname()[4].startswith("arm"):
                     if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
@@ -267,7 +207,7 @@ class RootWidget(FloatLayout):
                 else:
                     if line != "" and line != None and line.startswith(b"QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
-                        execute.close(True)
+                        self.execute.close(True)
                         if RELAY_METHOD == 'piface':
                             # pifacedigital(ligth_off)
                             pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
@@ -281,6 +221,8 @@ class RootWidget(FloatLayout):
             except pexpect.TIMEOUT:
                 print("timeout")
                 break
+        print("clear stop scan")
+        self.stop_scan.clear()
         return
     ###@mainthread
     def qr_thread_update_label_text(self, new_text):
@@ -308,13 +250,10 @@ class RootWidget(FloatLayout):
         else:
             label.text = "Invalid QR Code"
 
-    def stop_scanning(self):
-        # The Kivy event loop is about to stop, set a stop signal;
-        # otherwise the app window will close, but the Python process will
-        # keep running until all secondary threads exit.
-        print("set self.stop.set")
-        self.stop_scan.set()
 
+    def stop_scanning(self):
+        self.execute.close(True)
+        #self.execute.terminate()
 
     def cashin_reset_session(self):
         app = App.get_running_app()
@@ -357,10 +296,6 @@ class RootWidget(FloatLayout):
         imgn.save(img_tmp_file, 'PNG')
         img_tmp_file.close()
         self.get_screen('generate').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
-
-    def stop_scanning(self):
-        print("set self.stop.set")
-        self.stop_scan.set()
 
 
 class InterruptCashIn(Exception):
@@ -548,6 +483,14 @@ class AtmClientApp(App):
 
     def process_buy(self):
         print("process buy")
+        zctx = zmq.Context()
+        zsock = zctx.socket(zmq.REQ)
+        zsock.connect('tcp://localhost:5557')
+        data = {'amount': self.cashintotal, 'address': self.clientaddress}
+        zsock.send_json(data)
+        message = zsock.recv()
+
+        self.root.cashin_reset_session()
 
 
     @mainthread

@@ -350,14 +350,9 @@
                     text: ''
                 Label:
                     text: ''
-                ColorDownButton:
+                MainButton:
                     text: app.l["cancel"]
-                    color: 1,1,1,0
-                    background_color_normal: 0,0,0,0
-                    background_color_down: 0,0,0,0
-                    font_size: 30
-                    on_release: app.root.current = 'welcome'; app.root.stop_scanning()
-
+                    on_release: app.root.stop_scanning(); root.manager.current = 'welcome'
 
 <BuyScreen>:
     name: 'buy'
@@ -505,7 +500,7 @@
                     BoxLayout:
                         orientation: 'vertical'
                         Label:
-                            text: '[font=MyriadPro-Bold.otf][b]1 ETH = {} CHF[/b][/font]'.format(app.price["buy_price"])
+                            text: '[font=MyriadPro-Bold.otf][b]1 ETH = {} CHF[/b][/font]'.format(round(float(app.price["buy_price"]), 2))
                             markup: True
                             halign: 'right'
                             font_size: 38
@@ -549,7 +544,7 @@
                 #     font_size: 30
                 MainButton:
                     text: app.l["finish"]
-                    on_release: root.manager.current = 'buyfinish'; app.process_buy(); app.stop_cashin(); 
+                    on_release: root.manager.current = 'buyfinish'; app.process_buy(); app.stop_cashin();
 
 <BuyFinishScreen>:
     name: 'buyfinish'
