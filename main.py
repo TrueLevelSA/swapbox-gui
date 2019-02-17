@@ -3,8 +3,9 @@ __version__ = "1.3.0"
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
-from kivy.properties import ListProperty
+from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 
 # Kivy's install_twisted_rector MUST be called early on!
@@ -12,14 +13,10 @@ from kivy.uix.button import Button
 #install_twisted_reactor()
 
 #from kivy.uix.camera import Camera
-from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import NumericProperty, ObjectProperty
+from kivy.properties import NumericProperty, ObjectProperty, ListProperty
 from kivy.logger import Logger
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition, SlideTransition
-#for settings window
-from kivy.uix.settings import SettingsWithSidebar
 import time
-from kivy.clock import Clock, mainthread
+# from kivy.clock import Clock, mainthread
 from functools import partial
 import threading
 import pexpect
@@ -451,12 +448,12 @@ class AtmClientApp(App):
         self._zthread = ZmqThread(self)
         self._zthread.start()
 
-    @mainthread
+    ###@mainthread
     def on_message(self, data):
         print(data)
         self.price = json.loads(data)
 
-    @mainthread
+    ###@mainthread
     def change_language(self, lang):
         print("change language to %s" % lang)
         self.l = self.lang[lang]
@@ -483,7 +480,7 @@ class AtmClientApp(App):
         self.root.cashin_reset_session()
 
 
-    @mainthread
+    ###@mainthread
     def cashin_update_label_text(self, new_credit):
         print(new_credit)
         credit = new_credit.decode('utf-8')
