@@ -473,7 +473,7 @@ class AtmClientApp(App):
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.REQ)
         zsock.connect('tcp://localhost:5557')
-        data = {'amount': self.cashintotal, 'address': self.clientaddress}
+        data = {'method': 'buy', 'amount': self.cashintotal, 'address': self.clientaddress}
         zsock.send_json(data)
         message = zsock.recv()
 
