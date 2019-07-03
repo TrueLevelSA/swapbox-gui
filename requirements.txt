@@ -10,4 +10,5 @@ pyzmq
 requests
 pyserial
 pifacedigitalio
+qrcode
 git+https://github.com/Minege/eSSP
