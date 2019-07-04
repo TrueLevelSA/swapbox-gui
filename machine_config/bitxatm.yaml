@@ -1,6 +1,7 @@
 debug: True
 # Validator Settings
 mock_validator: False
+mock_port: 5555
 validator_port: /dev/ttyUSB0
 validator_nv11: False
 # Camera Settings (camera_device only for ZBARCAM method)

@@ -63,8 +63,10 @@ CAMERA_METHOD = machine_config.get("camera_method")
 ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
 RELAY_METHOD = machine_config.get("relay_method")
 MOCK_VALIDATOR = machine_config.get("mock_validator")
+MOCKPORT = machine_config.get("mock_port")
 NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
 VALIDATOR_PORT = machine_config.get("validator_port")
+
 
 
 # For pifacedigital relay
@@ -137,8 +139,6 @@ class SellFinishScreen(Screen):
 
 class MyScreenManager(ScreenManager):
     pass
-
-mockport = '5555'
 
 class RootWidget(FloatLayout):
     '''
