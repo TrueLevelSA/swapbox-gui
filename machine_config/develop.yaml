@@ -8,7 +8,7 @@ validator_nv11: False
 camera_method: ZBARCAM
 camera_device: /dev/video0
 #ZMQ settings
-zmq_port = 5556
+zmq_port: 5556
 # LED Relay (set to NONE if unused)
 relay_method: NONE
 # set to false to use camera (signed) auth
