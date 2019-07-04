@@ -11,15 +11,15 @@ currency = "CHF"
 
 try:  # Command Interpreter
     while True:
-        choice = input("")
-        if choice == "i":  # Input "choice" value bill ( 10, 20, 50, 100, etc. )
-            choice = input("")
+        choice = input("What to do: (i)nsert (q)uit + Enter\n")
+        if choice == "i" or choice == "insert":  # Input "choice" value bill ( 10, 20, 50, 100, etc. )
+            choice = input("Amount:\n")
             data = "{}:{}".format(currency, choice)
             #data = {'currency': currency, 'choice': choice}
             print(" Sending {}".format(data))
             socket.send_string(data)
 
-        elif choice == "q":  # Exit
+        elif choice == "q" or choice == "quit":  # Exit
             exit(0)
 
 except KeyboardInterrupt:  # If user do CTRL+C
