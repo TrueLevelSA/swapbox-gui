@@ -312,7 +312,7 @@ class CashInThread(Thread):
         if MOCK_VALIDATOR:
             zctx = zmq.Context()
             self.zsock = zctx.socket(zmq.SUB)
-            self.zsock.connect('tcp://localhost:{}'.format(mockport))
+            self.zsock.connect('tcp://localhost:{}'.format(MOCKPORT))
             self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
 
             while True:
