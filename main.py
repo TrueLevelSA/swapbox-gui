@@ -66,7 +66,7 @@ MOCK_VALIDATOR = machine_config.get("mock_validator")
 MOCKPORT = machine_config.get("mock_port")
 NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
 VALIDATOR_PORT = machine_config.get("validator_port")
-
+ZMQ_PORT = machine_config.get("zmq_port")
 
 
 # For pifacedigital relay
@@ -403,7 +403,6 @@ class CashInThread(Thread):
 
         return
 
-port = '5556'
 class ZmqThread(Thread):
     def __init__(self, app):
         super(ZmqThread, self).__init__()
@@ -414,7 +413,7 @@ class ZmqThread(Thread):
         app = self.app
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.SUB)
-        zsock.connect('tcp://localhost:{}'.format(port))
+        zsock.connect('tcp://localhost:{}'.format(ZMQ_PORT))
         zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
         while True:
