@@ -411,7 +411,6 @@ class AtmClientApp(App):
         super(AtmClientApp, self).__init__(**kwargs)
 
     def zmq_connect(self):
-        print("COUILLE DE PORC", self._config)
         self._zthread = ZmqThread(self, self._config)
         self._zthread.start()
 
