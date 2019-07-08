@@ -423,6 +423,7 @@ class ZmqThread(Thread):
                 Logger.info('   Topic: %s, msg:%s' % (topic, msg))
             app.on_message(msg)
 
+NOTES_VALUES = ["10", "20", "50", "100", "200"]
 
 class AtmClientApp(App):
     # def stop_scan(self):
@@ -435,14 +436,14 @@ class AtmClientApp(App):
     l = ObjectProperty(strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data['English'])
     # current_buy_transaction = ObjectProperty({'cashin10': 0, 'cashin20': 0, 'cashin50': 0, 'cashin100': 0, 'cashin200': 0})
 
+
     # current buy vars
-    cashin10 = NumericProperty(0)
-    cashin20 = NumericProperty(0)
-    cashin50 = NumericProperty(0)
-    cashin100 = NumericProperty(0)
-    cashin200 = NumericProperty(0)
+    cash_in = ObjectProperty({k: 0 for k in NOTES_VALUES})
     cashintotal = NumericProperty(0)
     clientaddress = ObjectProperty('N/A')
+
+    def __init__(self, **kwargs):
+        super(AtmClientApp, self).__init__(**kwargs)
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self)
@@ -486,28 +487,12 @@ class AtmClientApp(App):
         credit = new_credit.decode('utf-8')
         credit = credit.split(':')
 
-        if credit[1] == "10":
-            #self.channel1_count += 1
-            self.cashin10 += 1
-            self.cashintotal += 10
-            #totallabel = self.get_screen('buy').ids["'total_quote'"]
-            #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
-        if credit[1] == "20":
-            #self.channel2_count += 1
-            self.cashin20 += 1
-            self.cashintotal += 20
-        if credit[1] == "50":
-            #self.channel3_count += 1
-            self.cashin50 += 1
-            self.cashintotal += 50
-        if credit[1] == "100":
-            #self.channel4_count += 1
-            self.cashin100 += 1
-            self.cashintotal += 100
-        if credit[1] == "200":
-            #self.channel5_count += 1
-            self.cashin200 += 1
-            self.cashintotal += 200
+        if credit[1] in NOTES_VALUES:
+            note = credit[1]
+            self.cash_in[note] += 1
+            self.cashintotal += int(note)
+            print("cashtotal", self.cashintotal)
+            print("cash", self.cash_in)
 
     def build(self):
         self.zmq_connect()
