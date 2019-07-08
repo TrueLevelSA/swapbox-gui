@@ -179,7 +179,8 @@ class RootWidget(FloatLayout):
             GPIO.output(7, GPIO.LOW)
 
         if CameraMethod[CAMERA_METHOD] is CameraMethod.ZBARCAM:
-            cmd = 'zbarcam --prescale=320x320 {}'.format(ZBAR_VIDEO_DEVICE)
+            # fallback resolution of C270 is too low to scan
+            cmd = 'zbarcam --prescale=640x480 --nodisplay {}'.format(ZBAR_VIDEO_DEVICE)
         elif CameraMethod[CAMERA_METHOD] is RelayMethod.OPENCV:
             cmd = '/home/pi/Prog/zbar-build/test/a.out'
         else:
