@@ -27,58 +27,13 @@ from eSSP import eSSP  # Import the library
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
 import requests
 import json
-import os
 import zmq
 from threading import Thread
-from path import Path
-import strictyaml
-import argument
-from enum import auto, Enum
 import qrcode
+import strictyaml
+from path import Path
 
-class CameraMethod(Enum):
-    ZBARCAM = auto()
-    OPENCV = auto()
-    KIVY = auto()
-
-class RelayMethod(Enum):
-    PIFACE = auto()
-    GPIO = auto()
-    NONE = auto()
-
-
-# Get config file as required arguemnt and load
-f = argument.Arguments()
-f.always("config", help="Machine Config file name")
-arguments, errors = f.parse()
-
-if arguments.get("config") is not None:
-    machine_config = strictyaml.load(Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
-else:
-    print("Config file must be specified")
-    exit(0)
-
-DEBUG = machine_config.get("debug")
-CAMERA_METHOD = machine_config.get("camera_method")
-ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
-RELAY_METHOD = machine_config.get("relay_method")
-MOCK_VALIDATOR = machine_config.get("mock_validator")
-MOCKPORT = machine_config.get("mock_port")
-NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
-VALIDATOR_PORT = machine_config.get("validator_port")
-ZMQ_PORT = machine_config.get("zmq_port")
-
-
-# For pifacedigital relay
-if os.uname()[4].startswith("arm"):
-    if RelayMethod[RELAY_METHOD] is RelayMethod.PIFACE:
-        import pifacedigitalio
-    elif RelayMethod[RELAY_METHOD] is RelayMethod.GPIO:
-        import RPi.GPIO as GPIO
-        GPIO.cleanup()
-else:
-    RELAY_METHOD = None
-
+from config_tools import parse_args as parse_args
 
 #for fullscreen
 #from kivy.core.window import Window
@@ -153,6 +108,10 @@ class RootWidget(FloatLayout):
     stop_scan = threading.Event()
     # current_ticker = Decimal(0)
 
+    def __init__(self, config, **kwargs):
+        self._config = config
+        super(RootWidget, self).__init__(**kwargs)
+
     def start_sendcoins_thread(self):
         threading.Thread(target=self.sendcoins_thread).start()
 
@@ -168,20 +127,20 @@ class RootWidget(FloatLayout):
         # This is the code executing in the new thread.
         #
         # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
-        if RELAY_METHOD == 'piface':
+        if self._config.RELAY_METHOD == 'piface':
             pifacedigital = pifacedigitalio.PiFaceDigital()
             pifacedigital.output_pins[0].turn_on() # this command does the same thing..
             pifacedigital.leds[0].turn_on() # as this command
-        elif RELAY_METHOD == 'gpio':
+        elif self._config.RELAY_METHOD == 'gpio':
             GPIO.setmode(GPIO.BOARD)
             GPIO.setup(7, GPIO.OUT)
             GPIO.output(7, GPIO.HIGH)
             GPIO.output(7, GPIO.LOW)
 
-        if CameraMethod[CAMERA_METHOD] is CameraMethod.ZBARCAM:
+        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
             # fallback resolution of C270 is too low to scan
-            cmd = 'zbarcam --prescale=640x480 --nodisplay {}'.format(ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[CAMERA_METHOD] is RelayMethod.OPENCV:
+            cmd = 'zbarcam --prescale=640x480 --nodisplay {}'.format(self._config.ZBAR_VIDEO_DEVICE)
+        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
             cmd = '/home/pi/Prog/zbar-build/test/a.out'
         else:
             print("No CameraMethod selected")
@@ -201,22 +160,22 @@ class RootWidget(FloatLayout):
                         # wal.close()
                         print("found qr: %s" % line[22:])
                         execute.close(True)
-                        if RELAY_METHOD == 'piface':
+                        if self._config.RELAY_METHOD == 'piface':
                             # pifacedigital(ligth_off)
                             pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
                             pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio':
+                        elif self._config.RELAY_METHOD == 'gpio':
                             GPIO.output(7, GPIO.HIGH)
                         break
                 else:
                     if line != "" and line != None and line.startswith(b"QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
                         self.execute.close(True)
-                        if RELAY_METHOD == 'piface':
+                        if self._config.RELAY_METHOD == 'piface':
                             # pifacedigital(ligth_off)
                             pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
                             pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio':
+                        elif self._config.RELAY_METHOD == 'gpio':
                             GPIO.output(7, GPIO.HIGH)
                         break
             except pexpect.EOF:
@@ -264,11 +223,8 @@ class RootWidget(FloatLayout):
 
         app.clientaddress = ""
         app.cashintotal = 0
-        app.cashin10 = 0
-        app.cashin20 = 0
-        app.cashin50 = 0
-        app.cashin100 = 0
-        app.cashin200 = 0
+        for k in self._config.NOTES_VALUES:
+            app.cash_in[k] = 0
 
     ###@mainthread
     def generate_qr(self):
@@ -302,18 +258,19 @@ class RootWidget(FloatLayout):
 
 class CashInThread(Thread):
 
-    def __init__(self, app):
+    def __init__(self, app, config):
         super(CashInThread, self).__init__()
         self.app = app
+        self._config = config
         self.stopcashin = threading.Event()
         self.daemon = True
 
     def run(self):
         """Run Worker Thread."""
-        if MOCK_VALIDATOR:
+        if self._config.MOCK_VALIDATOR:
             zctx = zmq.Context()
             self.zsock = zctx.socket(zmq.SUB)
-            self.zsock.connect('tcp://localhost:{}'.format(MOCKPORT))
+            self.zsock.connect('tcp://localhost:{}'.format(self._config.MOCKPORT))
             self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
 
             while True:
@@ -325,7 +282,7 @@ class CashInThread(Thread):
 
         else:
             #  Create a new object ( Validator Object ) and initialize it
-            validator = eSSP(com_port=VALIDATOR_PORT, ssp_address="0", nv11=False, debug=DEBUG)
+            validator = eSSP(com_port=self._config.VALIDATOR_PORT, ssp_address="0", nv11=False, debug=self._config.DEBUG)
 
             while not self.stopcashin.is_set():
 
@@ -405,8 +362,9 @@ class CashInThread(Thread):
         return
 
 class ZmqThread(Thread):
-    def __init__(self, app):
+    def __init__(self, app, config):
         super(ZmqThread, self).__init__()
+        self._config = config
         self.app = app
         self.daemon = True
 
@@ -414,16 +372,15 @@ class ZmqThread(Thread):
         app = self.app
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.SUB)
-        zsock.connect('tcp://localhost:{}'.format(ZMQ_PORT))
+        zsock.connect('tcp://localhost:{}'.format(self._config.ZMQ_PORT))
         zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
         while True:
             topic, msg = zsock.recv_multipart()
-            if DEBUG:
+            if self._config.DEBUG:
                 Logger.info('   Topic: %s, msg:%s' % (topic, msg))
             app.on_message(msg)
 
-NOTES_VALUES = ["10", "20", "50", "100", "200"]
 
 class AtmClientApp(App):
     # def stop_scan(self):
@@ -438,15 +395,21 @@ class AtmClientApp(App):
 
 
     # current buy vars
-    cash_in = ObjectProperty({k: 0 for k in NOTES_VALUES})
+    cash_in = ObjectProperty({})
     cashintotal = NumericProperty(0)
     clientaddress = ObjectProperty('N/A')
 
-    def __init__(self, **kwargs):
+    def __init__(self, config, **kwargs):
+        self._config = config
+        print(self._config)
+        for k in config.NOTES_VALUES:
+            self.cash_in[k] = 0
+
         super(AtmClientApp, self).__init__(**kwargs)
 
     def zmq_connect(self):
-        self._zthread = ZmqThread(self)
+        print("COUILLE DE PORC", self._config)
+        self._zthread = ZmqThread(self, self._config)
         self._zthread.start()
 
     ###@mainthread
@@ -462,7 +425,7 @@ class AtmClientApp(App):
 
     def start_cashin_thread(self):
         #threading.Thread(target=self.cashin_thread).start()
-        self._cashinthread = CashInThread(self)
+        self._cashinthread = CashInThread(self, self._config)
         self._cashinthread.start()
 
     def stop_cashin(self):
@@ -487,7 +450,7 @@ class AtmClientApp(App):
         credit = new_credit.decode('utf-8')
         credit = credit.split(':')
 
-        if credit[1] in NOTES_VALUES:
+        if credit[1] in self._config.NOTES_VALUES:
             note = credit[1]
             self.cash_in[note] += 1
             self.cashintotal += int(note)
@@ -502,7 +465,7 @@ class AtmClientApp(App):
         self.LANGUAGES = [language for language in self.lang]
         # self.language = self.lang
 
-        self.root = RootWidget()
+        self.root = RootWidget(self._config)
 
         Logger.info('Frontend Started')
 
@@ -512,4 +475,5 @@ class AtmClientApp(App):
 
 
 if __name__ == '__main__':
-    AtmClientApp().run()
+    config = parse_args()
+    AtmClientApp(config).run()
