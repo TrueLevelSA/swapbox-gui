@@ -484,27 +484,27 @@ class AtmClientApp(App):
     def cashin_update_label_text(self, new_credit):
         print(new_credit)
         credit = new_credit.decode('utf-8')
-        cr = credit.split(':')
+        credit = credit.split(':')
 
-        if cr[1] == "10":
+        if credit[1] == "10":
             #self.channel1_count += 1
             self.cashin10 += 1
             self.cashintotal += 10
             #totallabel = self.get_screen('buy').ids["'total_quote'"]
             #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
-        if cr[1] == "20":
+        if credit[1] == "20":
             #self.channel2_count += 1
             self.cashin20 += 1
             self.cashintotal += 20
-        if cr[1] == "50":
+        if credit[1] == "50":
             #self.channel3_count += 1
             self.cashin50 += 1
             self.cashintotal += 50
-        if cr[1] == "100":
+        if credit[1] == "100":
             #self.channel4_count += 1
             self.cashin100 += 1
             self.cashintotal += 100
-        if cr[1] == "200":
+        if credit[1] == "200":
             #self.channel5_count += 1
             self.cashin200 += 1
             self.cashintotal += 200
