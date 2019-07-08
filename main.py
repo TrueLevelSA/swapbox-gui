@@ -31,9 +31,12 @@ import zmq
 from threading import Thread
 import qrcode
 import strictyaml
+import os
 from path import Path
 
 from config_tools import parse_args as parse_args
+from config_tools import CameraMethod as CameraMethod
+from config_tools import RelayMethod as RelayMethod
 
 #for fullscreen
 #from kivy.core.window import Window
