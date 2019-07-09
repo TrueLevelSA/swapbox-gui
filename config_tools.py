@@ -28,6 +28,7 @@ class Config(object):
         self.VALIDATOR_PORT = None
         self.ZMQ_PORT = None
         self.NOTES_VALUES = None
+        self.ZMQ_PORT_BUY = None
 
 
 def parse_args():
@@ -53,6 +54,7 @@ def parse_args():
     config.VALIDATOR_PORT = machine_config.get("validator_port")
     config.ZMQ_PORT = machine_config.get("zmq_port")
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
+    config.ZMQ_PORT_BUY = machine_config.get("zmq_port_buy")
 
 
     # For pifacedigital relay
