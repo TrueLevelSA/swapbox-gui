@@ -273,7 +273,7 @@ class CashInThread(Thread):
             while True:
                 msg = self.zsock.recv_multipart()
                 if not self.stopcashin.is_set():
-                    if DEBUG:
+                    if self._config.DEBUG:
                         Logger.info(' Mock Validator msg:%s' % (msg))
                     self.app.cashin_update_label_text(msg[0]) # "CHF:10"
 
@@ -453,8 +453,8 @@ class SwapBoxApp(App):
             note = credit[1]
             self.cash_in[note] += 1
             self.cashintotal += int(note)
-            Logger.debug("cashtotal", self.cashintotal)
-            Logger.debug("cash", self.cash_in)
+            Logger.debug("cashtotal {}".format(self.cashintotal))
+            Logger.debug("cash {}".format(self.cash_in))
 
     def build(self):
         self.zmq_connect()
