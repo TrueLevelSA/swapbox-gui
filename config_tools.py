@@ -61,16 +61,8 @@ def parse_args():
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
     config.ZMQ_PORT_BUY = machine_config.get("zmq_port_buy")
 
-
-    # For pifacedigital relay
-    if os.uname()[4].startswith("arm"):
-        if RelayMethod[config.RELAY_METHOD] is RelayMethod.PIFACE:
-            pass #import pifacedigitalio
-        elif RelayMethod[config.RELAY_METHOD] is RelayMethod.GPIO:
-            #import RPi.GPIO as GPIO
-            pass # GPIO.cleanup()
-    else:
-        config.RELAY_METHOD = None
+    if not os.uname()[4].startswith("arm"):
+        config.RELAY_METHOD = RelayMethod.NONE
 
     return config
 
