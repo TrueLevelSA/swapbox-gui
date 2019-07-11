@@ -398,11 +398,14 @@ class SwapBoxApp(App):
 
     def __init__(self, config, **kwargs):
         self._config = config
-        Logger.debug(self._config)
         for k in config.NOTES_VALUES:
             self.cash_in[k] = 0
 
         super(SwapBoxApp, self).__init__(**kwargs)
+
+    def on_stop(self):
+        # cleanup low level stuff
+        self.root._led_driver.close()
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self, self._config)

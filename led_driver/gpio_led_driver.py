@@ -17,4 +17,4 @@ class LedDriverGPIO(LedDriver):
         GPIO.output(self._led_pin, GPIO.HIGH)
 
     def close(self):
-        pass
+        GPIO.cleanup()

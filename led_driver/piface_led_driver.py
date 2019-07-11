@@ -15,4 +15,4 @@ class LedDriverPiFace(LedDriver):
         self._pifacedigital.leds[0].turn_off() # as this command
 
     def close(self):
-        pass
+        self._pifacedigital.deinit_board()
