@@ -385,7 +385,7 @@ class ZmqThread(Thread):
             app.on_message(msg)
 
 
-class AtmClientApp(App):
+class SwapBoxApp(App):
     # def stop_scan(self):
     #     # The Kivy event loop is about to stop, set a stop signal;
     #     # otherwise the app window will close, but the Python process will
@@ -408,7 +408,7 @@ class AtmClientApp(App):
         for k in config.NOTES_VALUES:
             self.cash_in[k] = 0
 
-        super(AtmClientApp, self).__init__(**kwargs)
+        super(SwapBoxApp, self).__init__(**kwargs)
 
     def zmq_connect(self):
         self._zthread = ZmqThread(self, self._config)
@@ -478,4 +478,4 @@ class AtmClientApp(App):
 
 if __name__ == '__main__':
     config = parse_args()
-    AtmClientApp(config).run()
+    SwapBoxApp(config).run()
