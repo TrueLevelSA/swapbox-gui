@@ -170,13 +170,6 @@ class RootWidget(FloatLayout):
                     if line != "" and line != None and line.startswith(b"QR-Code:"):
                         self.qr_thread_update_label_text(line[8:])
                         self.execute.close(True)
-                        if self._config.RELAY_METHOD is RelayMethod.PIFACE:
-                            # pifacedigital(ligth_off)
-                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
-                            pifacedigital.leds[0].turn_off()  # as this command
-                        elif self._config.RELAY_METHOD is RelayMethod.GPIO:
-                            GPIO.output(7, GPIO.HIGH)
-                        break
             except pexpect.EOF:
                 # Ok maybe not a complete infinite loooop but you get what i mean
                 break
