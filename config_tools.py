@@ -4,6 +4,7 @@ import strictyaml
 from path import Path
 import os
 
+
 class CameraMethod(Enum):
     ZBARCAM = auto()
     OPENCV = auto()
@@ -29,6 +30,10 @@ class Config(object):
         self.ZMQ_PORT = None
         self.NOTES_VALUES = None
         self.ZMQ_PORT_BUY = None
+
+def print_debug(*args, **kwargs):
+    print("PLEASE USE Logger.debug/Logger.info/...")
+    print(*args, **kwargs)
 
 
 def parse_args():
