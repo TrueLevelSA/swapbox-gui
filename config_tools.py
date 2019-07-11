@@ -65,10 +65,10 @@ def parse_args():
     # For pifacedigital relay
     if os.uname()[4].startswith("arm"):
         if RelayMethod[config.RELAY_METHOD] is RelayMethod.PIFACE:
-            import pifacedigitalio
+            pass #import pifacedigitalio
         elif RelayMethod[config.RELAY_METHOD] is RelayMethod.GPIO:
-            import RPi.GPIO as GPIO
-            GPIO.cleanup()
+            #import RPi.GPIO as GPIO
+            pass # GPIO.cleanup()
     else:
         config.RELAY_METHOD = None
 

@@ -37,6 +37,7 @@ from path import Path
 from config_tools import parse_args as parse_args
 from config_tools import CameraMethod as CameraMethod
 from config_tools import RelayMethod as RelayMethod
+# "force" people to use logger
 from config_tools import print_debug as print
 
 #for fullscreen
@@ -107,6 +108,15 @@ class RootWidget(FloatLayout):
 
     def __init__(self, config, **kwargs):
         self._config = config
+        if config.RELAY_METHOD is RelayMethod.PIFACE:
+            from led_driver.piface_led_driver import LedDriverPiFace
+            self._led_driver = LedDriverPiFace()
+        elif config.RELAY_METHOD is RelayMethod.GPIO:
+            from led_driver.gpio_led_driver import LedDriverGPIO
+            self._led_driver = LedDriverGPIO()
+        else:
+            from led_driver.no_led_driver import LedDriverNone
+            self._led_driver = LedDriverNone()
         super(RootWidget, self).__init__(**kwargs)
 
     def start_sendcoins_thread(self):
@@ -126,15 +136,7 @@ class RootWidget(FloatLayout):
         # This is the code executing in the new thread.
         #
         # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
-        if self._config.RELAY_METHOD == 'piface':
-            pifacedigital = pifacedigitalio.PiFaceDigital()
-            pifacedigital.output_pins[0].turn_on() # this command does the same thing..
-            pifacedigital.leds[0].turn_on() # as this command
-        elif self._config.RELAY_METHOD == 'gpio':
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(7, GPIO.OUT)
-            GPIO.output(7, GPIO.HIGH)
-            GPIO.output(7, GPIO.LOW)
+        self._led_driver.led_on()
 
         if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
             # fallback resolution of C270 is too low to scan
@@ -179,6 +181,9 @@ class RootWidget(FloatLayout):
         Logger.debug("clear stop scan")
         self.stop_scan.clear()
         return
+
+
+
     ###@mainthread
     def qr_thread_update_label_text(self, new_text):
         app = App.get_running_app()
