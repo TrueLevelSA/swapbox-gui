@@ -6,10 +6,9 @@ This project provides a lovely kivy interface for ATM4COIN
 Dependencies (Linux/mac)
 ------------
 
-Kivy >= 1.8.0
+Python3
+Pipenv
 zbarcam (qr scanner)
-devilspie2
-
 
 ### Install zbar
 ```
@@ -23,25 +22,25 @@ apt-get install zbar-tools
 Dependencies (RasPi)
 ------------
 
-Kivy >= 1.8.0
-
+Python3
+Pipenv
 
 Installation
 ------------
 ```
 # Install python deps
-pip3 install -r requirements.txt
+pipenv install
 ```
 
 Running
 -------
 ```
-python main.py develop
+pipenv run python main.py develop
 ```
 
 ### Simulating Note validator with develop config
 ```
-python mock_validator.py
+pipenv run python mock_validator.py
 ```
 
 

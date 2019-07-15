@@ -1,5 +1,7 @@
 __version__ = "1.3.0"
 
+import os
+
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
@@ -21,8 +23,9 @@ from functools import partial
 import threading
 import pexpect
 #for Note Validator
-from eSSP.constants import Status
-from eSSP import eSSP  # Import the library
+if os.uname()[4].startswith("arm"):
+    from eSSP.constants import Status
+    from eSSP import eSSP  # Import the library
 #import eSSP
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
 import requests
@@ -31,7 +34,6 @@ import zmq
 from threading import Thread
 import qrcode
 import strictyaml
-import os
 from path import Path
 
 from config_tools import parse_args as parse_args
