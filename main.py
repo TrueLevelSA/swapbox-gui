@@ -449,12 +449,18 @@ class SwapBoxApp(App):
         credit = new_credit.decode('utf-8')
         credit = credit.split(':')
 
+        if len(credit) < 2:
+            Logger.debug("wrong format for credit message")
+            return
+
         if credit[1] in self._config.NOTES_VALUES:
             note = credit[1]
             self.cash_in[note] += 1
             self.cashintotal += int(note)
             Logger.debug("cashtotal {}".format(self.cashintotal))
             Logger.debug("cash {}".format(self.cash_in))
+        else:
+            Logger.debug("wrong format for credit message")
 
     def build(self):
         self.zmq_connect()
