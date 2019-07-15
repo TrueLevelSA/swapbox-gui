@@ -163,12 +163,7 @@ class RootWidget(FloatLayout):
                         # wal.close()
                         Logger.debug("found qr: %s" % line[22:])
                         execute.close(True)
-                        if self._config.RELAY_METHOD is RelayMethod.PIFACE:
-                            # pifacedigital(ligth_off)
-                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
-                            pifacedigital.leds[0].turn_off()  # as this command
-                        elif self._config.RELAY_METHOD is RelayMethod.GPIO:
-                            GPIO.output(7, GPIO.HIGH)
+                        self._led_driver.led_off()
                         break
                 else:
                     if line != "" and line != None and line.startswith(b"QR-Code:"):
