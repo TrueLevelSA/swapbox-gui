@@ -8,9 +8,7 @@ verify_ssl = true
 [packages]
 pexpect = "*"
 cython = "*"
-pygame = "*"
 kivy = "*"
-pillow = "*"
 argument = "*"
 path-py = "*"
 strictyaml = "*"
