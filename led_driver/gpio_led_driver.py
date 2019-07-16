@@ -4,7 +4,7 @@ GPIO.cleanup()
 
 class LedDriverGPIO(LedDriver):
     def __init__(self):
-        super(LedDriverPiFace, self).__init__()
+        super().__init__()
         self._led_pin = 7
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self._led_pin, GPIO.OUT)

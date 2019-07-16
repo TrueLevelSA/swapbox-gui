@@ -1,15 +1,18 @@
+from abc import ABC, abstractmethod
 
-
-class LedDriver(object):
+class LedDriver(ABC):
     ''' LedDriver abstract class, implements led_on(), led_off()'''
     def __init__(self):
+        super().__init__()
+
+    @abstractmethod
+    def led_on(self):
         pass
 
-    def led_on(self):
-        raise NotImplementedError()
-
+    @abstractmethod
     def led_off(self):
-        raise NotImplementedError()
+        pass
 
+    @abstractmethod
     def close(self):
-        raise NotImplementedError()
+        pass

@@ -3,7 +3,7 @@ import pifacedigitalio
 
 class LedDriverPiFace(LedDriver):
     def __init__(self):
-        super(LedDriverPiFace, self).__init__()
+        super().__init__()
         self._pifacedigital = pifacedigitalio.PiFaceDigital()
 
     def led_on(self):
