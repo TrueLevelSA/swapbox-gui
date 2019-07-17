@@ -1,38 +1,46 @@
 from abc import ABC, abstractmethod
 import pexpect
+import threading
 
 class QrScanner(ABC):
 
-    def __init__(self):
+    def __init__(self, cmd_to_execute):
+        ''' cmd: the command to execute to start a process that returns a QRcode on the std output'''
         super().__init__()
+        self._scanning = threading.Event()
+        self._cmd_to_execute = cmd_to_execute
+        self._execute = None
 
     def scan(self):
         ''' scans the interface for a QR-Code
         returns None if no code was found, or a string representing the whole QR '''
-        cmd = self._cmd()
 
-        execute = pexpect.spawn(cmd, [], 300)
+        self._scanning.clear()
 
-        while True:
+        self._execute = pexpect.spawn(self._cmd_to_execute, [], 300)
+
+        while not self._scanning.is_set():
             try:
-                execute.expect('\n')
+                self._execute.expect('\n')
                 # Get last line from expect
-                line = execute.before
+                line = self._execute.before
                 if self._is_qr_found(line):
                     qr = self._get_qr_from_line(line)
-                    execute.close(True)
+                    self._execute.close(True)
                     return qr.decode('ascii').strip() if qr is not None else None
             except pexpect.EOF:
+                self._execute.close(True)
                 break
             except pexpect.TIMEOUT:
+                self._execute.close(True)
                 break
 
+        self._execute.close(True)
         return None
 
-    @abstractmethod
-    def _cmd(self):
-        ''' the command to execute to start a process that returns a QRcode on the std output'''
-        pass
+    def stop_scan(self):
+        self._execute.close(True)
+        self._scanning.set()
 
     @abstractmethod
     def _is_qr_found(self, line):

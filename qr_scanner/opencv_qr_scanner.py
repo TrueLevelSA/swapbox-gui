@@ -6,10 +6,7 @@ class QrScannerOpenCV(QrScanner):
     _PATH_OPENCV = "/home/pi/Prog/zbar-build/a.out"
 
     def __init__(self):
-        super().__init__()
-
-    def _cmd(self):
-        return _PATH_OPENCV
+        super().__init__(QrScannerOpenCV._PATH_OPENCV)
 
     def _is_qr_found(self, line):
         if line != "" and line != None:

@@ -4,11 +4,7 @@ from qr_scanner.qr_scanner_base import QrScanner
 class QrScannerNone(QrScanner):
 
     def __init__(self, video_port):
-        super().__init__()
-        self._cmd_txt = 'echo nope'
-
-    def _cmd(self):
-        return self._cmd_txt
+        super().__init__('echo nope')
 
     def _is_qr_found(self, line):
         return True

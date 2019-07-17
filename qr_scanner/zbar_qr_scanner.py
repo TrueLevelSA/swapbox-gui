@@ -4,11 +4,8 @@ from qr_scanner.qr_scanner_base import QrScanner
 class QrScannerZbar(QrScanner):
 
     def __init__(self, video_port):
-        super().__init__()
-        self._cmd_txt = 'zbarcam --prescale=640x480 --nodisplay {}'.format(video_port)
-
-    def _cmd(self):
-        return self._cmd_txt
+        cmd =  'zbarcam --prescale=640x480 --nodisplay {}'.format(video_port)
+        super().__init__(cmd)
 
     def _is_qr_found(self, line):
         if line != "" and line != None:
