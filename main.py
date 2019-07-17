@@ -185,8 +185,7 @@ class RootWidget(FloatLayout):
 
 
     def stop_scanning(self):
-        self.execute.close(True)
-        #self.execute.terminate()
+        self._qr_scanner.stop_scan()
 
     def cashin_reset_session(self):
         app = App.get_running_app()
