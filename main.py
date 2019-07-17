@@ -110,16 +110,34 @@ class RootWidget(FloatLayout):
 
     def __init__(self, config, **kwargs):
         self._config = config
-        if config.RELAY_METHOD is RelayMethod.PIFACE:
+
+        self._led_driver = self._select_led_driver(config.RELAY_METHOD)
+        self._qr_scanner = self._select_qr_scanner(config)
+
+        super(RootWidget, self).__init__(**kwargs)
+
+    def _select_led_driver(self, relay_method):
+        if relay_method is RelayMethod.PIFACE:
             from led_driver.piface_led_driver import LedDriverPiFace
-            self._led_driver = LedDriverPiFace()
-        elif config.RELAY_METHOD is RelayMethod.GPIO:
+            return LedDriverPiFace()
+        elif relay_method is RelayMethod.GPIO:
             from led_driver.gpio_led_driver import LedDriverGPIO
-            self._led_driver = LedDriverGPIO()
+            return LedDriverGPIO()
         else:
             from led_driver.no_led_driver import LedDriverNone
-            self._led_driver = LedDriverNone()
-        super(RootWidget, self).__init__(**kwargs)
+            return LedDriverNone()
+
+
+    def _select_qr_scanner(self, config):
+        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
+            from qr_scanner.zbar_qr_scanner import QrScannerZbar
+            return QrScannerZbar(config.ZBAR_VIDEO_DEVICE)
+        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
+            from qr_scanner.opencv_qr_scanner import QrScannerOpenCV
+            return QrScannerOpenCV()
+        else:
+            from qr_scanner.none_qr_scanner import QrScannerNone
+            return QrScannerNone()
 
     def start_sendcoins_thread(self):
         Logger.debug("start_sendcoinds_thread")
@@ -136,49 +154,12 @@ class RootWidget(FloatLayout):
 
     def qr_thread(self):
         # This is the code executing in the new thread.
-        #
-        # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
+
         self._led_driver.led_on()
-
-        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
-            # fallback resolution of C270 is too low to scan
-            cmd = 'zbarcam --prescale=640x480 --nodisplay {}'.format(self._config.ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
-            cmd = '/home/pi/Prog/zbar-build/test/a.out'
-        else:
-            Logger.debug("No CameraMethod selected")
-
-        self.execute = pexpect.spawn(cmd, [], 300)
-
-        # infinite loop
-        while True:
-            try:
-                self.execute.expect('\n')
-                # Get last line fron expect
-                line = self.execute.before
-                Logger.debug(line)
-                if os.uname()[4].startswith("arm"):
-                    if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
-                        self.qr_thread_update_label_text(line[22:])
-                        # wal.close()
-                        Logger.debug("found qr: %s" % line[22:])
-                        execute.close(True)
-                        self._led_driver.led_off()
-                        break
-                else:
-                    if line != "" and line != None and line.startswith(b"QR-Code:"):
-                        self.qr_thread_update_label_text(line[8:])
-                        self.execute.close(True)
-            except pexpect.EOF:
-                # Ok maybe not a complete infinite loooop but you get what i mean
-                break
-            except pexpect.TIMEOUT:
-                Logger.debug("timeout")
-                break
-        Logger.debug("clear stop scan")
-        self.stop_scan.clear()
-        return
-
+        qr = self._qr_scanner.scan()
+        self._led_driver.led_off()
+        if qr is not None:
+            self.qr_thread_update_label_text(qr)
 
 
     ###@mainthread
@@ -186,11 +167,6 @@ class RootWidget(FloatLayout):
         app = App.get_running_app()
         text = str(new_text)
         Logger.debug("the text")
-        Logger.debug(text)
-        text = text.replace('b\'', '').strip()
-        text = text.replace('\\r\'', '').strip()
-        text = text.replace('\"', '').strip()
-        # text = ''.join(filter(str.isalnum, text))
         Logger.debug(text)
         address = text.split(":")
         Logger.debug(address)
