@@ -42,6 +42,9 @@ from config_tools import RelayMethod as RelayMethod
 # "force" people to use logger
 from config_tools import print_debug as print
 
+from custom_threads.cashin_thread import CashInThread
+from custom_threads.zmq_price_ticker_thread import ZmqPriceTickerThread
+
 #for fullscreen
 #from kivy.core.window import Window
 #Window.size = (800, 600)
@@ -108,14 +111,16 @@ class RootWidget(FloatLayout):
     stop_scan = threading.Event()
     # current_ticker = Decimal(0)
 
-    def __init__(self, config, **kwargs):
+    def __init__(self, config, app, **kwargs):
         self._config = config
 
         self._led_driver = self._select_led_driver(config.RELAY_METHOD)
         self._qr_scanner = self._select_qr_scanner(config)
+        self._cashin_thread = self._select_cashin_thread(config, app)
 
         super(RootWidget, self).__init__(**kwargs)
 
+    # imports in functions because we cannot import not-installed stuff
     def _select_led_driver(self, relay_method):
         if relay_method is RelayMethod.PIFACE:
             from led_driver.piface_led_driver import LedDriverPiFace
@@ -126,6 +131,14 @@ class RootWidget(FloatLayout):
         else:
             from led_driver.no_led_driver import LedDriverNone
             return LedDriverNone()
+
+    def _select_cashin_thread(self, config, app):
+        if config.MOCK_VALIDATOR:
+            from custom_threads.cashin_threads.mock_cashin_thread import CashInThreadMock
+            return CashInThreadMock(app.cashin_update_label_text, config)
+        else:
+            from custom_threads.cashin_threads.essp_cashin_thread import CashInThreadEssp
+            return CashInThreadEssp(app.cashin_update_label_text, config)
 
 
     def _select_qr_scanner(self, config):
@@ -225,130 +238,6 @@ class RootWidget(FloatLayout):
         self.root_manager.get_screen('sellfinish').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
 
 
-class CashInThread(Thread):
-
-    def __init__(self, app, config):
-        super(CashInThread, self).__init__()
-        self.app = app
-        self._config = config
-        self.stopcashin = threading.Event()
-        self.daemon = True
-
-    def run(self):
-        """Run Worker Thread."""
-        if self._config.MOCK_VALIDATOR:
-            zctx = zmq.Context()
-            self.zsock = zctx.socket(zmq.SUB)
-            self.zsock.connect('tcp://localhost:{}'.format(self._config.MOCKPORT))
-            self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
-
-            while True:
-                msg = self.zsock.recv_multipart()
-                if not self.stopcashin.is_set():
-                    if self._config.DEBUG:
-                        Logger.info(' Mock Validator msg:%s' % (msg))
-                    self.app.cashin_update_label_text(msg[0]) # "CHF:10"
-
-        else:
-            #  Create a new object ( Validator Object ) and initialize it
-            validator = eSSP(com_port=self._config.VALIDATOR_PORT, ssp_address="0", nv11=False, debug=self._config.DEBUG)
-
-            while not self.stopcashin.is_set():
-
-                # ---- Example of interaction with events ---- #
-                if validator.nv11: # If the model is an NV11, put every 100 note in the storage, and others in the stack(cashbox), but that's just for this example
-                    (note, currency,event) = validator.get_last_event()
-                    if note == 0 or currency == 0 or event == 0:
-                        pass  # Operation that do not send money info, we don't do anything with it
-                    else:
-                        if note != 4 and event == Status.SSP_POLL_CREDIT:
-                            validator.Logger.debug("NOT A 100 NOTE")
-                            validator.nv11_stack_next_note()
-                            validator.enable_validator()
-                        elif note == 4 and event == Status.SSP_POLL_READ:
-                            validator.Logger.debug("100 NOTE")
-                            validator.set_route_storage(100)  # Route to storage
-                            validator.do_actions()
-                            validator.set_route_cashbox(50)  # Everything under or equal to 50 to cashbox ( NV11 )
-                else:
-                    Logger.debug("Read on Channel " + str(poll[1][1]))
-                time.sleep(0.5)
-        #
-        # k = eSSP.eSSP('/dev/ttyUSB0')
-        # Logger.debug(k.sync())
-        # Logger.debug(k.enable_higher_protocol())
-        # Logger.debug(k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00'))
-        # Logger.debug(k.enable())
-        # #Publisher().subscribe(self.stoprun, "stoprun")
-        # var = 1
-        # i = 0
-        # #self.stopflag = False
-        #
-        #
-        # while not self.stopcashin.is_set():
-        #     poll = k.poll()
-        #
-        #     if len(poll) > 1:
-        #         if len(poll[1]) == 2:
-        #             Logger.debug(poll[1][0])
-        #             if poll[1][0] == '0xef':
-        #                 if poll[1][1] == 1 or poll[1][1] == 3:
-        #                     while i < 2:
-        #                         k.hold()
-        #                         Logger.debug("Hold " + str(i))
-        #                         time.sleep(0.5)
-        #                         i += 1
-        #             if poll[1][0] == '0xef':
-        #                 Logger.debug("Read on Channel " + str(poll[1][1]))
-        #             if poll[1][0] == '0xe6':
-        #                 Logger.debug("Fraud on Channel " + str(poll[1][1]))
-        #
-        #             if poll[1][0] == '0xee':
-        #                 Logger.debug("Credit on Channel " + str(poll[1][1]))
-        #                 if poll[1][1] == 1:
-        #                     self.cashin_update_label_text("CHF:10")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
-        #                 if poll[1][1] == 2:
-        #                     self.cashin_update_label_text("CHF:20")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)
-        #                 if poll[1][1] == 3:
-        #                     self.cashin_update_label_text("CHF:50")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:50"), -1)
-        #                 if poll[1][1] == 4:
-        #                     self.cashin_update_label_text("CHF:100")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:100"), -1)
-        #                 if poll[1][1] == 5:
-        #                     self.cashin_update_label_text("CHF:200")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:200"), -1)
-        #                 #if poll[1][1] == 6:
-        #                 #    wx.CallAfter(self.SendInfo, "CHF:200")
-        #                 #wx.CallAfter(self.SendInfo, k.unit_data())
-        #             i = 0
-        #
-        #     time.sleep(0.5)
-        self.stopcashin.clear()
-
-        return
-
-class ZmqThread(Thread):
-    def __init__(self, app, config):
-        super(ZmqThread, self).__init__()
-        self._config = config
-        self.app = app
-        self.daemon = True
-
-    def run(self):
-        app = self.app
-        zctx = zmq.Context()
-        zsock = zctx.socket(zmq.SUB)
-        zsock.connect('tcp://localhost:{}'.format(self._config.ZMQ_PORT))
-        zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
-
-        while True:
-            topic, msg = zsock.recv_multipart()
-            if self._config.DEBUG:
-                Logger.info('   Topic: %s, msg:%s' % (topic, msg))
-            app.on_message(msg)
 
 
 class SwapBoxApp(App):
@@ -380,11 +269,12 @@ class SwapBoxApp(App):
         self.root._led_driver.close()
 
     def zmq_connect(self):
-        self._zthread = ZmqThread(self, self._config)
+        self._zthread = ZmqPriceTickerThread(self.on_message, self._config.ZMQ_PORT)
         self._zthread.start()
 
     ###@mainthread
     def on_message(self, data):
+        ''' callback for zmq price '''
         Logger.debug(data)
         self.price = json.loads(data)
 
@@ -417,6 +307,7 @@ class SwapBoxApp(App):
 
     ###@mainthread
     def cashin_update_label_text(self, new_credit):
+        ''' callback on cashin events '''
         Logger.debug(new_credit)
         credit = new_credit.decode('utf-8')
         credit = credit.split(':')
@@ -442,7 +333,7 @@ class SwapBoxApp(App):
         self.LANGUAGES = [language for language in self.lang]
         # self.language = self.lang
 
-        self.root = RootWidget(self._config)
+        self.root = RootWidget(self._config, self)
 
         Logger.info('Frontend Started')
 
