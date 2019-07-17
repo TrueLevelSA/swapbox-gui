@@ -21,7 +21,7 @@ class QrScanner(ABC):
                 if self._is_qr_found(line):
                     qr = self._get_qr_from_line(line)
                     execute.close(True)
-                    return qr.decode('ascii') if qr is not None else None
+                    return qr.decode('ascii').strip() if qr is not None else None
             except pexpect.EOF:
                 break
             except pexpect.TIMEOUT:
