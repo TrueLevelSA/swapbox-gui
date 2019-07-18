@@ -227,11 +227,30 @@ class SwapBoxApp(App):
     clientaddress = ObjectProperty('N/A')
 
     def __init__(self, config, **kwargs):
+        # see build function as well
         self._config = config
+
+        super(SwapBoxApp, self).__init__(**kwargs)
+
+    def build(self):
         for k in config.NOTES_VALUES:
             self.cash_in[k] = 0
 
-        super(SwapBoxApp, self).__init__(**kwargs)
+        self.zmq_connect()
+        self.start_cashin_thread()
+
+        self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
+        self.LANGUAGES = [language for language in self.lang]
+        # self.language = self.lang
+
+        self.root = RootWidget(self._config, self)
+
+        Logger.info('Frontend Started')
+
+        self.root.root_manager.current = 'welcome'
+
+        return self.root
+
 
     def on_stop(self):
         # cleanup low level stuff
@@ -293,22 +312,6 @@ class SwapBoxApp(App):
             Logger.debug("cash {}".format(self.cash_in))
         else:
             Logger.debug("wrong format for credit message")
-
-    def build(self):
-        self.zmq_connect()
-        self.start_cashin_thread()
-
-        self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
-        self.LANGUAGES = [language for language in self.lang]
-        # self.language = self.lang
-
-        self.root = RootWidget(self._config, self)
-
-        Logger.info('Frontend Started')
-
-        self.root.root_manager.current = 'welcome'
-
-        return self.root
 
 
 if __name__ == '__main__':
