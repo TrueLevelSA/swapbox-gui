@@ -114,44 +114,13 @@ class RootWidget(FloatLayout):
     def __init__(self, config, app, **kwargs):
         self._config = config
 
-        self._led_driver = self._select_led_driver(config.RELAY_METHOD)
-        self._qr_scanner = self._select_qr_scanner(config)
-        self._cashin_thread = self._select_cashin_thread(config, app)
+        self._led_driver = Config.select_led_driver(config)
+        self._qr_scanner = Config.select_qr_scanner(config)
+        self._cashin_thread = Config.select_cashin_thread(config, app.cashin_update_label_text)
 
         super(RootWidget, self).__init__(**kwargs)
 
     # imports in functions because we cannot import not-installed stuff
-    def _select_led_driver(self, relay_method):
-        if relay_method is RelayMethod.PIFACE:
-            from led_driver.piface_led_driver import LedDriverPiFace
-            return LedDriverPiFace()
-        elif relay_method is RelayMethod.GPIO:
-            from led_driver.gpio_led_driver import LedDriverGPIO
-            return LedDriverGPIO()
-        else:
-            from led_driver.no_led_driver import LedDriverNone
-            return LedDriverNone()
-
-    def _select_cashin_thread(self, config, app):
-        if config.MOCK_VALIDATOR:
-            from custom_threads.cashin_threads.mock_cashin_thread import CashInThreadMock
-            return CashInThreadMock(app.cashin_update_label_text, config)
-        else:
-            from custom_threads.cashin_threads.essp_cashin_thread import CashInThreadEssp
-            return CashInThreadEssp(app.cashin_update_label_text, config)
-
-
-    def _select_qr_scanner(self, config):
-        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
-            from qr_scanner.zbar_qr_scanner import QrScannerZbar
-            return QrScannerZbar(config.ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
-            from qr_scanner.opencv_qr_scanner import QrScannerOpenCV
-            return QrScannerOpenCV()
-        else:
-            from qr_scanner.none_qr_scanner import QrScannerNone
-            return QrScannerNone()
-
     def start_sendcoins_thread(self):
         Logger.debug("start_sendcoinds_thread")
         threading.Thread(target=self.sendcoins_thread).start()

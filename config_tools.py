@@ -31,6 +31,39 @@ class Config(object):
         self.NOTES_VALUES = None
         self.ZMQ_PORT_BUY = None
 
+    @staticmethod
+    def _select_led_driver(config):
+        if config.RELAY_METHOD is RelayMethod.PIFACE:
+            from led_driver.piface_led_driver import LedDriverPiFace
+            return LedDriverPiFace()
+        elif config.RELAY_METHOD is RelayMethod.GPIO:
+            from led_driver.gpio_led_driver import LedDriverGPIO
+            return LedDriverGPIO()
+        else:
+            from led_driver.no_led_driver import LedDriverNone
+            return LedDriverNone()
+
+    @staticmethod
+    def _select_cashin_thread(config, callback):
+        if config.MOCK_VALIDATOR:
+            from custom_threads.cashin_threads.mock_cashin_thread import CashInThreadMock
+            return CashInThreadMock(callback, config)
+        else:
+            from custom_threads.cashin_threads.essp_cashin_thread import CashInThreadEssp
+            return CashInThreadEssp(callback, config)
+
+    @staticmethod
+    def _select_qr_scanner(config):
+        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
+            from qr_scanner.zbar_qr_scanner import QrScannerZbar
+            return QrScannerZbar(config.ZBAR_VIDEO_DEVICE)
+        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
+            from qr_scanner.opencv_qr_scanner import QrScannerOpenCV
+            return QrScannerOpenCV()
+        else:
+            from qr_scanner.none_qr_scanner import QrScannerNone
+            return QrScannerNone()
+
 def print_debug(*args, **kwargs):
     print("PLEASE USE Logger.debug/Logger.info/...")
     print(*args, **kwargs)
