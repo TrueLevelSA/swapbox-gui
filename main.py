@@ -237,7 +237,8 @@ class SwapBoxApp(App):
             self.cash_in[k] = 0
 
         self.zmq_connect()
-        self.start_cashin_thread()
+        self._cashinthread = CashInThread(self, self._config)
+        self._cashinthread.start()
 
         self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
         self.LANGUAGES = [language for language in self.lang]
@@ -272,14 +273,10 @@ class SwapBoxApp(App):
         self.l = self.lang[lang]
 
 
-    def start_cashin_thread(self):
-        #threading.Thread(target=self.cashin_thread).start()
-        self._cashinthread = CashInThread(self, self._config)
-        self._cashinthread.start()
-
+    # called on click in swapbox.kv, but thread is never restarded?
     def stop_cashin(self):
         Logger.debug("set stop.cashin")
-        self._cashinthread.stopcashin.set()
+        self._cashinthread.stop_cashin()
 
     def process_buy(self):
         Logger.debug("process buy")

@@ -33,5 +33,5 @@ class CashInThreadEssp(Thread):
             time.sleep(0.5)
             # TODO: somehow use the _callback_message to notify the UI
 
-    def stop(self):
+    def stop_cashin(self):
         self._stop_cashin.set()
