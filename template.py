@@ -4,7 +4,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, RiseInTransition, FallOutTransition
 from kivy.properties import ObjectProperty
-import yaml
+import strictyaml
+from path import Path
 
 Window.size = (1380, 770)
 
@@ -19,7 +20,7 @@ class MenuScreen(Screen):
 
 class BuyScreen1(Screen):
     pass
-        
+
 class BuyScreen2(Screen):
     pass
 
@@ -64,9 +65,9 @@ class Manager(ScreenManager):
     confirmation_screen = ObjectProperty(None)
 
 
-class templateApp(App):
+class TemplateApp(App):
     def build(self):
-        self.lang = yaml.load(open("lang.yaml", "r"))
+        self.lang = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8'))
         self.LANGUAGES = [language for language in self.lang]
         self.l = self.LANGUAGES[0]
         self.transactions = {
@@ -93,4 +94,4 @@ class templateApp(App):
         pass
 
 if __name__ == "__main__":
-    templateApp().run()
+    TemplateApp().run()

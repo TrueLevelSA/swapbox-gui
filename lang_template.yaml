@@ -1,0 +1,41 @@
+English:
+  # Sam input
+  menu: Menu
+  validate: Validate
+  confirm: Confirm
+  buy: Buy
+  sell: Sell
+  redeem: Reedem a code
+  welcome: Welcome to Atola Swap-Box. Press on the screen to continue
+  admin_menu: Admin Menu
+  main_title: Atola (Swap-Box)
+  connectivity: Connectivity
+  crypto: CryptoCurrency
+  language: language
+  inputkey: Input your public key
+  inputwallet: Please, put your destination wallet in front of the camera
+  inputfiat: Insert your fiat (CHF EURO) in the Swap-box
+  thank: Thank you
+  cryptovalue: Crypto value
+  fiatvalue: Fiat value
+
+French:
+  # Sam input
+  menu: Menu
+  validate: Valider
+  confirm: Confirmer
+  buy: Acheter
+  sell: Vender
+  redeem: Utiliser un code
+  welcome: Bienvenue au Swap-Box d'Atola. Appuyez sur l'écran pour continuer
+  admin_menu: Menu Administrateur
+  main_title: Atola Swap-Box
+  connectivity: Connectivitée
+  crypto: Crypto Devise
+  language: language
+  inputkey: Entrez votre clé publique
+  inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
+  inputfiat: Inserez vos Fiat (CHF EURO) dans la Swap-box
+  thank: merci
+  cryptovalue: Valeur en crypto monnaies
+  fiatvalue: Valeur en Fiat 
