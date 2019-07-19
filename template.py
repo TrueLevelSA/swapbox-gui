@@ -67,9 +67,10 @@ class Manager(ScreenManager):
 
 class TemplateApp(App):
     def build(self):
-        self.lang = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8'))
-        self.LANGUAGES = [language for language in self.lang]
-        self.l = self.LANGUAGES[0]
+        languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
+        self._languages = {k: dict(v) for k, v in languages_yaml.items()}
+        self._selected_language = next(iter(self._languages)) # get a language
+
         self.transactions = {
             'txid':
                 {

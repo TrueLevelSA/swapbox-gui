@@ -29,7 +29,7 @@
     BoxLayout:
         Button:
             id: "welcome_Button"
-            text: app.lang[app.l]["welcome"]
+            text: app._languages[app._selected_language]["welcome"]
             font_size: 20
             on_press: root.manager.current = "main"
 
@@ -43,7 +43,7 @@
             size_hint_y: .3
             BlackLabel:
                 font_size:30
-                text: app.lang[app.l]["main_title"]
+                text: app._languages[app._selected_language]["main_title"]
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x: .6
@@ -59,11 +59,11 @@
                         text: "Company Phone"
                 Button:    
                     size_hint_x: .3          
-                    text: app.lang[app.l]["admin_menu"]
+                    text: app._languages[app._selected_language]["admin_menu"]
                     on_press: root.manager.current = "settings"
                 MediumButton:    
                     size_hint_x: .7         
-                    text: app.lang[app.l]["language"]
+                    text: app._languages[app._selected_language]["language"]
 
         ScreenManager:
             id: sm1
@@ -118,12 +118,12 @@
         ButtonBox:
             orientation: "horizontal"
             MediumButton:
-                text: app.lang[app.l]["buy"]
+                text: app._languages[app._selected_language]["buy"]
                 on_press: root.manager.current = "buy1"
             MediumButton:
-                text: app.lang[app.l]["sell"]
+                text: app._languages[app._selected_language]["sell"]
             MediumButton:
-                text: app.lang[app.l]["redeem"]
+                text: app._languages[app._selected_language]["redeem"]
                 on_press: root.manager.current = "redeem"
 
 <BuyScreen1>:
@@ -135,7 +135,7 @@
             BoxLayout:
                 orientation: "vertical"
                 BlackLabel:
-                    text: app.lang[app.l]["inputkey"]
+                    text: app._languages[app._selected_language]["inputkey"]
                     font_size:20
                 Image:
                     source: 'img/Qrcode.png'
@@ -148,7 +148,7 @@
                         color: [0,0,0,1]
                         size_hint_y : .1
                         allow_stretch: True
-                        text: app.lang[app.l]["inputwallet"]
+                        text: app._languages[app._selected_language]["inputwallet"]
                     BoxLayout:
                         size_hint_y : .2
             BoxLayout:
@@ -167,7 +167,7 @@
             orientation: "horizontal"
             MediumButton:
  
-                text: app.lang[app.l]["menu"]
+                text: app._languages[app._selected_language]["menu"]
                 on_press: root.manager.current = "menu"
             BoxLayout:
                 orientation: "horizontal"
@@ -192,7 +192,7 @@
                     orientation: 'vertical'
                     size_hint_y : .05
             BlackLabel:
-                text: app.lang[app.l]["inputfiat"]
+                text: app._languages[app._selected_language]["inputfiat"]
                 font_size:20
 
             BoxLayout:
@@ -202,7 +202,7 @@
                 BoxLayout:
                     size_hint_y : .2   
                     BlackLabel:
-                        text: app.lang[app.l]["fiatvalue"]
+                        text: app._languages[app._selected_language]["fiatvalue"]
                         font_size:20
                 BoxLayout:
                     size_hint_y : .2
@@ -218,7 +218,7 @@
                 BoxLayout:
                     size_hint_y : .2  
                     BlackLabel:
-                        text: app.lang[app.l]["cryptovalue"]
+                        text: app._languages[app._selected_language]["cryptovalue"]
                         font_size:20
                 BoxLayout:
                     size_hint_y : .2  
@@ -243,10 +243,10 @@
                 orientation: "horizontal"
                 size_hint_x : .1
             MediumButton:
-                text: app.lang[app.l]["menu"]
+                text: app._languages[app._selected_language]["menu"]
                 on_press: root.manager.current = "menu"
             MediumButton:
-                text: app.lang[app.l]["confirm"]
+                text: app._languages[app._selected_language]["confirm"]
                 on_press: root.manager.current = "buy3"
             BoxLayout:
                 orientation: "horizontal"
@@ -269,7 +269,7 @@
                     BoxLayout:
                         size_hint_y : .2   
                         BlackLabel:
-                            text: app.lang[app.l]["thank"]
+                            text: app._languages[app._selected_language]["thank"]
                             font_size:20
                     BoxLayout:
                         size_hint_y : .2
@@ -285,7 +285,7 @@
                     BoxLayout:
                         size_hint_y : .2  
                         BlackLabel:
-                            text: app.lang[app.l]["cryptovalue"]
+                            text: app._languages[app._selected_language]["cryptovalue"]
                             font_size:20
                     BoxLayout:
                         size_hint_y : .2  
@@ -313,7 +313,7 @@
                 orientation: "horizontal"
                 size_hint_x : .2
             MediumButton:
-                text: app.lang[app.l]["confirm"]
+                text: app._languages[app._selected_language]["confirm"]
                 on_press: root.manager.current = "menu"
             BoxLayout:
                 orientation: "horizontal"
@@ -333,7 +333,7 @@
             orientation: "horizontal"
             MediumButton:
  
-                text: app.lang[app.l]["menu"]
+                text: app._languages[app._selected_language]["menu"]
                 on_press: root.manager.current = "menu"
             BoxLayout:
                 orientation: "horizontal"
@@ -346,13 +346,13 @@
             tab_pos: 'bottom_right'
             do_default_tab: False
             TabbedPanelItem:
-                text: app.lang[app.l]["connectivity"]
+                text: app._languages[app._selected_language]["connectivity"]
                 MainBox: 
                     Label:
                         text: "Wifi Menu"
 
             TabbedPanelItem:
-                text: app.lang[app.l]["crypto"]
+                text: app._languages[app._selected_language]["crypto"]
                 MainBox: 
                     Button:
                         text: "crypto keys config"
