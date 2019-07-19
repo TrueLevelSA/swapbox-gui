@@ -1,0 +1,433 @@
+<Background@Image>:
+    source: 'img/bgreen.jpg'
+    allow_stretch: True
+    keep_ratio: False
+
+<BlackLabel@Label>:
+    color: [0,0,0,1]
+
+<MediumButton@Button>:
+    size_hint_x: 0.1
+    size_hint_y: .8
+    font_size: 30
+    background_color: [1,0,0,.2]
+
+<MainBox@BoxLayout>:
+    size_hint_y: .8
+    canvas.before:
+        Color:
+            rgba: 5,5,5,.5
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ButtonBox@BoxLayout>:
+    spacing: 20  
+    size_hint_y: .2
+
+<WelcomeScreen>:
+    BoxLayout:
+        Button:
+            id: "welcome_Button"
+            text: app.lang[app.l]["welcome"]
+            font_size: 20
+            on_press: root.manager.current = "main"
+
+<MainScreen>:
+    Background
+    BoxLayout:
+        orientation: "vertical"
+        padding: 50
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: .3
+            BlackLabel:
+                font_size:30
+                text: app.lang[app.l]["main_title"]
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x: .6
+                padding: 10
+                BoxLayout:
+                    orientation: "vertical"
+                    BlackLabel:
+                        font_size:20
+                        text: "Company Name"
+                    BlackLabel:
+                        text: "Company website"
+                    BlackLabel:
+                        text: "Company Phone"
+                Button:    
+                    size_hint_x: .3          
+                    text: app.lang[app.l]["admin_menu"]
+                    on_press: root.manager.current = "settings"
+                MediumButton:    
+                    size_hint_x: .7         
+                    text: app.lang[app.l]["language"]
+
+        ScreenManager:
+            id: sm1
+            size_hint_y: 2
+            MenuScreen:
+            BuyScreen1:
+            BuyScreen2:
+            BuyScreen3:
+            RedeemScreen:
+
+<MenuScreen>:
+    id: menu_screen
+    name: 'menu'
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "vertical"
+                BlackLabel:
+                    size_hint_y: .15
+                    font_size: 25
+                    text: "Main choice your crypto"
+                BoxLayout:
+                    orientation: "horizontal"
+                    BoxLayout:
+                        orientation: "vertical"
+                        Label:
+                            text: 'ETHEREUM (ETH)' 
+                            font_size: 20
+                            size_hint_y: .2
+                        Image:
+                            source: 'img/ETH-logo.png'
+                            allow_stretch: True
+                            size_hint_y: .5
+                            keep_ratio: True
+                        Label:
+                            text: 'Buy = 200 CHF' 
+                            size_hint_y: .1
+                            font_size: 20
+                            color: [0,0,0,1]
+                        Label:
+                            text: 'Sell = 200 CHF' 
+                            size_hint_y: .1
+                            font_size: 20
+                            color: [0,0,0,1]
+                Label:
+                    text: 'Message Tu es la'
+                    font_size: '20' 
+                    size_hint_y: .1
+ 
+        ButtonBox:
+            orientation: "horizontal"
+            MediumButton:
+                text: app.lang[app.l]["buy"]
+                on_press: root.manager.current = "buy1"
+            MediumButton:
+                text: app.lang[app.l]["sell"]
+            MediumButton:
+                text: app.lang[app.l]["redeem"]
+                on_press: root.manager.current = "redeem"
+
+<BuyScreen1>:
+    name: "buy1"
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "vertical"
+                BlackLabel:
+                    text: app.lang[app.l]["inputkey"]
+                    font_size:20
+                Image:
+                    source: 'img/Qrcode.png'
+                    allow_stretch: True
+                    keep_ratio: True            
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        font_size: '20'
+                        color: [0,0,0,1]
+                        size_hint_y : .1
+                        allow_stretch: True
+                        text: app.lang[app.l]["inputwallet"]
+                    BoxLayout:
+                        size_hint_y : .2
+            BoxLayout:
+                size_hint_x : .1
+            BoxLayout:
+                orientation: "vertical" 
+                BoxLayout:
+                    size_hint_y : .2     
+                Button:
+                    text: "Camera ( after validation Next )" 
+                    on_press: root.manager.current = "buy2"
+                    size_hint_x : .9
+                BoxLayout:
+                    size_hint_y : .2
+        ButtonBox:
+            orientation: "horizontal"
+            MediumButton:
+ 
+                text: app.lang[app.l]["menu"]
+                on_press: root.manager.current = "menu"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .2
+
+
+<BuyScreen2>:
+    name: "buy2"
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "vertical"
+               
+                Image:
+                    source: 'img/BTM.png'
+                    allow_stretch: True
+                    size_hint_y : 2
+                    keep_ratio: True            
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y : .05
+            BlackLabel:
+                text: app.lang[app.l]["inputfiat"]
+                font_size:20
+
+            BoxLayout:
+                size_hint_x : .1
+            BoxLayout:
+                orientation: "vertical" 
+                BoxLayout:
+                    size_hint_y : .2   
+                    BlackLabel:
+                        text: app.lang[app.l]["fiatvalue"]
+                        font_size:20
+                BoxLayout:
+                    size_hint_y : .2
+                    canvas.before:
+                        Color:
+                            rgba: 5,5,5,.5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    BlackLabel:
+                        text: "500 to (Limited 5000 CHF)"
+                        font_size:20
+                BoxLayout:
+                    size_hint_y : .2  
+                    BlackLabel:
+                        text: app.lang[app.l]["cryptovalue"]
+                        font_size:20
+                BoxLayout:
+                    size_hint_y : .2  
+                    canvas.before:
+                        Color:
+                            rgba: 5,5,5,.5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+
+                    BlackLabel:
+                        text: "(ETH) 2.5"
+                        font_size:20      
+                BoxLayout:
+                    size_hint_y : .2
+                    BlackLabel:
+                        text: "ETH : 0x4cfcd11f7c978c9c2064091ca4e79ccc8bab7f29"
+                        font_size:20
+        ButtonBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .1
+            MediumButton:
+                text: app.lang[app.l]["menu"]
+                on_press: root.manager.current = "menu"
+            MediumButton:
+                text: app.lang[app.l]["confirm"]
+                on_press: root.manager.current = "buy3"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .1
+
+<BuyScreen3>:
+    name: "buy3"
+    BoxLayout:
+        orientation: "vertical"        
+        BoxLayout:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .05
+            MainBox:
+                orientation: "horizontal"
+                size_hint_x : .1
+                BoxLayout:
+                    orientation: "vertical" 
+                    BoxLayout:
+                        size_hint_y : .2   
+                        BlackLabel:
+                            text: app.lang[app.l]["thank"]
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2
+                        canvas.before:
+                            Color:
+                                rgba: 5,5,5,.5
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        BlackLabel:
+                            text: "500 CHF"
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2  
+                        BlackLabel:
+                            text: app.lang[app.l]["cryptovalue"]
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2  
+                        canvas.before:
+                            Color:
+                                rgba: 5,5,5,.5
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        BlackLabel:
+                            text: "(ETH) 2.5"
+                            font_size:20      
+                    BoxLayout:
+                        size_hint_y : .2
+                        BlackLabel:
+                            text: "ETH : 0x4cfcd11f7c978c9c2064091ca4e79ccc8bab7f29"
+                            font_size:20
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .05
+
+        ButtonBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .2
+            MediumButton:
+                text: app.lang[app.l]["confirm"]
+                on_press: root.manager.current = "menu"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .2
+
+
+<RedeemScreen>:
+    name: "redeem"
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BlackLabel:
+                text: "Readeem Code"
+
+        ButtonBox:
+            orientation: "horizontal"
+            MediumButton:
+ 
+                text: app.lang[app.l]["menu"]
+                on_press: root.manager.current = "menu"
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_x : .2
+
+<SettingsScreen>:
+    MainBox:
+        orientation: "horizontal"
+        TabbedPanel:
+            tab_pos: 'bottom_right'
+            do_default_tab: False
+            TabbedPanelItem:
+                text: app.lang[app.l]["connectivity"]
+                MainBox: 
+                    Label:
+                        text: "Wifi Menu"
+
+            TabbedPanelItem:
+                text: app.lang[app.l]["crypto"]
+                MainBox: 
+                    Button:
+                        text: "crypto keys config"
+                        on_press: root.manager.current = 'main'
+            
+
+
+
+<ConfirmationScreen>:
+    MainBox:
+        orientation: "horizontal"
+
+
+<Manager>:
+    id: screen_manager    
+    welcome_screen: welcome_screen
+    main_screen: main_screen
+    settings_screen: settings_screen
+
+    WelcomeScreen:
+        id: welcome_screen
+        name: 'welcome'
+        manager: screen_manager
+
+    MainScreen:
+        id: main_screen
+        name: 'main'
+        manager: screen_manager
+
+    MenuScreen:
+        id: menu_screen
+        name: 'menu'
+        manager: screen_manager
+
+    BuyScreen1:
+        id: buy_screen1
+        name: "buy1"
+        manager: screen_manager
+
+    BuyScreen2:
+        id: buy_screen2
+        name: "buy2"
+        manager: screen_manager
+
+    BuyScreen3:
+        id: buy_screen3
+        name: "buy2"
+        manager: screen_manager
+
+    SettingsScreen:
+        id: settings_screen
+        name: 'settings'
+        manager: screen_manager
+
+    RedeemScreen:
+        id: redeem_screen
+        name: 'redeem'
+        manager: screen_manager
+
+    SellScreen1:
+        id: sell_screen1
+        name: 'sell1'
+        manager: screen_manager
+
+    SellScreen2:
+        id: sell_screen2
+        name: 'sell2'
+        manager: screen_manager
+
+    SellScreen3:
+        id: sell_screen3
+        name: 'sell3'
+        manager: screen_manager
+    
+    ConfirmationScreen:
+        id: confirmation_screen
+        name: 'confirmation'
+        manager: screen_manager
