@@ -42,9 +42,7 @@ from config_tools import Config as ConfigApp
 # "force" people to use logger
 from config_tools import print_debug as print
 
-from custom_threads.cashin_thread import CashInThread
 from custom_threads.zmq_price_ticker_thread import ZmqPriceTickerThread
-
 #for fullscreen
 #from kivy.core.window import Window
 #Window.size = (800, 600)
@@ -114,9 +112,9 @@ class RootWidget(FloatLayout):
     def __init__(self, config, app, **kwargs):
         self._config = config
 
-        self._led_driver = Config.select_led_driver(config)
-        self._qr_scanner = Config.select_qr_scanner(config)
-        self._cashin_thread = Config.select_cashin_thread(config, app.cashin_update_label_text)
+        self._led_driver = config.LED_DRIVER
+        self._qr_scanner = config.QR_SCANNER
+        self._cashin_thread = ConfigApp._select_cashin_thread(config, app.cashin_update_label_text)
 
         super(RootWidget, self).__init__(**kwargs)
 
@@ -237,7 +235,7 @@ class SwapBoxApp(App):
             self.cash_in[k] = 0
 
         self.zmq_connect()
-        self._cashinthread = CashInThread(self, self._config)
+        self._cashinthread = config.CASHIN_THREAD
         self._cashinthread.start()
 
         self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
@@ -313,7 +311,7 @@ class SwapBoxApp(App):
 
 if __name__ == '__main__':
     config = parse_args()
-    ConfigApp._select_led_drivers(config, lambda x: print(x))
+    ConfigApp._select_all_drivers(config, lambda x: print(x))
 
     from kivy.config import Config
     #Config.set('graphics', 'fullscreen', 'fake')
