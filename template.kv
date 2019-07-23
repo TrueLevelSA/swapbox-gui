@@ -25,7 +25,7 @@
     spacing: 20  
     size_hint_y: .2
 
-<WelcomeScreen>:
+<ScreenWelcome>:
     BoxLayout:
         Button:
             id: "welcome_Button"
@@ -33,7 +33,7 @@
             font_size: 20
             on_press: root.manager.current = "main"
 
-<MainScreen>:
+<ScreenMain>:
     Background
     BoxLayout:
         orientation: "vertical"
@@ -60,7 +60,9 @@
                 Button:    
                     size_hint_x: .3          
                     text: app._languages[app._selected_language]["admin_menu"]
-                    on_press: root.manager.current = "settings"
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = "settings"
                 MediumButton:    
                     size_hint_x: .7         
                     disabled: True
@@ -69,13 +71,9 @@
         ScreenManager:
             id: sm1
             size_hint_y: 2
-            MenuScreen:
-            ScreenBuyScan:
-            BuyScreen2:
-            BuyScreen3:
-            RedeemScreen:
+    
 
-<MenuScreen>:
+<ScreenMenu>:
     id: menu_screen
     name: 'menu'
     BoxLayout:
@@ -120,13 +118,17 @@
             orientation: "horizontal"
             MediumButton:
                 text: app._languages[app._selected_language]["buy"]
-                on_press: root.manager.current = "scan_screen"
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "scan_screen"
             MediumButton:
                 text: app._languages[app._selected_language]["sell"]
                 disabled: True
             MediumButton:
                 text: app._languages[app._selected_language]["redeem"]
-                on_press: root.manager.current = "redeem"
+                on_press:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "redeem"
                 disabled: True
 
 <ScreenBuyScan>:
@@ -162,7 +164,9 @@
                     size_hint_y : .2     
                 Button:
                     text: "Camera ( after validation Next )" 
-                    on_press: root.manager.current = "buy2"
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = "insert_screen"
                     size_hint_x : .9
                 BoxLayout:
                     size_hint_y : .2
@@ -171,14 +175,16 @@
             MediumButton:
  
                 text: app._languages[app._selected_language]["menu"]
-                on_press: root.manager.current = "menu"
+                on_press: 
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "menu"
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .2
 
 
-<BuyScreen2>:
-    name: "buy2"
+<ScreenBuyInsert>:
+    name: "insert_screen"
     BoxLayout:
         orientation: "vertical"
         MainBox:
@@ -238,7 +244,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabel:
-                        text: "ETH : 0x4cfcd11f7c978c9c2064091ca4e79ccc8bab7f29"
+                        text: "ETH : {}".format(root._qr_code_ether.split(':')[1])
                         font_size:20
         ButtonBox:
             orientation: "horizontal"
@@ -248,15 +254,18 @@
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
+                    root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
-                on_press: root.manager.current = "buy3"
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "buy3"
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .1
 
-<BuyScreen3>:
+<ScreenBuy3>:
     name: "buy3"
     BoxLayout:
         orientation: "vertical"        
@@ -318,13 +327,15 @@
                 size_hint_x : .2
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
-                on_press: root.manager.current = "menu"
+                on_press: 
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "menu"
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .2
 
 
-<RedeemScreen>:
+<ScreenRedeem>:
     name: "redeem"
     BoxLayout:
         orientation: "vertical"
@@ -338,12 +349,15 @@
             MediumButton:
  
                 text: app._languages[app._selected_language]["menu"]
-                on_press: root.manager.current = "menu"
+                on_press:
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "menu"
+            
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .2
 
-<SettingsScreen>:
+<ScreenSettings>:
     MainBox:
         orientation: "horizontal"
         TabbedPanel:
@@ -361,10 +375,8 @@
                     Button:
                         text: "crypto keys config"
                         on_press: root.manager.current = 'main'
-            
 
 
-
-<ConfirmationScreen>:
+<ScreenConfirmation>:
     MainBox:
         orientation: "horizontal"

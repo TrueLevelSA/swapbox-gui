@@ -3,7 +3,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseInTransition, FallOutTransition
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, StringProperty
 import strictyaml
 from path import Path
 from threading import Thread
@@ -11,111 +11,100 @@ from threading import Thread
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
 
-# bad but for now it will be ok
-# if this is still here in 2 weeks then that's very bad
-CONFIG = None
 
 Window.size = (1380, 770)
 
-class WelcomeScreen(Screen):
+class ScreenWelcome(Screen):
     pass
 
-class MainScreen(Screen):
-    pass
+class ScreenMain(Screen):
 
-class MenuScreen(Screen):
+    def __init__(self, config, **kwargs):
+        self.config = config
+        super().__init__(**kwargs)
+        wid = self.ids.sm1
+        _menu_screen = ScreenMenu(name='menu')
+        wid.add_widget(_menu_screen)
+        _settings_screen = ScreenSettings(name='settings')
+        wid.add_widget(_settings_screen)
+        _redeem_screen = ScreenRedeem(name='redeem')
+        wid.add_widget(_redeem_screen)
+        _scan_screen = ScreenBuyScan(config.QR_SCANNER, name='scan_screen')
+        wid.add_widget(_scan_screen)
+        _insert_screen = ScreenBuyInsert(name='insert_screen')
+        wid.add_widget(_insert_screen)
+        _buy_screen3 = ScreenBuy3(name='buy3')
+        wid.add_widget(_buy_screen3)
+        _sell_screen1 = ScreenSell1(name='sell1')
+        wid.add_widget(_sell_screen1)
+        _sell_screen2 = ScreenSell2(name='sell2')
+        wid.add_widget(_sell_screen2)
+        _sell_screen3 = ScreenSell3(name='sell3')
+        wid.add_widget(_sell_screen3)
+        _confirmation_screen = ScreenConfirmation(name='confirmation')
+        wid.add_widget(_confirmation_screen)
+
+class ScreenMenu(Screen):
     pass
 
 class ScreenBuyScan(Screen):
     _qr_scanner = ObjectProperty(None)
 
+    def __init__(self, qr_scanner, **kwargs):
+        super().__init__(**kwargs)
+        self._qr_scanner = qr_scanner
+
     def on_enter(self):
-        print("sdlkfj")
-        self._qr_scanner = CONFIG.QR_SCANNER
         thread = Thread(target=self._start_scan)
         thread.setDaemon(True)
         thread.start()
+
+    def on_pre_leave(self):
+        self._qr_scanner.stop_scan()
 
     def _start_scan(self):
         CONFIG.LED_DRIVER.led_on()
         qr = self._qr_scanner.scan()
         CONFIG.LED_DRIVER.led_off()
         if qr is not None:
-            print("QR FOUND")
             print(qr)
+            self.manager.get_screen('insert_screen')._qr_code_ether = qr
+            self.manager.current = 'insert_screen'
         else:
             print("QR not found")
 
-    def on_pre_leave(self):
-        self._qr_scanner.stop_scan()
+class ScreenBuyInsert(Screen):
+    _qr_code_ether = StringProperty("nothing:nothing")
 
-class BuyScreen2(Screen):
+class ScreenBuy3(Screen):
     pass
 
-class BuyScreen3(Screen):
+class ScreenSettings(Screen):
     pass
 
-class SettingsScreen(Screen):
+class ScreenRedeem(Screen):
     pass
 
-class BuyScreen(Screen):
+class ScreenSell1(Screen):
     pass
 
-class RedeemScreen(Screen):
+class ScreenSell2(Screen):
     pass
 
-class SellScreen1(Screen):
+class ScreenSell3(Screen):
     pass
 
-class SellScreen2(Screen):
-    pass
-
-class SellScreen3(Screen):
-    pass
-
-class ConfirmationScreen(Screen):
+class ScreenConfirmation(Screen):
     pass
 
 class Manager(ScreenManager):
-    _welcome_screen = ObjectProperty(None)
-    _main_screen = ObjectProperty(None)
-    _menu_screen = ObjectProperty(None)
-    _settings_screen = ObjectProperty(None)
-    _redeem_screen = ObjectProperty(None)
-    _scan_screen = ObjectProperty(None)
-    _buy_screen2 = ObjectProperty(None)
-    _buy_screen3 = ObjectProperty(None)
-    _sell_screen1 = ObjectProperty(None)
-    _sell_screen2 = ObjectProperty(None)
-    _sell_screen3 = ObjectProperty(None)
-    _confirmation_screen = ObjectProperty(None)
 
-    def __init__(self, **kwargs):
+    def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self._welcome_screen = WelcomeScreen(name='welcome')
-        self.add_widget(self._welcome_screen)
-        self._main_screen = MainScreen(name='main')
-        self.add_widget(self._main_screen)
-        self._menu_screen = MenuScreen(name='menu')
-        self.add_widget(self._menu_screen)
-        self._settings_screen = SettingsScreen(name='settings')
-        self.add_widget(self._settings_screen)
-        self._redeem_screen = RedeemScreen(name='redeem')
-        self.add_widget(self._redeem_screen)
-        self._scan_screen = ScreenBuyScan(name='scan_screen')
-        self.add_widget(self._scan_screen)
-        self._buy_screen2 = BuyScreen2(name='buy2')
-        self.add_widget(self._buy_screen2)
-        self._buy_screen3 = BuyScreen3(name='buy3')
-        self.add_widget(self._buy_screen3)
-        self._sell_screen1 = SellScreen1(name='sell1')
-        self.add_widget(self._sell_screen1)
-        self._sell_screen2 = SellScreen2(name='sell2')
-        self.add_widget(self._sell_screen2)
-        self._sell_screen3 = SellScreen3(name='sell3')
-        self.add_widget(self._sell_screen3)
-        self._confirmation_screen = ConfirmationScreen(name='confirmation')
-        self.add_widget(self._confirmation_screen)
+        _welcome_screen = ScreenWelcome(name='welcome')
+        self.add_widget(_welcome_screen)
+        _main_screen = ScreenMain(config, name='main')
+        self.add_widget(_main_screen)
 
 
 class TemplateApp(App):
@@ -147,7 +136,7 @@ class TemplateApp(App):
                     'type': 'CHF'
                 }
         }
-        m = Manager(transition=SlideTransition())
+        m = Manager(self._config, transition=RiseInTransition())
         return m
 
     def change_language(self, selected_language):
