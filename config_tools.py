@@ -30,6 +30,9 @@ class Config(object):
         self.ZMQ_PORT = None
         self.NOTES_VALUES = None
         self.ZMQ_PORT_BUY = None
+        self.LED_DRIVER = None
+        self.CASHIN_THREAD = None
+        self.QR_SCANNER = None
 
     @staticmethod
     def _select_led_driver(config):
@@ -54,15 +57,21 @@ class Config(object):
 
     @staticmethod
     def _select_qr_scanner(config):
-        if CameraMethod[self._config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
+        if CameraMethod[config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
             from qr_scanner.zbar_qr_scanner import QrScannerZbar
             return QrScannerZbar(config.ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[self._config.CAMERA_METHOD] is RelayMethod.OPENCV:
+        elif CameraMethod[config.CAMERA_METHOD] is RelayMethod.OPENCV:
             from qr_scanner.opencv_qr_scanner import QrScannerOpenCV
             return QrScannerOpenCV()
         else:
             from qr_scanner.none_qr_scanner import QrScannerNone
             return QrScannerNone()
+
+    @staticmethod
+    def _select_all_drivers(config, callback_cashin):
+        config.LED_DRIVER = Config._select_led_driver(config)
+        config.QR_SCANNER = Config._select_qr_scanner(config)
+        config.CASHIN_THREAD = Config._select_cashin_thread(config, callback_cashin)
 
 def print_debug(*args, **kwargs):
     print("PLEASE USE Logger.debug/Logger.info/...")

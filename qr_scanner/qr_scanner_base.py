@@ -26,21 +26,26 @@ class QrScanner(ABC):
                 line = self._execute.before
                 if self._is_qr_found(line):
                     qr = self._get_qr_from_line(line)
-                    self._execute.close(True)
+                    self._close_executor()
                     return qr.decode('ascii').strip() if qr is not None else None
             except pexpect.EOF:
-                self._execute.close(True)
+                self._close_executor()
                 break
             except pexpect.TIMEOUT:
-                self._execute.close(True)
+                self._close_executor()
                 break
 
-        self._execute.close(True)
+        self._close_executor()
         return None
 
+    def _close_executor(self):
+        if self._execute is not None:
+            self._execute.close(True)
+            self._execute = None
+
     def stop_scan(self):
-        self._execute.close(True)
         self._scanning.set()
+        self._close_executor()
 
     @abstractmethod
     def _is_qr_found(self, line):

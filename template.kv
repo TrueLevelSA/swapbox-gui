@@ -63,13 +63,14 @@
                     on_press: root.manager.current = "settings"
                 MediumButton:    
                     size_hint_x: .7         
+                    disabled: True
                     text: app._languages[app._selected_language]["language"]
 
         ScreenManager:
             id: sm1
             size_hint_y: 2
             MenuScreen:
-            BuyScreen1:
+            ScreenBuyScan:
             BuyScreen2:
             BuyScreen3:
             RedeemScreen:
@@ -119,15 +120,17 @@
             orientation: "horizontal"
             MediumButton:
                 text: app._languages[app._selected_language]["buy"]
-                on_press: root.manager.current = "buy1"
+                on_press: root.manager.current = "scan_screen"
             MediumButton:
                 text: app._languages[app._selected_language]["sell"]
+                disabled: True
             MediumButton:
                 text: app._languages[app._selected_language]["redeem"]
                 on_press: root.manager.current = "redeem"
+                disabled: True
 
-<BuyScreen1>:
-    name: "buy1"
+<ScreenBuyScan>:
+    name: "scan_screen"
     BoxLayout:
         orientation: "vertical"
         MainBox:
@@ -244,7 +247,9 @@
                 size_hint_x : .1
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
-                on_press: root.manager.current = "menu"
+                on_press:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "menu"
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
                 on_press: root.manager.current = "buy3"
@@ -387,9 +392,9 @@
         name: 'menu'
         manager: screen_manager
 
-    BuyScreen1:
-        id: buy_screen1
-        name: "buy1"
+    ScreenBuyScan:
+        id: _scan_screen
+        name: "scan_screen"
         manager: screen_manager
 
     BuyScreen2:

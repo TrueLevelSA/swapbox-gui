@@ -37,8 +37,8 @@ import strictyaml
 from path import Path
 
 from config_tools import parse_args as parse_args
-from config_tools import CameraMethod as CameraMethod
-from config_tools import RelayMethod as RelayMethod
+from config_tools import Config as ConfigApp
+
 # "force" people to use logger
 from config_tools import print_debug as print
 
@@ -313,6 +313,8 @@ class SwapBoxApp(App):
 
 if __name__ == '__main__':
     config = parse_args()
+    ConfigApp._select_led_drivers(config, lambda x: print(x))
+
     from kivy.config import Config
     #Config.set('graphics', 'fullscreen', 'fake')
     Config.set('kivy', 'exit_on_escape', 1)
