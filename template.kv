@@ -248,7 +248,6 @@
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
-                    root.manager.transition.direction = 'left'
                     root.manager.current = "menu"
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
@@ -369,70 +368,3 @@
 <ConfirmationScreen>:
     MainBox:
         orientation: "horizontal"
-
-
-<Manager>:
-    id: screen_manager    
-    welcome_screen: welcome_screen
-    main_screen: main_screen
-    settings_screen: settings_screen
-
-    WelcomeScreen:
-        id: welcome_screen
-        name: 'welcome'
-        manager: screen_manager
-
-    MainScreen:
-        id: main_screen
-        name: 'main'
-        manager: screen_manager
-
-    MenuScreen:
-        id: menu_screen
-        name: 'menu'
-        manager: screen_manager
-
-    ScreenBuyScan:
-        id: _scan_screen
-        name: "scan_screen"
-        manager: screen_manager
-
-    BuyScreen2:
-        id: buy_screen2
-        name: "buy2"
-        manager: screen_manager
-
-    BuyScreen3:
-        id: buy_screen3
-        name: "buy2"
-        manager: screen_manager
-
-    SettingsScreen:
-        id: settings_screen
-        name: 'settings'
-        manager: screen_manager
-
-    RedeemScreen:
-        id: redeem_screen
-        name: 'redeem'
-        manager: screen_manager
-
-    SellScreen1:
-        id: sell_screen1
-        name: 'sell1'
-        manager: screen_manager
-
-    SellScreen2:
-        id: sell_screen2
-        name: 'sell2'
-        manager: screen_manager
-
-    SellScreen3:
-        id: sell_screen3
-        name: 'sell3'
-        manager: screen_manager
-    
-    ConfirmationScreen:
-        id: confirmation_screen
-        name: 'confirmation'
-        manager: screen_manager
