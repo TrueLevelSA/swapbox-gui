@@ -10,6 +10,7 @@ camera_device: /dev/video0
 #ZMQ settings
 zmq_port: 5556
 zmq_port_buy: 5557
+zmq_port_pricefeed: 5550
 # LED Relay (set to NONE if unused)
 relay_method: NONE
 # set to false to use camera (signed) auth
