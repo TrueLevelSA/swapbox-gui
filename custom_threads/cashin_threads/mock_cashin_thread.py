@@ -21,7 +21,7 @@ class CashInThreadMock(Thread):
 
         while not self._stop_cashin.is_set():
             msg = self.zsock.recv_multipart()
-            self._callback_message(msg[0])
+            self._callback_message(msg[0].decode('utf-8'))
 
     def stop_cashin(self):
         self._stop_cashin.set()
