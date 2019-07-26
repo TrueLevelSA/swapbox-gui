@@ -33,6 +33,8 @@ class Config(object):
         self.LED_DRIVER = None
         self.CASHIN_THREAD = None
         self.QR_SCANNER = None
+        self.PRICEFEED = None
+        self.ZMQ_PORT_PRICEFEED = None
 
     @staticmethod
     def _select_led_driver(config):
@@ -68,10 +70,16 @@ class Config(object):
             return QrScannerNone()
 
     @staticmethod
-    def _select_all_drivers(config, callback_cashin):
+    def _select_pricefeed(config, callback_pricefeed):
+        from custom_threads.zmq_mock_pricefeed import ZMQPriceFeedMock
+        return ZMQPriceFeedMock(callback_pricefeed, config)
+
+    @staticmethod
+    def _select_all_drivers(config, callback_cashin, callback_pricefeed):
         config.LED_DRIVER = Config._select_led_driver(config)
         config.QR_SCANNER = Config._select_qr_scanner(config)
         config.CASHIN_THREAD = Config._select_cashin_thread(config, callback_cashin)
+        config.PRICEFEED = Config._select_pricefeed(config, callback_pricefeed)
 
 def print_debug(*args, **kwargs):
     print("PLEASE USE Logger.debug/Logger.info/...")
@@ -102,6 +110,7 @@ def parse_args():
     config.ZMQ_PORT = machine_config.get("zmq_port")
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
     config.ZMQ_PORT_BUY = machine_config.get("zmq_port_buy")
+    config.ZMQ_PORT_PRICEFEED = machine_config.get("zmq_port_pricefeed")
 
     if not os.uname()[4].startswith("arm"):
         config.RELAY_METHOD = RelayMethod.NONE
