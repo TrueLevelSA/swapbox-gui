@@ -1,0 +1,27 @@
+from threading import Thread, Event
+import zmq
+
+class ZMQPriceFeedMock(Thread):
+
+    def __init__(self, callback_message, config):
+        super().__init__()
+        self.daemon = True
+        self._stop_listening = Event()
+        self._callback_message = callback_message
+        self._mock_port = config.ZMQ_PORT_PRICEFEED
+
+    def run(self):
+        """Run Worker Thread."""
+        zctx = zmq.Context()
+        self.zsock = zctx.socket(zmq.SUB)
+        self.zsock.connect('tcp://localhost:{}'.format(self._mock_port))
+        self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
+
+        self._stop_listening.clear()
+
+        while not self._stop_listening.is_set():
+            msg = self.zsock.recv_multipart()
+            self._callback_message(msg[0].decode('utf-8'))
+
+    def stop_listening(self):
+        self._stop_listening.set()
