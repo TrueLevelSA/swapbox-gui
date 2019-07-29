@@ -1,7 +1,8 @@
 import zmq
 import math
 from time import time, sleep
-port = '5550'
+import json
+port = '5556'
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
@@ -21,11 +22,18 @@ def get_next_price():
 
 crypto_fiat = "eth:chf"
 
+obeuhjeuh = {
+        'buy_price': -1.0,
+        'sell_price': -2.0
+}
+
 try:  # Command Interpreter
     while True:
         data = "{}:{}".format(crypto_fiat, get_next_price())
-        print(" Sending {}".format(data))
-        socket.send_string(data)
+        obeuhjeuh['buy_price'] = get_next_price()
+        obeuhjeuh['sell_price'] = get_next_price()
+        print(" Sending {}".format(obeuhjeuh))
+        socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
         sleep(1)
 
 except KeyboardInterrupt:  # If user do CTRL+C

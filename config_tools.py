@@ -34,7 +34,6 @@ class Config(object):
         self.CASHIN_THREAD = None
         self.QR_SCANNER = None
         self.PRICEFEED = None
-        self.ZMQ_PORT_PRICEFEED = None
 
     @staticmethod
     def _select_led_driver(config):

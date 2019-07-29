@@ -48,15 +48,15 @@
                 orientation: "horizontal"
                 size_hint_x: .6
                 padding: 10
-                BoxLayout:
-                    orientation: "vertical"
-                    BlackLabel:
-                        font_size:20
-                        text: "Company Name"
-                    BlackLabel:
-                        text: "Company website"
-                    BlackLabel:
-                        text: "Company Phone"
+                #BoxLayout:
+                #    orientation: "vertical"
+                #    BlackLabel:
+                #        font_size:20
+                #        text: "Company Name"
+                #    BlackLabel:
+                #        text: "Company website"
+                #    BlackLabel:
+                #        text: "Company Phone"
                 Button:    
                     size_hint_x: .3          
                     text: app._languages[app._selected_language]["admin_menu"]
@@ -85,7 +85,7 @@
                 BlackLabel:
                     size_hint_y: .15
                     font_size: 25
-                    text: "Main choice your crypto"
+                    text: app._languages[app._selected_language]["select_crypto"]
                 BoxLayout:
                     orientation: "horizontal"
                     BoxLayout:
@@ -94,24 +94,25 @@
                             text: 'ETHEREUM (ETH)' 
                             font_size: 20
                             size_hint_y: .2
+                            color: [0,0,0,1]
                         Image:
                             source: 'img/ETH-logo.png'
                             allow_stretch: True
                             size_hint_y: .5
                             keep_ratio: True
                         Label:
-                            text: 'Buy = 200 CHF' 
+                            text: 'Buy = {:.2f} CHF'.format(app._chf_to_eth)
                             size_hint_y: .1
                             font_size: 20
                             color: [0,0,0,1]
                         Label:
-                            text: 'Sell = 200 CHF' 
+                            text: 'Sell = {:.2f} CHF'.format(app._eth_to_chf)
                             size_hint_y: .1
                             font_size: 20
                             color: [0,0,0,1]
                 Label:
-                    text: 'Message Tu es la'
-                    font_size: '20' 
+                    #text: 'Message Tu es la'
+                    #font_size: '20' 
                     size_hint_y: .1
  
         ButtonBox:
@@ -314,7 +315,7 @@
                     BoxLayout:
                         size_hint_y : .2
                         BlackLabel:
-                            text: "ETH : 0x4cfcd11f7c978c9c2064091ca4e79ccc8bab7f29"
+                            text: root._address
                             font_size:20
             BoxLayout:
                 orientation: "horizontal"
