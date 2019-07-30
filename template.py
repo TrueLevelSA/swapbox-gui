@@ -11,6 +11,7 @@ import json
 
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
+from qr_generator.qr_generator import QRGenerator
 
 
 Window.size = (1380, 770)
@@ -69,8 +70,11 @@ class ScreenBuyScan(Screen):
         qr = self._qr_scanner.scan()
         self._led_driver.led_off()
         if qr is not None:
-            print(qr)
-            self.manager.get_screen('insert_screen')._qr_code_ether = qr
+            self.manager.get_screen('insert_screen').set_address_from_qr(qr)
+            path_qr = 'tmp/qr.png'
+            QRGenerator.generate_qr_image(qr, path_qr)
+            self.manager.get_screen('insert_screen').ids['image_qr'].source = path_qr
+            self.manager.get_screen('insert_screen').ids['image_qr'].reload()
             self.manager.transition.direction = 'left'
             self.manager.current = 'insert_screen'
         else:
@@ -78,16 +82,27 @@ class ScreenBuyScan(Screen):
 
 class ScreenBuyInsert(Screen):
     _qr_code_ether = StringProperty("nothing:nothing")
+    _address_ether = StringProperty("nothing")
     _cash_in = NumericProperty(0)
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
         self._thread = config.CASHIN_THREAD
         self._thread.start()
+        self._valid_notes = config.NOTES_VALUES
 
     def _update_message_cashin(self, message):
-        print(message)
+        amount_received = message.split(':')[1]
+        if amount_received in self._valid_notes:
+            self._cash_in += int(amount_received)
 
+    def set_address_from_qr(self, qr):
+        self._qr_code_ether = qr
+        self._address_ether = self._qr_code_ether.split(":")[1]
+
+    def _leave_without_buy(self):
+        # reseting cash in, might want to give money back
+        self._cash_in = 0
 
 class ScreenBuy3(Screen):
     _address = StringProperty('')
@@ -142,23 +157,6 @@ class TemplateApp(App):
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
         self._selected_language = next(iter(self._languages)) # get a language
 
-        self.transactions = {
-            'txid':
-                {
-                    'timestamp': 28581305,
-                    'amount_fiat': 50,
-                    'type_fiat': 'CHF',
-                    'amount_crypto': 1.2,
-                    'type_crypto': 'ETH'
-                }
-        }
-        self.redeemcodes = {
-            'code1':
-                {
-                    'fiat': 70,
-                    'type': 'CHF'
-                }
-        }
         self._m = Manager(self._config, transition=RiseInTransition())
         self._config.PRICEFEED.start()
         return self._m
@@ -170,6 +168,7 @@ class TemplateApp(App):
         ''' only updates the _chf_to_eth attribute '''
         ''' only dispatching the message to the right screen'''
         msg_json = json.loads(message)
+        # received values are in weis
         self._chf_to_eth = float(msg_json['buy_price'])/1e18
         self._eth_to_chf = float(msg_json['sell_price'])/1e18
 

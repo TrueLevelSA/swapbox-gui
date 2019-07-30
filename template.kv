@@ -48,23 +48,17 @@
                 orientation: "horizontal"
                 size_hint_x: .6
                 padding: 10
-                #BoxLayout:
-                #    orientation: "vertical"
-                #    BlackLabel:
-                #        font_size:20
-                #        text: "Company Name"
-                #    BlackLabel:
-                #        text: "Company website"
-                #    BlackLabel:
-                #        text: "Company Phone"
-                Button:    
-                    size_hint_x: .3          
-                    text: app._languages[app._selected_language]["admin_menu"]
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = "settings"
+                #Button:    
+                #    size_hint_x: .3          
+                #    text: app._languages[app._selected_language]["admin_menu"]
+                #    on_press: 
+                #        root.manager.transition.direction = 'left'
+                #        root.manager.current = "settings"
+                Label:
+                    size_hint_x: 0.3
                 MediumButton:    
-                    size_hint_x: .7         
+                    size_hint_x: .9
+                    size_hint_y: 1.5
                     disabled: True
                     text: app._languages[app._selected_language]["language"]
 
@@ -148,15 +142,15 @@
                     allow_stretch: True
                     keep_ratio: True            
                 BoxLayout:
-                    orientation: 'vertical'
-                    Label:
-                        font_size: '20'
-                        color: [0,0,0,1]
-                        size_hint_y : .1
-                        allow_stretch: True
-                        text: app._languages[app._selected_language]["inputwallet"]
-                    BoxLayout:
-                        size_hint_y : .2
+                #    orientation: 'vertical'
+                #    Label:
+                #        font_size: '20'
+                #        color: [0,0,0,1]
+                #        size_hint_y : .1
+                #        allow_stretch: True
+                #        text: app._languages[app._selected_language]["inputwallet"]
+                #    BoxLayout:
+                #        size_hint_y : .2
             BoxLayout:
                 size_hint_x : .1
             BoxLayout:
@@ -164,7 +158,7 @@
                 BoxLayout:
                     size_hint_y : .2     
                 Button:
-                    text: "Camera ( after validation Next )" 
+                    text: "Camera is loading" 
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.manager.current = "insert_screen"
@@ -189,64 +183,71 @@
     BoxLayout:
         orientation: "vertical"
         MainBox:
-            orientation: "horizontal"
+            orientation: "vertical"
             BoxLayout:
-                orientation: "vertical"
-               
-                Image:
-                    source: 'img/BTM.png'
-                    allow_stretch: True
-                    size_hint_y : 2
-                    keep_ratio: True            
-                BoxLayout:
-                    orientation: 'vertical'
-                    size_hint_y : .05
+                size_hint_y: 0.05
             BlackLabel:
                 text: app._languages[app._selected_language]["inputfiat"]
-                font_size:20
-
+                font_size:25
+                size_hint_y: 0.1
             BoxLayout:
-                size_hint_x : .1
+                size_hint_y: 0.05
             BoxLayout:
-                orientation: "vertical" 
+                orientation: "horizontal"
+                size_hint_y:0.8
                 BoxLayout:
-                    size_hint_y : .2   
+                    orientation: "vertical"
+                   
+                    Image:
+                        id: image_qr
+                        source: 'tmp/qr.png'
+                        allow_stretch: False 
+                        size_hint_y : 2
+                        keep_ratio: True            
                     BlackLabel:
-                        text: app._languages[app._selected_language]["fiatvalue"]
-                        font_size:20
-                BoxLayout:
-                    size_hint_y : .2
-                    canvas.before:
-                        Color:
-                            rgba: 5,5,5,.5
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-                    BlackLabel:
-                        text: "500 to (Limited 5000 CHF)"
-                        font_size:20
-                BoxLayout:
-                    size_hint_y : .2  
-                    BlackLabel:
-                        text: app._languages[app._selected_language]["cryptovalue"]
-                        font_size:20
-                BoxLayout:
-                    size_hint_y : .2  
-                    canvas.before:
-                        Color:
-                            rgba: 5,5,5,.5
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
+                        site_hint_y: 0.2
+                        font_size: 12      
+                        text: root._address_ether
 
-                    BlackLabel:
-                        text: "(ETH) 2.5"
-                        font_size:20      
                 BoxLayout:
-                    size_hint_y : .2
-                    BlackLabel:
-                        text: "ETH : {}".format(root._qr_code_ether.split(':')[1])
-                        font_size:20
+                    size_hint_x : .1
+                BoxLayout:
+                    orientation: "vertical" 
+                    BoxLayout:
+                        size_hint_y : .2   
+                        BlackLabel:
+                            text: app._languages[app._selected_language]["fiatvalue"]
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2
+                        canvas.before:
+                            Color:
+                                rgba: 5,5,5,.5
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+                        BlackLabel:
+                            text: "{} CHF".format(root._cash_in)
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2  
+                        BlackLabel:
+                            text: app._languages[app._selected_language]["cryptovalue"]
+                            font_size:20
+                    BoxLayout:
+                        size_hint_y : .2  
+                        canvas.before:
+                            Color:
+                                rgba: 5,5,5,.5
+                            Rectangle:
+                                pos: self.pos
+                                size: self.size
+
+                        BlackLabel:
+                            text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
+                            font_size:20      
+                    BoxLayout:
+                        size_hint_y : .2
         ButtonBox:
             orientation: "horizontal"
             BoxLayout:
@@ -255,11 +256,13 @@
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
+                    root._leave_without_buy()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:
+                disabled: root._cash_in <= 0
                 text: app._languages[app._selected_language]["confirm"]
-                on_press: 
+                on_press:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "buy3"
             BoxLayout:
