@@ -16,7 +16,6 @@ class ZMQPriceFeedMock(Thread):
         zctx = zmq.Context()
         self.zsock = zctx.socket(zmq.SUB)
         self.zsock.connect('tcp://localhost:{}'.format(self._mock_port))
-        print('tcp://localhost:{}'.format(self._mock_port))
         self.zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
         self._stop_listening.clear()
