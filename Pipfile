@@ -19,6 +19,7 @@ pifacedigitalio = "*"
 qrcode = "*"
 docutils = "==0.14rc2"
 opencv-python = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
