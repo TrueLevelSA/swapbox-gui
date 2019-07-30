@@ -9,11 +9,11 @@ English:
   select_crypto: Select your Crypto
   welcome: Welcome to Atola Swap-Box. Press on the screen to continue
   admin_menu: Admin Menu
-  main_title: Atola (Swap-Box)
+  main_title: Atola Swap-Box
   connectivity: Connectivity
   crypto: CryptoCurrency
   language: Language
-  inputkey: Input your public key
+  inputkey: Scan your public key
   inputwallet: Please, put your destination wallet in front of the camera
   inputfiat: Insert your fiat (CHF EURO) in the Swap-box
   thank: Thank you
@@ -35,7 +35,7 @@ French:
   connectivity: Connectivitée
   crypto: Crypto Devise
   language: language
-  inputkey: Entrez votre clé publique
+  inputkey: Scannez votre clé publique
   inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos Fiat (CHF EURO) dans la Swap-box
   thank: merci
