@@ -9,7 +9,7 @@ socket = context.socket(zmq.PUB)
 socket.bind('tcp://*:{}'.format(port))
 
 
-value = 100
+value = 100e18
 index = 0.1
 increment = 0.1
 
@@ -18,9 +18,8 @@ def get_next_price():
     global increment
     global value
     index += increment
-    return value + math.sin(index) * 10
+    return value + math.sin(index) * 10e18
 
-crypto_fiat = "eth:chf"
 
 obeuhjeuh = {
         'buy_price': -1.0,
