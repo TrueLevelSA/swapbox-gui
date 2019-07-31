@@ -35,7 +35,7 @@ class ScreenMain(Screen):
         wid.add_widget(_scan_screen)
         _insert_screen = ScreenBuyInsert(config, name='insert_screen')
         wid.add_widget(_insert_screen)
-        _buy_screen3 = ScreenBuy3(name='buy3')
+        _buy_screen3 = ScreenBuyFinal(name='final_buy_screen')
         wid.add_widget(_buy_screen3)
         _sell_screen1 = ScreenSell1(name='sell1')
         wid.add_widget(_sell_screen1)
@@ -75,8 +75,10 @@ class ScreenBuyScan(Screen):
             self.manager.get_screen('insert_screen').set_address_from_qr(qr)
             path_qr = 'tmp/qr.png'
             QRGenerator.generate_qr_image(qr, path_qr)
-            self.manager.get_screen('insert_screen').ids['image_qr'].source = path_qr
-            self.manager.get_screen('insert_screen').ids['image_qr'].reload()
+            image = self.manager.get_screen('insert_screen').ids['image_qr']
+            image.source = 'img/Qrcode.png'
+            image.reload()
+            image.source = path_qr
             self.manager.transition.direction = 'left'
             self.manager.current = 'insert_screen'
         else:
@@ -114,21 +116,25 @@ class ScreenBuyInsert(Screen):
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
-        success = self._node_rpc.buy(self._cash_in, self._address_ether)
+        success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
         if success:
+            self.manager.get_screen("final_buy_screen")._chf_sold = self._cash_in
+            self.manager.get_screen("final_buy_screen")._eth_bought = value
             self._cash_in = 0
             self.manager.transition.direction = 'left'
-            self.manager.current = "buy3"
+            self.manager.current = "final_buy_screen"
         else:
             self.manager.transition.direction = 'right'
             self.manager.current = "insert_screen"
 
-class ScreenBuy3(Screen):
+class ScreenBuyFinal(Screen):
     _address = StringProperty('')
-    _chf_bought = NumericProperty(0)
+    _chf_sold = NumericProperty(0)
+    _eth_bought = NumericProperty(0)
 
     def on_leave(self):
-        self._chf_bought = 0
+        self._chf_sold = 0
+        self._eth_bought = 0
 
 class ScreenSettings(Screen):
     pass

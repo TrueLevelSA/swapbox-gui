@@ -17,9 +17,9 @@ class NodeRPC():
         returns true when the node could buy and send eth to the client
         and false when an error occured '''
         data = {'method': 'buy', 'amount': chf_amount, 'address': client_address}
-        print("SENDING", data)
         self.zmq_socket.send_json(data)
-        print("RECEIVING")
         message = self.zmq_socket.recv().decode('utf-8')
-        print("RECEIVED")
-        return message == 'success'
+        if message['status'] == 'success':
+            return (True, float(message['result']))
+        else:
+            return (False, message['result'])
