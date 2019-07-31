@@ -73,20 +73,14 @@ class ScreenBuyScan(Screen):
         self._led_driver.led_off()
         if qr is not None:
             self.manager.get_screen('insert_screen').set_address_from_qr(qr)
-            path_qr = 'tmp/qr.png'
-            QRGenerator.generate_qr_image(qr, path_qr)
-            image = self.manager.get_screen('insert_screen').ids['image_qr']
-            image.source = 'img/Qrcode.png'
-            image.reload()
-            image.source = path_qr
             self.manager.transition.direction = 'left'
             self.manager.current = 'insert_screen'
         else:
             print("QR not found")
 
 class ScreenBuyInsert(Screen):
-    _qr_code_ether = StringProperty("nothing:nothing")
-    _address_ether = StringProperty("nothing")
+    _qr_code_ether = StringProperty("ethereum:0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
+    _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _cash_in = NumericProperty(0)
 
     def __init__(self, config, **kwargs):
