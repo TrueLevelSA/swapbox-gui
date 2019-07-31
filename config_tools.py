@@ -34,6 +34,7 @@ class Config(object):
         self.CASHIN_THREAD = None
         self.QR_SCANNER = None
         self.PRICEFEED = None
+        self.NODE_RPC = None
 
     @staticmethod
     def _select_led_driver(config):
@@ -74,11 +75,17 @@ class Config(object):
         return ZMQPriceFeedMock(callback_pricefeed, config)
 
     @staticmethod
+    def _select_node_rpc(config):
+        from node_rpc.node_rpc import NodeRPC
+        return NodeRPC(config)
+
+    @staticmethod
     def _select_all_drivers(config, callback_cashin, callback_pricefeed):
         config.LED_DRIVER = Config._select_led_driver(config)
         config.QR_SCANNER = Config._select_qr_scanner(config)
         config.CASHIN_THREAD = Config._select_cashin_thread(config, callback_cashin)
         config.PRICEFEED = Config._select_pricefeed(config, callback_pricefeed)
+        config.NODE_RPC = Config._select_node_rpc(config)
 
 def print_debug(*args, **kwargs):
     print("PLEASE USE Logger.debug/Logger.info/...")

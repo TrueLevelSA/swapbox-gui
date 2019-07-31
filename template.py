@@ -45,6 +45,8 @@ class ScreenMain(Screen):
         wid.add_widget(_sell_screen3)
         _confirmation_screen = ScreenConfirmation(name='confirmation')
         wid.add_widget(_confirmation_screen)
+        _loading_screen = ScreenLoading(name='loading_screen')
+        wid.add_widget(_loading_screen)
 
 class ScreenMenu(Screen):
     pass
@@ -90,6 +92,7 @@ class ScreenBuyInsert(Screen):
         self._thread = config.CASHIN_THREAD
         self._thread.start()
         self._valid_notes = config.NOTES_VALUES
+        self._node_rpc = config.NODE_RPC
 
     def _update_message_cashin(self, message):
         amount_received = message.split(':')[1]
@@ -102,10 +105,30 @@ class ScreenBuyInsert(Screen):
 
     def _leave_without_buy(self):
         # reseting cash in, might want to give money back
+        # might use on_pre_leave or on_leave
         self._cash_in = 0
+
+    def _buy(self):
+        self.manager.transition.direction = 'left'
+        self.manager.current = "loading_screen"
+        Thread(target=self._threaded_buy, daemon=True).start()
+
+    def _threaded_buy(self):
+        success = self._node_rpc.buy(self._cash_in, self._address_ether)
+        if success:
+            self._cash_in = 0
+            self.manager.transition.direction = 'left'
+            self.manager.current = "buy3"
+        else:
+            self.manager.transition.direction = 'right'
+            self.manager.current = "insert_screen"
 
 class ScreenBuy3(Screen):
     _address = StringProperty('')
+    _chf_bought = NumericProperty(0)
+
+    def on_leave(self):
+        self._chf_bought = 0
 
 class ScreenSettings(Screen):
     pass
@@ -120,6 +143,9 @@ class ScreenSell2(Screen):
     pass
 
 class ScreenSell3(Screen):
+    pass
+
+class ScreenLoading(Screen):
     pass
 
 class ScreenConfirmation(Screen):
@@ -180,6 +206,7 @@ class TemplateApp(App):
     def on_stop(self):
         self._config.CASHIN_THREAD.stop_cashin()
         self._config.PRICEFEED.stop_listening()
+        self._config.NODE_RPC.stop()
 
 if __name__ == '__main__':
     config = parse_args()

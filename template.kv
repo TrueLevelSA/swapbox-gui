@@ -69,7 +69,6 @@
 
 <ScreenMenu>:
     id: menu_screen
-    name: 'menu'
     BoxLayout:
         orientation: "vertical"
         MainBox:
@@ -127,7 +126,6 @@
                 disabled: True
 
 <ScreenBuyScan>:
-    name: "scan_screen"
     BoxLayout:
         orientation: "vertical"
         MainBox:
@@ -179,7 +177,6 @@
 
 
 <ScreenBuyInsert>:
-    name: "insert_screen"
     BoxLayout:
         orientation: "vertical"
         MainBox:
@@ -263,14 +260,12 @@
                 disabled: root._cash_in <= 0
                 text: app._languages[app._selected_language]["confirm"]
                 on_press:
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = "buy3"
+                    root._buy()
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .1
 
 <ScreenBuy3>:
-    name: "buy3"
     BoxLayout:
         orientation: "vertical"        
         BoxLayout:
@@ -338,9 +333,16 @@
                 orientation: "horizontal"
                 size_hint_x : .2
 
+<ScreenLoading>:
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BlackLabel:
+                font_size: 20
+                text: "Loading..."
 
 <ScreenRedeem>:
-    name: "redeem"
     BoxLayout:
         orientation: "vertical"
         MainBox:
