@@ -40,6 +40,7 @@
 <ButtonBox@BoxLayout>:
     spacing: 20  
     size_hint_y: .2
+    orientation: 'horizontal'
 
 <ScreenWelcome>:
     BoxLayout:
@@ -119,7 +120,6 @@
                     size_hint_y: .1
  
         ButtonBox:
-            orientation: "horizontal"
             MediumButton:
                 text: app._languages[app._selected_language]["buy"]
                 on_press: 
@@ -173,7 +173,6 @@
                 BoxLayout:
                     size_hint_y : .2
         ButtonBox:
-            orientation: "horizontal"
             MediumButton:
  
                 text: app._languages[app._selected_language]["menu"]
@@ -231,7 +230,6 @@
                     BlackLabelSmall:
                         text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
         ButtonBox:
-            orientation: "horizontal"
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .1
@@ -300,7 +298,6 @@
                 size_hint_x : .05
 
         ButtonBox:
-            orientation: "horizontal"
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .2
@@ -320,6 +317,7 @@
             orientation: "horizontal"
             BlackLabelSmall:
                 text: "Loading..."
+        ButtonBox:
 
 <ScreenRedeem>:
     BoxLayout:
@@ -330,7 +328,6 @@
                 text: "Readeem Code"
 
         ButtonBox:
-            orientation: "horizontal"
             MediumButton:
  
                 text: app._languages[app._selected_language]["menu"]
