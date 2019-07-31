@@ -3,8 +3,24 @@
     allow_stretch: True
     keep_ratio: False
 
+# Label with black font
 <BlackLabel@Label>:
     color: [0,0,0,1]
+
+# Label with black font, small font size
+# used for content
+<BlackLabelSmall@BlackLabel>:
+    font_size: 20
+
+# Label with black font, medium font size
+# used for subtitles
+<BlackLabelMedium@BlackLabel>:
+    font_size: 22
+
+# Label with black font, large font size
+# used for titles
+<BlackLabelLarge@BlackLabel>:
+    font_size: 25
 
 <MediumButton@Button>:
     size_hint_x: 0.1
@@ -75,7 +91,7 @@
             orientation: "horizontal"
             BoxLayout:
                 orientation: "vertical"
-                BlackLabel:
+                BlackLabelLarge:
                     size_hint_y: .15
                     font_size: 25
                     text: app._languages[app._selected_language]["select_crypto"]
@@ -83,26 +99,20 @@
                     orientation: "horizontal"
                     BoxLayout:
                         orientation: "vertical"
-                        Label:
+                        BlackLabelSmall:
                             text: 'ETHEREUM (ETH)' 
-                            font_size: 20
                             size_hint_y: .2
-                            color: [0,0,0,1]
                         Image:
                             source: 'img/ETH-logo.png'
                             allow_stretch: True
                             size_hint_y: .5
                             keep_ratio: True
-                        Label:
+                        BlackLabelSmall:
                             text: 'Buy = {:.2f} CHF'.format(app._chf_to_eth)
                             size_hint_y: .1
-                            font_size: 20
-                            color: [0,0,0,1]
-                        Label:
+                        BlackLabelSmall:
                             text: 'Sell = {:.2f} CHF'.format(app._eth_to_chf)
                             size_hint_y: .1
-                            font_size: 20
-                            color: [0,0,0,1]
                 Label:
                     #text: 'Message Tu es la'
                     #font_size: '20' 
@@ -132,11 +142,10 @@
             orientation: "horizontal"
             BoxLayout:
                 orientation: "vertical"
-                BlackLabel:
+                BlackLabelSmall:
                     text: app._languages[app._selected_language]["inputkey"]
-                    font_size:20
                 Image:
-                    source: 'img/Qrcode.png'
+                    source: 'img/phoneqr.png'
                     allow_stretch: True
                     keep_ratio: True            
                 BoxLayout:
@@ -183,68 +192,44 @@
             orientation: "vertical"
             BoxLayout:
                 size_hint_y: 0.05
-            BlackLabel:
+            BlackLabelLarge:
                 text: app._languages[app._selected_language]["inputfiat"]
-                font_size:25
                 size_hint_y: 0.1
             BoxLayout:
                 size_hint_y: 0.05
+            BlackLabelMedium:
+                text: "Your wallet: {}".format(root._address_ether)
+                size_hint_y: 0.1
             BoxLayout:
-                orientation: "horizontal"
-                size_hint_y:0.8
+                orientation: "vertical" 
                 BoxLayout:
-                    orientation: "vertical"
-                   
-                    Image:
-                        id: image_qr
-                        source: 'tmp/qr.png'
-                        allow_stretch: False 
-                        size_hint_y : 2
-                        keep_ratio: True            
-                    BlackLabel:
-                        site_hint_y: 0.2
-                        font_size: 12      
-                        text: root._address_ether
-
+                    size_hint_y : .2   
+                    BlackLabelSmall:
+                        text: app._languages[app._selected_language]["fiatvalue"]
                 BoxLayout:
-                    size_hint_x : .1
+                    size_hint_y : .2
+                    canvas.before:
+                        Color:
+                            rgba: 5,5,5,.5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    BlackLabelSmall:
+                        text: "{} CHF".format(root._cash_in)
                 BoxLayout:
-                    orientation: "vertical" 
-                    BoxLayout:
-                        size_hint_y : .2   
-                        BlackLabel:
-                            text: app._languages[app._selected_language]["fiatvalue"]
-                            font_size:20
-                    BoxLayout:
-                        size_hint_y : .2
-                        canvas.before:
-                            Color:
-                                rgba: 5,5,5,.5
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                        BlackLabel:
-                            text: "{} CHF".format(root._cash_in)
-                            font_size:20
-                    BoxLayout:
-                        size_hint_y : .2  
-                        BlackLabel:
-                            text: app._languages[app._selected_language]["cryptovalue"]
-                            font_size:20
-                    BoxLayout:
-                        size_hint_y : .2  
-                        canvas.before:
-                            Color:
-                                rgba: 5,5,5,.5
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        BlackLabel:
-                            text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
-                            font_size:20      
-                    BoxLayout:
-                        size_hint_y : .2
+                    size_hint_y : .2  
+                    BlackLabelSmall:
+                        text: app._languages[app._selected_language]["cryptovalue"]
+                BoxLayout:
+                    size_hint_y : .2  
+                    canvas.before:
+                        Color:
+                            rgba: 5,5,5,.5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    BlackLabelSmall:
+                        text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
         ButtonBox:
             orientation: "horizontal"
             BoxLayout:
@@ -280,9 +265,8 @@
                     orientation: "vertical" 
                     BoxLayout:
                         size_hint_y : .2   
-                        BlackLabel:
+                        BlackLabelSmall:
                             text: app._languages[app._selected_language]["thank"]
-                            font_size:20
                     BoxLayout:
                         size_hint_y : .2
                         canvas.before:
@@ -291,14 +275,12 @@
                             Rectangle:
                                 pos: self.pos
                                 size: self.size
-                        BlackLabel:
+                        BlackLabelSmall:
                             text: "500 CHF"
-                            font_size:20
                     BoxLayout:
                         size_hint_y : .2  
-                        BlackLabel:
+                        BlackLabelSmall:
                             text: app._languages[app._selected_language]["cryptovalue"]
-                            font_size:20
                     BoxLayout:
                         size_hint_y : .2  
                         canvas.before:
@@ -307,14 +289,12 @@
                             Rectangle:
                                 pos: self.pos
                                 size: self.size
-                        BlackLabel:
+                        BlackLabelSmall:
                             text: "(ETH) 2.5"
-                            font_size:20      
                     BoxLayout:
                         size_hint_y : .2
-                        BlackLabel:
+                        BlackLabelSmall:
                             text: root._address
-                            font_size:20
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .05
@@ -338,8 +318,7 @@
         orientation: "vertical"
         MainBox:
             orientation: "horizontal"
-            BlackLabel:
-                font_size: 20
+            BlackLabelSmall:
                 text: "Loading..."
 
 <ScreenRedeem>:
@@ -347,7 +326,7 @@
         orientation: "vertical"
         MainBox:
             orientation: "horizontal"
-            BlackLabel:
+            BlackLabelSmall:
                 text: "Readeem Code"
 
         ButtonBox:
