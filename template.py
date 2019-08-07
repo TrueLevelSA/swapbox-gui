@@ -11,10 +11,10 @@ import json
 
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
-from qr_generator.qr_generator import QRGenerator
 
-
-Window.size = (1380, 770)
+Window.size = (1280, 720)
+Window.borderless = True
+Window.show_cursor = False
 
 class ScreenWelcome(Screen):
     pass
@@ -212,11 +212,7 @@ if __name__ == '__main__':
     config = parse_args()
 
     from kivy.config import Config
-    #Config.set('graphics', 'fullscreen', 'fake')
     Config.set('kivy', 'exit_on_escape', 1)
-    #Config.set('kivy', 'desktop', 1)
-    Config.set('kivy', 'invert_x', 1)
-    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     if config.DEBUG:
         Config.set('kivy', 'log_level', 'debug')
     Config.write()
