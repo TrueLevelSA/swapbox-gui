@@ -1,7 +1,16 @@
+#:import Factory kivy.factory.Factory
+
 <Background@Image>:
     source: 'img/bgreen.jpg'
     allow_stretch: True
     keep_ratio: False
+
+<LayoutPopup@BoxLayout>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'img/bgreen.jpg'
 
 # Label with black font
 <BlackLabel@Label>:
@@ -27,6 +36,11 @@
     size_hint_y: .8
     font_size: 30
     background_color: [1,0,0,.2]
+
+<FullScreenPopup@ModalView>:
+    size_hint_y: 1
+    size_hint_x: 1
+
 
 <MainBox@BoxLayout>:
     size_hint_y: .8
@@ -76,7 +90,8 @@
                 MediumButton:    
                     size_hint_x: .9
                     size_hint_y: 1.5
-                    disabled: True
+                    disabled: False 
+                    on_press: Factory.LanguagePopup().open()
                     text: app._languages[app._selected_language]["language"]
 
         ScreenManager:
