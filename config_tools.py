@@ -62,7 +62,7 @@ class Config(object):
         if CameraMethod[config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
             from qr_scanner.zbar_qr_scanner import QrScannerZbar
             return QrScannerZbar(config.ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[config.CAMERA_METHOD] is RelayMethod.OPENCV:
+        elif CameraMethod[config.CAMERA_METHOD] is CameraMethod.OPENCV:
             from qr_scanner.opencv_qr_scanner import QrScannerOpenCV
             return QrScannerOpenCV()
         else:
