@@ -164,11 +164,13 @@
                 orientation: "vertical" 
                 BoxLayout:
                     size_hint_y : .2     
-                Button:
+                BlackLabelSmall:
                     text: "Camera is loading" 
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = "insert_screen"
+                    #on_press: 
+                    #    print(self.pos)
+                    #    print(self.size)
+                    #    root.manager.transition.direction = 'left'
+                    #    root.manager.current = "insert_screen"
                     size_hint_x : .9
                 BoxLayout:
                     size_hint_y : .2
