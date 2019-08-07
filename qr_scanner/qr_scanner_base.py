@@ -15,6 +15,8 @@ class QrScanner(ABC):
         ''' scans the interface for a QR-Code
         returns None if no code was found, or a string representing the whole QR '''
 
+        self._start_locally()
+
         self._scanning.clear()
 
         self._execute = pexpect.spawn(self._cmd_to_execute, [], 300)
@@ -39,6 +41,7 @@ class QrScanner(ABC):
         return None
 
     def _close_executor(self):
+        self._stop_locally()
         if self._execute is not None:
             self._execute.close(True)
             self._execute = None
@@ -58,4 +61,14 @@ class QrScanner(ABC):
         ''' parse the line to return the content of the QR code,
         the line has already passed the check in _is_qr_found
         the line is the output of a process running the _cmd command'''
+        pass
+
+    @abstractmethod
+    def _start_locally(self):
+        ''' qr_scanning is going to be started '''
+        pass
+    
+    @abstractmethod
+    def _stop_locally(self):
+        ''' qr_scanning is going to be stopped, close stuff gracefully '''
         pass

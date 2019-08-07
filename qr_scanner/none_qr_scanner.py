@@ -12,3 +12,8 @@ class QrScannerNone(QrScanner):
     def _get_qr_from_line(self, line):
         return None
 
+    def _start_locally(self):
+        pass
+
+    def _stop_locally(self):
+        pass

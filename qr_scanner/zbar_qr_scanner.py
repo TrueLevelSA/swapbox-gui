@@ -15,3 +15,8 @@ class QrScannerZbar(QrScanner):
     def _get_qr_from_line(self, line):
         return line[8:]
 
+    def _start_locally(self):
+        pass
+
+    def _stop_locally(self):
+        pass
