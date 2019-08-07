@@ -13,7 +13,8 @@ from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
 
 Window.size = (1280, 720)
-Window.borderless = True
+#Window.borderless = True
+Window.fullscreen = True
 Window.show_cursor = False
 
 class ScreenWelcome(Screen):
