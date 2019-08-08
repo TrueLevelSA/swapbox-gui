@@ -122,10 +122,16 @@ class ScreenBuyInsert(Screen):
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self._thread = config.CASHIN_THREAD
-        self._thread.start()
+        self._CASHIN = config.CASHIN_THREAD
         self._valid_notes = config.NOTES_VALUES
         self._node_rpc = config.NODE_RPC
+
+    def on_pre_enter(self):
+        t = Thread(target = self._CASHIN.start_cashin(), daemon=True)
+        t.start()
+
+    def on_pre_leave(self):
+        self._CASHIN.stop_cashin()
 
     def _update_message_cashin(self, message):
         amount_received = message.split(':')[1]

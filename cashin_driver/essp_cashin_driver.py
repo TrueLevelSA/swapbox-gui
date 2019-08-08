@@ -1,17 +1,13 @@
-from threading import Thread, Event
+from cashin_driver.cashin_driver_base import CashinDriver
 import eSSP
 
-class CashInThreadEssp(Thread):
+class EsspCashinDriver(CashinDriver):
 
     def __init__(self, callback_message, config):
-        super().__init__()
-        self.daemon = True
-        self._stop_cashin = Event()
-        self._callback_message = callback_message
-        self._validator_port = config.VALIDATOR_PORT
+        super().__init__(callback_message)
+        self._validator_port= config.VALIDATOR_PORT
 
-    def run(self):
-        """Run Worker Thread."""
+    def _start_cashin(self):
         #  Create a new object ( Validator Object ) and initialize it
         validator = eSSP(com_port=self._config.VALIDATOR_PORT, ssp_address="0", nv11=False)
 
@@ -33,5 +29,3 @@ class CashInThreadEssp(Thread):
             time.sleep(0.5)
             # TODO: somehow use the _callback_message to notify the UI
 
-    def stop_cashin(self):
-        self._stop_cashin.set()

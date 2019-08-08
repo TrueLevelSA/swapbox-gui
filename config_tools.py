@@ -51,11 +51,11 @@ class Config(object):
     @staticmethod
     def _select_cashin_thread(config, callback):
         if config.MOCK_VALIDATOR:
-            from custom_threads.cashin_threads.mock_cashin_thread import CashInThreadMock
-            return CashInThreadMock(callback, config)
+            from cashin_driver.mock_cashin_driver import MockCashinDriver
+            return MockCashinDriver(callback, config)
         else:
-            from custom_threads.cashin_threads.essp_cashin_thread import CashInThreadEssp
-            return CashInThreadEssp(callback, config)
+            from cashin_driver.essp_cashin_driver import EsspCashinDriver
+            return EsspCashinDriver(callback, config)
 
     @staticmethod
     def _select_qr_scanner(config):
