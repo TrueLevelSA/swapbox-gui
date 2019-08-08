@@ -50,7 +50,7 @@ class Config(object):
 
     @staticmethod
     def _select_cashin_thread(config, callback):
-        if config.MOCK_VALIDATOR:
+        if config.MOCK_VALIDATOR is True:
             from cashin_driver.mock_cashin_driver import MockCashinDriver
             return MockCashinDriver(callback, config)
         else:
@@ -103,15 +103,15 @@ def parse_args():
     else:
         print("Config file must be specified")
         exit(0)
-
+    valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly'] 
     config = Config()
-    config.DEBUG = machine_config.get("debug")
+    config.DEBUG = machine_config.get("debug").lower() in valid_true_values
     config.CAMERA_METHOD = machine_config.get("camera_method")
     config.ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
     config.RELAY_METHOD = machine_config.get("relay_method")
-    config.MOCK_VALIDATOR = machine_config.get("mock_validator")
+    config.MOCK_VALIDATOR = machine_config.get("mock_validator").lower() in valid_true_values
     config.MOCKPORT = machine_config.get("mock_port")
-    config.NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
+    config.NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11").lower() in valid_true_values
     config.VALIDATOR_PORT = machine_config.get("validator_port")
     config.ZMQ_PORT = machine_config.get("zmq_port")
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
