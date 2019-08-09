@@ -1,0 +1,23 @@
+# this file should be in /etc/udev/rules.d/99-<name>.rules
+
+# this next line creates a symlink in /dev/notes_validator when a USB device with PRODUCT_ID = 6001 and VENDOR_ID = 0403 is plugged in.
+#
+# to find out which vendorID/productID, run `lsusb`
+# the output is as follows:
+# Bus XXX Device XXX: ID <VENDOR_ID>:<PRODUCT_ID>
+#
+# you can also use the `usbview` GUI tool
+#
+# you can be more specific when you want to differenciate between devices by using other attributes, such as ATTRS{serial}
+# to find serial numbers you may want to use `udevadm info --attribute-walk --path=/sys/bus/usb-serial/devices/ttyUSB<ENTER_NUMBER_HERE>`
+# you can also specify a port in which the device is plugged by looking at the KERNEL attributes (more advanced, probably useless)
+#
+# to enable this new rule without restarting:
+#  copy into /etc/udev/rules.d/99-<name>.rules
+#  `udevadm trigger`
+#  `udevadm control --reload-rules`
+#  unplug-plug device
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001" SYMLINK+="notes_validator", MODE="06660"
+
+# in order to map other devices to the same symlink, copy paste the line and change vendorid and  productid.
+# you can also add serialnumber or other parameters

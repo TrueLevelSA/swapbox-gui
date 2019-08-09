@@ -8,3 +8,5 @@ DISPLAY=:0 KIVY_GL_BACKEND=sdl2 python3 template.py develop
 # add ",param=invert_y=0" to the "%(name)s = probesysfs,provider=hidinput" line under [input]
 # in ~/.kivy/config.ini
 # install opencv, zbar, uv4l, and compile our custom zbar following instructions in qr_scanner/zbar_c
+
+# to map any note validator to port /dev/note_validator, see config/99-essp.rules
