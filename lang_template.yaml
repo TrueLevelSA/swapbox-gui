@@ -5,7 +5,7 @@ EN:
   confirm: Confirm
   buy: Buy
   sell: Sell
-  redeem: Reedem a code
+  redeem: Redeem a code
   select_crypto: Select your Crypto
   welcome: Welcome to Atola Swap-Box. Press on the screen to continue
   admin_menu: Admin Menu
@@ -20,6 +20,7 @@ EN:
   cryptovalue: Crypto value
   fiatvalue: Fiat value
   camera_loading: Initializing the camera...
+  not_sync: Node not snychronized.
 
 FR:
   # Sam input
@@ -43,6 +44,7 @@ FR:
   cryptovalue: Valeur en Crypto
   fiatvalue: Valeur en Fiat 
   camera_loading: Initialisation de la caméra...
+  not_sync: Noeud non synchronisé.
 
 PT:
   # Sam input
@@ -66,3 +68,4 @@ PT:
   cryptovalue: Valor em Crypto
   fiatvalue: Valor em Fiat 
   camera_loading: Inicialização da câmera...
+  not_sync: Node not snychronized.
