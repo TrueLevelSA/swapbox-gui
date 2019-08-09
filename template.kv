@@ -59,7 +59,7 @@
 <SyncPopup@FullScreenPopup>:
     LayoutPopup:
         BlackLabelLarge:
-            text: app._languages[app._selected_language]["not_sync"]
+            text: app._languages[app._selected_language]["not_sync"] + " {}/{}".format(app._sync_block, app._current_block)
 
 <ScreenWelcome>:
     BoxLayout:
@@ -257,6 +257,7 @@
                 size_hint_x : .1
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
+                disabled: root._cash_in > 0
                 on_press:
                     root._leave_without_buy()
                     root.manager.transition.direction = 'right'
@@ -340,6 +341,15 @@
             BlackLabelSmall:
                 text: "Loading..."
         ButtonBox:
+            BoxLayout:
+                size_hint_x: .2
+            MediumButton:
+                text: app._languages[app._selected_language]["menu"]
+                on_press: 
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = "menu"
+            BoxLayout:
+                size_hint_x: .2
 
 <ScreenRedeem>:
     BoxLayout:

@@ -218,6 +218,8 @@ class TemplateApp(App):
     _chf_to_eth = NumericProperty(0)
     _eth_to_chf = NumericProperty(0)
     _selected_language = StringProperty('English')
+    _current_block = NumericProperty(-1)
+    _sync_block = NumericProperty(-1)
 
     def __init__(self, config):
         super().__init__()
@@ -258,7 +260,9 @@ class TemplateApp(App):
     def _update_message_status(self, message):
         msg_json = json.loads(message)
         is_in_sync = msg_json["blockchain"]["is_in_sync"]
-        self._is_in_sync = is_in_sync
+        self._current_block = int(msg_json["blockchain"]["current_block"])
+        self._sync_block = int(msg_json["blockchain"]["sync_block"])
+
         self._show_sync_popup(is_in_sync)
 
     def _show_sync_popup(self, is_in_sync):
