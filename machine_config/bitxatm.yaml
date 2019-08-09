@@ -1,16 +1,16 @@
 debug: True
 # Validator Settings
 mock_validator: False
-mock_port: tcp://localhost:5555
+zmq_url_mock_validator: tcp://localhost:5555
 validator_port: /dev/ttyUSB0
 validator_nv11: False
 # Camera Settings (camera_device only for ZBARCAM method)
 camera_method: ZBARCAM
 camera_device: /dev/video0
 #ZMQ settings
-zmq_port: tcp://localhost:5556
-zmq_port_buy: tcp://localhost:5557
-zmq_status: tcp://localhost:5558
+zmq_url_pricefeed: tcp://localhost:5556
+zmq_url_rpc: tcp://localhost:5557
+zmq_url_status: tcp://localhost:5558
 # LED Relay (set to NONE if unused)
 relay_method: NONE
 # set to false to use camera (signed) auth

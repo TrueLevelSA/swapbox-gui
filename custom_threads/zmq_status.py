@@ -9,13 +9,13 @@ class ZMQStatus(Thread):
         self.daemon = True
         self._stop_listening = Event()
         self._callback_message = callback_message
-        self._zmq_port = zmq_url
+        self._zmq_url = zmq_url
 
     def run(self):
         """Run Worker Thread."""
         zctx = zmq.Context()
         self.zsock = zctx.socket(zmq.SUB)
-        self.zsock.connect(self._zmq_port)
+        self.zsock.connect(self._zmq_url)
         self.zsock.setsockopt_string(zmq.SUBSCRIBE,'status')
 
         self._stop_listening.clear()

@@ -24,19 +24,19 @@ class Config(object):
         self.ZBAR_VIDEO_DEVICE = None
         self.RELAY_METHOD = None
         self.MOCK_VALIDATOR = None
-        self.MOCKPORT = None
+        self.ZMQ_URL_MOCK_VALIDATOR = None
         self.NOTE_VALIDATOR_NV11 = None
         self.VALIDATOR_PORT = None
-        self.ZMQ_PORT = None
+        self.ZMQ_URL_PRICEFEED = None
         self.NOTES_VALUES = None
-        self.ZMQ_PORT_BUY = None
+        self.ZMQ_URL_RPC = None
         self.LED_DRIVER = None
         self.CASHIN_THREAD = None
         self.QR_SCANNER = None
         self.PRICEFEED = None
         self.NODE_RPC = None
         self.IS_FULLSCREEN = None
-        self.ZMQ_STATUS = None
+        self.ZMQ_URL_STATUS = None
         self.STATUS = None
 
     @staticmethod
@@ -55,7 +55,7 @@ class Config(object):
     def _select_cashin_thread(config, callback):
         if config.MOCK_VALIDATOR is True:
             from cashin_driver.mock_cashin_driver import MockCashinDriver
-            return MockCashinDriver(callback, config.MOCKPORT)
+            return MockCashinDriver(callback, config.ZMQ_URL_MOCK_VALIDATOR)
         else:
             from cashin_driver.essp_cashin_driver import EsspCashinDriver
             return EsspCashinDriver(callback, config.VALIDATOR_PORT)
@@ -75,17 +75,17 @@ class Config(object):
     @staticmethod
     def _select_pricefeed(config, callback_pricefeed):
         from custom_threads.zmq_pricefeed import ZMQPriceFeed
-        return ZMQPriceFeed(callback_pricefeed, config.ZMQ_PORT)
+        return ZMQPriceFeed(callback_pricefeed, config.ZMQ_URL_PRICEFEED)
 
     @staticmethod
     def _select_status(config, callback_status):
         from custom_threads.zmq_status import ZMQStatus
-        return ZMQStatus(callback_status, config.ZMQ_STATUS)
+        return ZMQStatus(callback_status, config.ZMQ_URL_STATUS)
 
     @staticmethod
     def _select_node_rpc(config):
         from node_rpc.node_rpc import NodeRPC
-        return NodeRPC(config.ZMQ_PORT_BUY)
+        return NodeRPC(config.ZMQ_URL_RPC)
 
     @staticmethod
     def _select_all_drivers(config, callback_cashin, callback_pricefeed, callback_status):
@@ -119,14 +119,13 @@ def parse_args():
     config.ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
     config.RELAY_METHOD = machine_config.get("relay_method")
     config.MOCK_VALIDATOR = machine_config.get("mock_validator").lower() in valid_true_values
-    config.MOCKPORT = machine_config.get("mock_port")
+    config.ZMQ_URL_MOCK_VALIDATOR = machine_config.get("zmq_url_mock_validator")
     config.NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11").lower() in valid_true_values
     config.VALIDATOR_PORT = machine_config.get("validator_port")
-    config.ZMQ_PORT = machine_config.get("zmq_port")
+    config.ZMQ_URL_PRICEFEED = machine_config.get("zmq_url_pricefeed")
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
-    config.ZMQ_PORT_BUY = machine_config.get("zmq_port_buy")
-    config.ZMQ_PORT_PRICEFEED = machine_config.get("zmq_port_pricefeed")
-    config.ZMQ_STATUS = machine_config.get("zmq_status")
+    config.ZMQ_URL_RPC = machine_config.get("zmq_url_rpc")
+    config.ZMQ_URL_STATUS = machine_config.get("zmq_url_status")
     config.IS_FULLSCREEN = machine_config.get("is_fullscreen").lower in valid_true_values
 
     if not os.uname()[4].startswith("arm"):
