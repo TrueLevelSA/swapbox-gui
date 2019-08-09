@@ -211,7 +211,7 @@ class TemplateApp(App):
 
     def __init__(self, config):
         super().__init__()
-        ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed)
+        ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed, self._update_message_status)
         self._config = config
         self._m = None
         self._chf_to_eth = -1
@@ -225,6 +225,7 @@ class TemplateApp(App):
 
         self._m = Manager(self._config, transition=RiseInTransition())
         self._config.PRICEFEED.start()
+        self._config.STATUS.start()
         return self._m
 
     def change_language(self, selected_language):
@@ -242,6 +243,10 @@ class TemplateApp(App):
         ''' only dispatching the message to the right screen'''
         screen = self._m._main_screen.ids['sm1'].get_screen('insert_screen')
         screen._update_message_cashin(message)
+
+    def _update_message_status(self, message):
+        msg_json = json.loads(message)
+        print(msg_json)
 
     def on_stop(self):
         self._config.CASHIN_THREAD.stop_cashin()

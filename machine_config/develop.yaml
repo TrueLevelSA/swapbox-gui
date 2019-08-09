@@ -10,6 +10,7 @@ camera_device: /dev/video0
 #ZMQ settings
 zmq_port: tcp://localhost:5556
 zmq_port_buy: tcp://localhost:5557
+zmq_status: tcp://localhost:5558
 # LED Relay (set to NONE if unused)
 relay_method: NONE
 # set to false to use camera (signed) auth
