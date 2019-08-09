@@ -9,13 +9,13 @@ class ZMQPriceFeedMock(Thread):
         self.daemon = True
         self._stop_listening = Event()
         self._callback_message = callback_message
-        self._mock_port = config.ZMQ_PORT
+        self._zmq_port = config.ZMQ_PORT
 
     def run(self):
         """Run Worker Thread."""
         zctx = zmq.Context()
         self.zsock = zctx.socket(zmq.SUB)
-        self.zsock.connect('tcp://localhost:{}'.format(self._mock_port))
+        self.zsock.connect(self._zmq_port)
         self.zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
         self._stop_listening.clear()

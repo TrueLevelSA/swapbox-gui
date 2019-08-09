@@ -10,7 +10,7 @@ class MockCashinDriver(CashinDriver):
     def _start_cashin(self):
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.SUB)
-        zsock.connect('tcp://localhost:{}'.format(self._mock_port))
+        zsock.connect(self._mock_port)
         zsock.setsockopt_string(zmq.SUBSCRIBE, '')
 
         while not self._stop_cashin.is_set():

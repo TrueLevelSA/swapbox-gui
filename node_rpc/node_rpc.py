@@ -5,7 +5,7 @@ class NodeRPC():
     def __init__(self, config):
         self.zmq_context = zmq.Context()
         self.zmq_socket = self.zmq_context.socket(zmq.REQ)
-        self.zmq_socket.connect('tcp://localhost:{}'.format(config.ZMQ_PORT_BUY))
+        self.zmq_socket.connect(config.ZMQ_PORT_BUY)
 
     def stop(self):
         ''' closes socket and stuff'''
