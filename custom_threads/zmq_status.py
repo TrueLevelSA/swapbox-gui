@@ -4,12 +4,12 @@ import json
 
 class ZMQStatus(Thread):
 
-    def __init__(self, callback_message, config):
+    def __init__(self, callback_message, zmq_url):
         super().__init__()
         self.daemon = True
         self._stop_listening = Event()
         self._callback_message = callback_message
-        self._zmq_port = config.ZMQ_STATUS
+        self._zmq_port = zmq_url
 
     def run(self):
         """Run Worker Thread."""

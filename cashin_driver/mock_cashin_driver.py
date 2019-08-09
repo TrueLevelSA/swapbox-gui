@@ -3,9 +3,9 @@ import zmq
 
 class MockCashinDriver(CashinDriver):
 
-    def __init__(self, callback_message, config):
+    def __init__(self, callback_message, mock_port):
         super().__init__(callback_message)
-        self._mock_port = config.MOCKPORT
+        self._mock_port = mock_port
 
     def _start_cashin(self):
         zctx = zmq.Context()

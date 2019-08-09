@@ -8,10 +8,9 @@ import time
 
 def test():
 
-    class Config():
-        VALIDATOR_PORT='/dev/ttyUSB0'
+    validator_port = '/dev/ttyUSB0'
 
-    driver = EsspCashinDriver(print, Config())
+    driver = EsspCashinDriver(print, validator_port)
 
     try:
         driver.start_cashin()

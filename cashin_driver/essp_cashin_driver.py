@@ -14,9 +14,9 @@ class EsspCashinDriver(CashinDriver):
         5: 200,
     }
 
-    def __init__(self, callback_message, config):
+    def __init__(self, callback_message, validator_port):
         super().__init__(callback_message)
-        self._validator_port= config.VALIDATOR_PORT
+        self._validator_port= validator_port
 
     def _start_cashin(self):
         #  Create a new object ( Validator Object ) and initialize it

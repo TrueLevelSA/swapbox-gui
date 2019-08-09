@@ -2,10 +2,10 @@ import zmq
 import json
 
 class NodeRPC():
-    def __init__(self, config):
+    def __init__(self, zmq_url):
         self.zmq_context = zmq.Context()
         self.zmq_socket = self.zmq_context.socket(zmq.REQ)
-        self.zmq_socket.connect(config.ZMQ_PORT_BUY)
+        self.zmq_socket.connect(zmq_url)
 
     def stop(self):
         ''' closes socket and stuff'''

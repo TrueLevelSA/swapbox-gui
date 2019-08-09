@@ -8,11 +8,8 @@ def test():
     address = "0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e1"
     amount = 10
 
-    class Config:
-        ZMQ_PORT_BUY = 5557
-
-    config = Config
-    node_rpc = NodeRPC(config)
+    zmq_url = "tcp://localhost:5557"
+    node_rpc = NodeRPC(zmq_url)
 
     print(node_rpc.buy(amount, address))
 

@@ -55,10 +55,10 @@ class Config(object):
     def _select_cashin_thread(config, callback):
         if config.MOCK_VALIDATOR is True:
             from cashin_driver.mock_cashin_driver import MockCashinDriver
-            return MockCashinDriver(callback, config)
+            return MockCashinDriver(callback, config.MOCKPORT)
         else:
             from cashin_driver.essp_cashin_driver import EsspCashinDriver
-            return EsspCashinDriver(callback, config)
+            return EsspCashinDriver(callback, config.VALIDATOR_PORT)
 
     @staticmethod
     def _select_qr_scanner(config):
@@ -75,17 +75,17 @@ class Config(object):
     @staticmethod
     def _select_pricefeed(config, callback_pricefeed):
         from custom_threads.zmq_pricefeed import ZMQPriceFeed
-        return ZMQPriceFeed(callback_pricefeed, config)
+        return ZMQPriceFeed(callback_pricefeed, config.ZMQ_PORT)
 
     @staticmethod
     def _select_status(config, callback_status):
         from custom_threads.zmq_status import ZMQStatus
-        return ZMQStatus(callback_status, config)
+        return ZMQStatus(callback_status, config.ZMQ_STATUS)
 
     @staticmethod
     def _select_node_rpc(config):
         from node_rpc.node_rpc import NodeRPC
-        return NodeRPC(config)
+        return NodeRPC(config.ZMQ_PORT_BUY)
 
     @staticmethod
     def _select_all_drivers(config, callback_cashin, callback_pricefeed, callback_status):
