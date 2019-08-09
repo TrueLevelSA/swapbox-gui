@@ -2,7 +2,7 @@ from threading import Thread, Event
 import zmq
 import json
 
-class ZMQPriceFeedMock(Thread):
+class ZMQPriceFeed(Thread):
 
     def __init__(self, callback_message, config):
         super().__init__()

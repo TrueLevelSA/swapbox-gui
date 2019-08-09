@@ -72,8 +72,8 @@ class Config(object):
 
     @staticmethod
     def _select_pricefeed(config, callback_pricefeed):
-        from custom_threads.zmq_mock_pricefeed import ZMQPriceFeedMock
-        return ZMQPriceFeedMock(callback_pricefeed, config)
+        from custom_threads.zmq_pricefeed import ZMQPriceFeed
+        return ZMQPriceFeed(callback_pricefeed, config)
 
     @staticmethod
     def _select_node_rpc(config):
