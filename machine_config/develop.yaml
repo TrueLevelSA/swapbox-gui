@@ -14,3 +14,4 @@ zmq_port_buy: tcp://localhost:5557
 relay_method: NONE
 # set to false to use camera (signed) auth
 admin_pin: 1234
+is_fullscreen: False

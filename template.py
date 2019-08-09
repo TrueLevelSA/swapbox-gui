@@ -16,10 +16,6 @@ import json
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
 
-Window.size = (1280, 720)
-#Window.borderless = True
-Window.fullscreen = True
-Window.show_cursor = False
 
 class ButtonLanguage(Button):
     _language = StringProperty(None)
@@ -260,4 +256,9 @@ if __name__ == '__main__':
     if config.DEBUG:
         Config.set('kivy', 'log_level', 'debug')
     Config.write()
+    Window.size = (1280, 720)
+    #Window.borderless = True
+    if config.IS_FULLSCREEN:
+        Window.fullscreen = True
+        Window.show_cursor = False
     TemplateApp(config).run()

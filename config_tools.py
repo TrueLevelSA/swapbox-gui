@@ -35,6 +35,7 @@ class Config(object):
         self.QR_SCANNER = None
         self.PRICEFEED = None
         self.NODE_RPC = None
+        self.IS_FULLSCREEN = None
 
     @staticmethod
     def _select_led_driver(config):
@@ -103,7 +104,7 @@ def parse_args():
     else:
         print("Config file must be specified")
         exit(0)
-    valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly'] 
+    valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly']
     config = Config()
     config.DEBUG = machine_config.get("debug").lower() in valid_true_values
     config.CAMERA_METHOD = machine_config.get("camera_method")
@@ -117,6 +118,7 @@ def parse_args():
     config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
     config.ZMQ_PORT_BUY = machine_config.get("zmq_port_buy")
     config.ZMQ_PORT_PRICEFEED = machine_config.get("zmq_port_pricefeed")
+    config.IS_FULLSCREEN = machine_config.get("is_fullscreen").lower in valid_true_values
 
     if not os.uname()[4].startswith("arm"):
         config.RELAY_METHOD = RelayMethod.NONE
