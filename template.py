@@ -49,8 +49,18 @@ class LanguagePopup(FullScreenPopup):
             wid.add_widget(ButtonLanguage(l, self.dismiss))
         self.add_widget(wid)
 
-class ScreenWelcome(Screen):
+class SyncPopup(FullScreenPopup):
     pass
+
+class ScreenWelcome(Screen):
+    def on_enter(self):
+        #ugly trick to prevent the user to interact with the GUI
+        # before the app receives sync packetes
+        def test():
+            import time
+            time.sleep(0.5)
+            App.get_running_app()._create_popup()
+        Thread(target=test, daemon=True).start()
 
 class ScreenMain(Screen):
 
@@ -216,6 +226,7 @@ class TemplateApp(App):
         self._m = None
         self._chf_to_eth = -1
         self._eth_to_chf = -1
+        self._popup_sync = None
 
 
     def build(self):
@@ -246,7 +257,25 @@ class TemplateApp(App):
 
     def _update_message_status(self, message):
         msg_json = json.loads(message)
-        print(msg_json)
+        is_in_sync = msg_json["blockchain"]["is_in_sync"]
+        self._is_in_sync = is_in_sync
+        self._show_sync_popup(is_in_sync)
+
+    def _show_sync_popup(self, is_in_sync):
+        if not is_in_sync:
+            self._create_popup()
+        if is_in_sync:
+            self._delete_popup()
+
+    def _create_popup(self):
+        if self._popup_sync is None:
+            self._popup_sync = SyncPopup()
+            self._popup_sync.open()
+
+    def _delete_popup(self):
+        if self._popup_sync is not None:
+            self._popup_sync.dismiss()
+            self._popup_sync = None
 
     def on_stop(self):
         self._config.CASHIN_THREAD.stop_cashin()
