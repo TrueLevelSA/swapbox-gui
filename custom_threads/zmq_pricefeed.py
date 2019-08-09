@@ -14,15 +14,18 @@ class ZMQPriceFeed(Thread):
     def run(self):
         """Run Worker Thread."""
         zctx = zmq.Context()
-        self.zsock = zctx.socket(zmq.SUB)
-        self.zsock.connect(self._zmq_url)
-        self.zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
+        zsock = zctx.socket(zmq.SUB)
+        zsock.connect(self._zmq_url)
+        zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
 
         self._stop_listening.clear()
 
         while not self._stop_listening.is_set():
-            msg = self.zsock.recv_multipart()
+            msg = zsock.recv_multipart()
             self._callback_message(msg[1].decode('utf-8'))
+
+        zsock.close()
+        zctx.destroy()
 
     def stop_listening(self):
         self._stop_listening.set()
