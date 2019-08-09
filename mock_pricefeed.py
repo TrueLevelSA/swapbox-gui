@@ -28,7 +28,6 @@ obeuhjeuh = {
 
 try:  # Command Interpreter
     while True:
-        data = "{}:{}".format(crypto_fiat, get_next_price())
         obeuhjeuh['buy_price'] = get_next_price()
         obeuhjeuh['sell_price'] = get_next_price()
         print(" Sending {}".format(obeuhjeuh))
