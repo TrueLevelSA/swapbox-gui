@@ -124,10 +124,10 @@
                             size_hint_y: .5
                             keep_ratio: True
                         BlackLabelSmall:
-                            text: 'Buy = {:.2f} CHF'.format(app._chf_to_eth)
+                            text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['buy'], app._chf_to_eth)
                             size_hint_y: .1
                         BlackLabelSmall:
-                            text: 'Sell = {:.2f} CHF'.format(app._eth_to_chf)
+                            text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['sell'], app._eth_to_chf)
                             size_hint_y: .1
                 Label:
                     #text: 'Message Tu es la'
@@ -180,7 +180,7 @@
                 BoxLayout:
                     size_hint_y : .2     
                 BlackLabelSmall:
-                    text: "Camera is loading" 
+                    text: app._languages[app._selected_language]['camera_loading']
                     #on_press: 
                     #    print(self.pos)
                     #    print(self.size)

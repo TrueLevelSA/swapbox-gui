@@ -23,7 +23,7 @@ Window.show_cursor = False
 
 class ButtonLanguage(Button):
     _language = StringProperty(None)
-    
+
     def __init__(self, language, callback=None, **kwargs):
         self._language = language
         self._callback =  callback
@@ -47,7 +47,7 @@ class LanguagePopup(FullScreenPopup):
     def __init__(self):
         super().__init__()
         # has to match the array in lang_template.yaml
-        languages = ['FR', 'EN']
+        languages = ['FR', 'EN', 'PT']
         wid = LayoutPopup()
         for l in languages:
             wid.add_widget(ButtonLanguage(l, self.dismiss))
