@@ -7,7 +7,7 @@ EN:
   sell: Sell
   redeem: Redeem a code
   select_crypto: Select your Crypto
-  welcome: Welcome to Atola Swap-Box. Press on the screen to continue
+  welcome: 'Welcome to {} Swap-Box. Press on the screen to continue'
   admin_menu: Admin Menu
   main_title: '{} Swap-Box'
   connectivity: Connectivity
@@ -31,7 +31,7 @@ FR:
   sell: Vendre
   redeem: Utiliser un code
   select_crypto: Choisissez une Crypto
-  welcome: Bienvenue sur le Swap-Box d'Atola. Appuyez sur l'écran pour continuer
+  welcome: 'Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer'
   admin_menu: Menu Administrateur
   main_title: 'Swap-Box {}'
   connectivity: Connectivité
@@ -55,7 +55,7 @@ PT:
   sell: Vender
   redeem: Utilisar um código
   select_crypto: Escolher uma crypto
-  welcome: Bem-vindo ao Swap-Box de Atola. Toque no ecrã para continuar
+  welcome: 'Bem-vindo ao Swap-Box de {}. Toque no ecrã para continuar'
   admin_menu: Menu Administrador
   main_title: 'Swap-Box de {}'
   connectivity: Conectividade

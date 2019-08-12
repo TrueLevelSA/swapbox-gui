@@ -65,7 +65,7 @@
     BoxLayout:
         Button:
             id: "welcome_Button"
-            text: app._languages[app._selected_language]["welcome"]
+            text: app._languages[app._selected_language]["welcome"].format(app._config.NAME)
             font_size: 20
             on_press: root.manager.current = "main"
 
