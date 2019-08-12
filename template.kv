@@ -52,7 +52,7 @@
             size: self.size
 
 <ButtonBox@BoxLayout>:
-    spacing: 20  
+    spacing: 20
     size_hint_y: .2
     orientation: 'horizontal'
 
@@ -79,30 +79,30 @@
             size_hint_y: .3
             BlackLabel:
                 font_size:30
-                text: app._languages[app._selected_language]["main_title"]
+                text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x: .6
                 padding: 10
-                #Button:    
-                #    size_hint_x: .3          
+                #Button:
+                #    size_hint_x: .3
                 #    text: app._languages[app._selected_language]["admin_menu"]
-                #    on_press: 
+                #    on_press:
                 #        root.manager.transition.direction = 'left'
                 #        root.manager.current = "settings"
                 Label:
                     size_hint_x: 0.3
-                MediumButton:    
+                MediumButton:
                     size_hint_x: .9
                     size_hint_y: 1.5
-                    disabled: False 
+                    disabled: False
                     on_press: Factory.LanguagePopup().open()
                     text: app._languages[app._selected_language]["language"]
 
         ScreenManager:
             id: sm1
             size_hint_y: 2
-    
+
 
 <ScreenMenu>:
     id: menu_screen
@@ -121,7 +121,7 @@
                     BoxLayout:
                         orientation: "vertical"
                         BlackLabelSmall:
-                            text: 'ETHEREUM (ETH)' 
+                            text: 'ETHEREUM (ETH)'
                             size_hint_y: .2
                         Image:
                             source: 'img/ETH-logo.png'
@@ -136,13 +136,13 @@
                             size_hint_y: .1
                 Label:
                     #text: 'Message Tu es la'
-                    #font_size: '20' 
+                    #font_size: '20'
                     size_hint_y: .1
- 
+
         ButtonBox:
             MediumButton:
                 text: app._languages[app._selected_language]["buy"]
-                on_press: 
+                on_press:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "scan_screen"
             MediumButton:
@@ -167,7 +167,7 @@
                 Image:
                     source: 'img/phoneqr.png'
                     allow_stretch: True
-                    keep_ratio: True            
+                    keep_ratio: True
                 BoxLayout:
                 #    orientation: 'vertical'
                 #    Label:
@@ -181,12 +181,12 @@
             BoxLayout:
                 size_hint_x : .1
             BoxLayout:
-                orientation: "vertical" 
+                orientation: "vertical"
                 BoxLayout:
-                    size_hint_y : .2     
+                    size_hint_y : .2
                 BlackLabelSmall:
                     text: app._languages[app._selected_language]['camera_loading']
-                    #on_press: 
+                    #on_press:
                     #    print(self.pos)
                     #    print(self.size)
                     #    root.manager.transition.direction = 'left'
@@ -196,9 +196,9 @@
                     size_hint_y : .2
         ButtonBox:
             MediumButton:
- 
+
                 text: app._languages[app._selected_language]["menu"]
-                on_press: 
+                on_press:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             BoxLayout:
@@ -222,9 +222,9 @@
                 text: "Your wallet: {}".format(root._address_ether)
                 size_hint_y: 0.1
             BoxLayout:
-                orientation: "vertical" 
+                orientation: "vertical"
                 BoxLayout:
-                    size_hint_y : .2   
+                    size_hint_y : .2
                     BlackLabelSmall:
                         text: app._languages[app._selected_language]["fiatvalue"]
                 BoxLayout:
@@ -238,11 +238,11 @@
                     BlackLabelSmall:
                         text: "{} CHF".format(root._cash_in)
                 BoxLayout:
-                    size_hint_y : .2  
+                    size_hint_y : .2
                     BlackLabelSmall:
                         text: app._languages[app._selected_language]["cryptovalue"]
                 BoxLayout:
-                    size_hint_y : .2  
+                    size_hint_y : .2
                     canvas.before:
                         Color:
                             rgba: 5,5,5,.5
@@ -273,7 +273,7 @@
 
 <ScreenBuyFinal>:
     BoxLayout:
-        orientation: "vertical"        
+        orientation: "vertical"
         BoxLayout:
             orientation: "horizontal"
             BoxLayout:
@@ -283,9 +283,9 @@
                 orientation: "horizontal"
                 size_hint_x : .1
                 BoxLayout:
-                    orientation: "vertical" 
+                    orientation: "vertical"
                     BoxLayout:
-                        size_hint_y : .2   
+                        size_hint_y : .2
                         BlackLabelSmall:
                             text: app._languages[app._selected_language]["thank"]
                     BoxLayout:
@@ -299,11 +299,11 @@
                         BlackLabelSmall:
                             text: "500 CHF"
                     BoxLayout:
-                        size_hint_y : .2  
+                        size_hint_y : .2
                         BlackLabelSmall:
                             text: app._languages[app._selected_language]["cryptovalue"]
                     BoxLayout:
-                        size_hint_y : .2  
+                        size_hint_y : .2
                         canvas.before:
                             Color:
                                 rgba: 5,5,5,.5
@@ -326,7 +326,7 @@
                 size_hint_x : .2
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
-                on_press: 
+                on_press:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             BoxLayout:
@@ -345,7 +345,7 @@
                 size_hint_x: .2
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
-                on_press: 
+                on_press:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             BoxLayout:
@@ -361,12 +361,12 @@
 
         ButtonBox:
             MediumButton:
- 
+
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
-            
+
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x : .2
@@ -379,13 +379,13 @@
             do_default_tab: False
             TabbedPanelItem:
                 text: app._languages[app._selected_language]["connectivity"]
-                MainBox: 
+                MainBox:
                     Label:
                         text: "Wifi Menu"
 
             TabbedPanelItem:
                 text: app._languages[app._selected_language]["crypto"]
-                MainBox: 
+                MainBox:
                     Button:
                         text: "crypto keys config"
                         on_press: root.manager.current = 'main'

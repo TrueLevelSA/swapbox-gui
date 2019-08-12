@@ -114,6 +114,7 @@ def parse_args():
         exit(0)
     valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly']
     config = Config()
+    config.NAME = machine_config.get("name")
     config.DEBUG = machine_config.get("debug").lower() in valid_true_values
     config.CAMERA_METHOD = machine_config.get("camera_method")
     config.ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
@@ -132,4 +133,3 @@ def parse_args():
         config.RELAY_METHOD = RelayMethod.NONE
 
     return config
-
