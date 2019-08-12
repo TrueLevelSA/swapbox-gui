@@ -15,6 +15,8 @@ class QrScannerOpenCV(QrScanner):
     def __init__(self):
         super().__init__(QrScannerOpenCV._PATH_OPENCV)
         subprocess.call(QrScannerOpenCV._CMD_OVERLAY.split(" "))
+        self._overlay_auto_on = False
+        self._stop_locally()
 
     def _is_qr_found(self, line):
         if line != "" and line != None:
@@ -24,8 +26,16 @@ class QrScannerOpenCV(QrScanner):
     def _get_qr_from_line(self, line):
         return line[22:]
 
-    def _start_locally(self):
+    def _hide_overlay(self):
+        subprocess.call("v4l2-ctl --overlay 0".split(" "))
+        
+    def _show_overlay(self):
         subprocess.call("v4l2-ctl --overlay 1".split(" "))
 
+    def _start_locally(self):
+        self._overlay_auto_on = True
+        self._show_overlay()
+
     def _stop_locally(self):
-        subprocess.call("v4l2-ctl --overlay 0".split(" "))
+        self._overlay_auto_on = False
+        self._hide_overlay()

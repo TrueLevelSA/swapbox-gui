@@ -10,7 +10,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseI
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
 import strictyaml
 from path import Path
-from threading import Thread
+from threading import Thread, Lock
 import json
 
 from config_tools import parse_args as parse_args
@@ -46,8 +46,12 @@ class LanguagePopup(FullScreenPopup):
         languages = ['FR', 'EN', 'PT']
         wid = LayoutPopup()
         for l in languages:
-            wid.add_widget(ButtonLanguage(l, self.dismiss))
+            wid.add_widget(ButtonLanguage(l, self._close))
         self.add_widget(wid)
+
+    def _close(self):
+        self.dismiss()
+        App.get_running_app().after_popup()
 
 class SyncPopup(FullScreenPopup):
     pass
@@ -60,7 +64,7 @@ class ScreenWelcome(Screen):
             import time
             time.sleep(0.5)
             App.get_running_app()._create_popup()
-        Thread(target=test, daemon=True).start()
+        #Thread(target=test, daemon=True).start()
 
 class ScreenMain(Screen):
 
@@ -229,7 +233,8 @@ class TemplateApp(App):
         self._chf_to_eth = -1
         self._eth_to_chf = -1
         self._popup_sync = None
-
+        self._overlay_lock = Lock()
+        self._popup_count = 0
 
     def build(self):
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
@@ -273,6 +278,7 @@ class TemplateApp(App):
 
     def _create_popup(self):
         if self._popup_sync is None:
+            self.before_popup()
             self._popup_sync = SyncPopup()
             self._popup_sync.open()
 
@@ -280,11 +286,45 @@ class TemplateApp(App):
         if self._popup_sync is not None:
             self._popup_sync.dismiss()
             self._popup_sync = None
+            self.after_popup()
 
     def on_stop(self):
         self._config.CASHIN_THREAD.stop_cashin()
         self._config.PRICEFEED.stop_listening()
         self._config.NODE_RPC.stop()
+    
+    # this method is ugly but we play with the raspicam overlay and have no choice
+    def before_popup(self):
+        ''' used to cleanup the overlay in case a popup is opened while in scanning mode
+        this method must be called before a popup is opened'''
+        driver = self._config.QR_SCANNER
+        # this will raise an error when the driver has no _overlay_auto_on attribute
+        # aka we're not on raspberry pi + raspicam
+        try:
+            _ = driver._overlay_auto_on
+        except:
+            return
+        with self._overlay_lock:
+            self._popup_count += 1
+            if driver._overlay_auto_on and self._popup_count == 1:
+                driver._hide_overlay()
+
+    # this method is ugly but we play with the raspicam overlay and have no choice
+    def after_popup(self):
+        ''' used to show the overlay in case a popup is closed while in scanning mode
+        this method must be called after a popup is closed'''
+        driver = self._config.QR_SCANNER
+        # this will raise an error when the driver has no _overlay_auto_on attribute
+        # aka we're not on raspberry pi + raspicam
+        try:
+            _ = driver._overlay_auto_on
+        except:
+            return
+
+        with self._overlay_lock:
+            self._popup_count -= 1
+            if driver._overlay_auto_on and self._popup_count == 0:
+                driver._show_overlay()
 
 if __name__ == '__main__':
     config = parse_args()
