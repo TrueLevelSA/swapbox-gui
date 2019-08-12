@@ -58,14 +58,12 @@ class SyncPopup(FullScreenPopup):
     pass
 
 class ScreenWelcome(Screen):
-    def on_enter(self):
-        #ugly trick to prevent the user to interact with the GUI
-        # before the app receives sync packetes
-        def test():
-            import time
-            time.sleep(0.5)
+    def on_leave(self):
+        # if we are not connected by the time we leave the welcome screen
+        # then we show a popup
+        app = App.get_running_app()
+        if not app._first_status_message_received:
             App.get_running_app()._create_popup()
-        #Thread(target=test, daemon=True).start()
 
 class ScreenMain(Screen):
 
@@ -253,6 +251,7 @@ class TemplateApp(App):
         self._popup_sync = None
         self._overlay_lock = Lock()
         self._popup_count = 0
+        self._first_status_message_received = False
 
     def build(self):
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
@@ -289,6 +288,7 @@ class TemplateApp(App):
         screen._update_message_cashin(message)
 
     def _update_message_status(self, message):
+        self._first_status_message_received = True
         msg_json = json.loads(message)
         is_in_sync = msg_json["blockchain"]["is_in_sync"]
         self._current_block = int(msg_json["blockchain"]["current_block"])
