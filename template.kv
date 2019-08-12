@@ -5,13 +5,6 @@
     allow_stretch: True
     keep_ratio: False
 
-<LayoutPopup@BoxLayout>:
-    canvas.before:
-        Rectangle:
-            pos: self.pos
-            size: self.size
-            source: 'img/bgreen.jpg'
-
 # Label with black font
 <BlackLabel@Label>:
     color: [0,0,0,1]
@@ -57,7 +50,8 @@
     orientation: 'horizontal'
 
 <SyncPopup@FullScreenPopup>:
-    LayoutPopup:
+    Background
+    BoxLayout:
         BlackLabelLarge:
             text: app._languages[app._selected_language]["not_sync"] + " {}/{}".format(app._sync_block, app._current_block)
 
