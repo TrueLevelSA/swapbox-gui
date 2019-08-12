@@ -11,12 +11,15 @@ socket.bind('tcp://*:{}'.format(port))
 
 current_block = 1000
 sync_block = 1000
-is_in_sync = True
+is_in_sync = False
+
+# change this to false if you want to emulate syncing issues
+status_is_sync = True
 
 def get_next_status(current_block, sync_block):
     current_block += 1
     # for testing purposes, 3 out of 5 status messages are in sync
-    if current_block % 5 > 1:
+    if current_block % 5 > 1 or status_is_sync:
         return current_block, current_block, True
     else:
         return current_block, sync_block, False
