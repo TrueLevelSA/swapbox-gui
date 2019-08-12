@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 			vector<Point> vp;
 
 			// do something useful with results
-			cout << "decoded " << symbol->get_type_name() << " symbol \"" << symbol->get_data() << "\"" << endl;
+			cout << "decoded " << symbol->get_type_name() << " symbol " << symbol->get_data() << endl;
 
 			int n = symbol->get_location_size();
 			for(int i=0;i<n;i++)
