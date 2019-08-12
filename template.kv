@@ -246,7 +246,7 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelSmall:
-                        text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
+                        text: "~{:.2f} ETH".format(root._get_eth_price(app, root._cash_in))
         ButtonBox:
             BoxLayout:
                 orientation: "horizontal"
@@ -293,7 +293,7 @@
                                 pos: self.pos
                                 size: self.size
                         BlackLabelSmall:
-                            text: "500 CHF"
+                            text: "{} CHF".format(root._chf_sold)
                     BoxLayout:
                         size_hint_y : .2  
                         BlackLabelSmall:
@@ -307,7 +307,7 @@
                                 pos: self.pos
                                 size: self.size
                         BlackLabelSmall:
-                            text: "(ETH) 2.5"
+                            text: "(ETH) {:.5f}".format(root._eth_bought)
                     BoxLayout:
                         size_hint_y : .2
                         BlackLabelSmall:
@@ -340,7 +340,7 @@
             BoxLayout:
                 size_hint_x: .2
             MediumButton:
-                text: app._languages[app._selected_language]["menu"]
+                text: app._languages[app._selected_language]["menu"] + " /!\\"
                 on_press: 
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"

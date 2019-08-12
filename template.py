@@ -15,6 +15,7 @@ import json
 
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
+import price_tools
 
 
 class ButtonLanguage(Button):
@@ -129,6 +130,7 @@ class ScreenBuyInsert(Screen):
     _qr_code_ether = StringProperty("ethereum:0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _cash_in = NumericProperty(0)
+    _minimum_eth = NumericProperty(0)
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
@@ -156,6 +158,16 @@ class ScreenBuyInsert(Screen):
         # reseting cash in, might want to give money back
         # might use on_pre_leave or on_leave
         self._cash_in = 0
+        self._minimum_eth = 0
+
+    def _get_eth_price(self, app, cash_in):
+        if self._cash_in == 0:
+            return 0
+        amount_xchf = self._cash_in * 1e18
+        eth_amount = price_tools.get_buy_price(amount_xchf, app._xchf_reserve, app._eth_reserve)
+        self._minimum_eth = eth_amount
+        return eth_amount/1e18
+
 
     def _buy(self):
         self.manager.transition.direction = 'left'
@@ -163,10 +175,14 @@ class ScreenBuyInsert(Screen):
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
-        success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
+        min_eth = self._minimum_eth//1000000000000
+        print("exact min eth", self._minimum_eth)
+        print("min eth", min_eth)
+        success, value = self._node_rpc.buy(str(int(1e18*self._cash_in)), self._address_ether, min_eth)
         if success:
             self.manager.get_screen("final_buy_screen")._chf_sold = self._cash_in
-            self.manager.get_screen("final_buy_screen")._eth_bought = value
+            self.manager.get_screen("final_buy_screen")._eth_bought = float(value)/1e18
+            print("got", int(value))
             self._cash_in = 0
             self.manager.transition.direction = 'left'
             self.manager.current = "final_buy_screen"
@@ -224,6 +240,8 @@ class TemplateApp(App):
     _selected_language = StringProperty('English')
     _current_block = NumericProperty(-1)
     _sync_block = NumericProperty(-1)
+    _xchf_reserve = NumericProperty(-1e18)
+    _eth_reserve = NumericProperty(-1e18)
 
     def __init__(self, config):
         super().__init__()
@@ -253,9 +271,17 @@ class TemplateApp(App):
         ''' only updates the _chf_to_eth attribute '''
         ''' only dispatching the message to the right screen'''
         msg_json = json.loads(message)
+        eth_reserve = msg_json['eth_reserve']
+        self._eth_reserve = eth_reserve
+        xchf_reserve = msg_json['token_reserve']
+        self._xchf_reserve = xchf_reserve
+        # we use 20CHF as the standard amount people will buy
+        sample_amount = 20e18
         # received values are in weis
-        self._chf_to_eth = float(msg_json['buy_price'])/1e18
-        self._eth_to_chf = float(msg_json['sell_price'])/1e18
+        one_xchf_buys = price_tools.get_buy_price(sample_amount, xchf_reserve, eth_reserve) / sample_amount
+        self._chf_to_eth = 1/one_xchf_buys
+        sample_chf_buys = price_tools.get_sell_price(sample_amount, eth_reserve, xchf_reserve) 
+        self._eth_to_chf = sample_amount / sample_chf_buys
 
     def _update_message_cashin(self, message):
         ''' only dispatching the message to the right screen'''
