@@ -11,25 +11,24 @@ socket.bind('tcp://*:{}'.format(port))
 
 value = 100e18
 index = 0.1
-increment = 0.1
+increment = 0.1/4
 
-def get_next_price():
+
+def noise_this_number(number, amplitude):
     global index
     global increment
-    global value
     index += increment
-    return value + math.sin(index) * 10e18
-
+    return number + amplitude * math.sin(index)
 
 obeuhjeuh = {
-        'buy_price': -1.0,
-        'sell_price': -2.0
+        'eth_reserve': 20,
+        'token_reserve': 100,
 }
 
 try:  # Command Interpreter
     while True:
-        obeuhjeuh['buy_price'] = get_next_price()
-        obeuhjeuh['sell_price'] = get_next_price()
+        obeuhjeuh['eth_reserve'] = noise_this_number(1e18, 0.1e18)
+        obeuhjeuh['token_reserve'] = noise_this_number(200e18, -10e18)
         print(" Sending {}".format(obeuhjeuh))
         socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
         sleep(1)
