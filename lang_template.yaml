@@ -1,5 +1,4 @@
 EN:
-  # Sam input
   menu: Menu
   validate: Validate
   confirm: Confirm
@@ -46,7 +45,6 @@ DE:
   not_sync: Node nicht synchronisiert.
 
 FR:
-  # Sam input
   menu: Menu
   validate: Valider
   confirm: Confirmer
@@ -65,12 +63,11 @@ FR:
   inputfiat: Inserez vos billets de banque dans la Swap-box
   thank: Merci
   cryptovalue: Valeur en Crypto
-  fiatvalue: Valeur en Fiat 
+  fiatvalue: Valeur en Fiat
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
 
 PT:
-  # Sam input
   menu: Menu
   validate: Validar
   confirm: Confirmar
@@ -82,13 +79,13 @@ PT:
   admin_menu: Menu Administrador
   main_title: Swap-Box de Atola
   connectivity: Conectividade
-  crypto: Crypto moeda 
+  crypto: Crypto moeda
   language: Idioma
   inputkey: Digitalizar a sua chave publica
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
   thank: Obrigado
   cryptovalue: Valor em Crypto
-  fiatvalue: Valor em Fiat 
+  fiatvalue: Valor em Fiat
   camera_loading: Inicialização da câmera...
   not_sync: Node not snychronized.
