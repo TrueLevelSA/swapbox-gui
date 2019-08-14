@@ -59,7 +59,7 @@ FR:
   crypto: Crypto Devise
   language: Langue
   inputkey: Scannez votre clé publique
-  inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
+  inputwallet: S'il vous plait, placez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
   thank: Merci
   cryptovalue: Valeur en Crypto
