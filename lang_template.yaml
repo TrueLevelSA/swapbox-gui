@@ -22,6 +22,29 @@ EN:
   camera_loading: Initializing the camera...
   not_sync: Node not snychronized.
 
+DE:
+  menu: Menü
+  validate: Validieren
+  confirm: Bestätigen
+  buy: Kaufen
+  sell: Verkaufen
+  redeem: Code einlösen
+  select_crypto: Kryptowährung wählen
+  welcome: Willkommen bei Atola Swap-Box. Bildschirm berühren um Vorgang fortzusetzen
+  admin_menu: Menü Admin
+  main_title: Atola Swap-Box
+  connectivity: Konnektivität
+  crypto: Kryptowährung
+  language: Sprache
+  inputkey: Public-Key einscannen
+  inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
+  inputfiat: Geldscheine in die Swap-Box einlegen
+  thank: Danke
+  cryptovalue: Kryptowährung
+  fiatvalue: Fiatgeld Tauschwert
+  camera_loading: Initialisierung der Kamera...
+  not_sync: Node nicht synchronisiert.
+
 FR:
   # Sam input
   menu: Menu
