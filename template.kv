@@ -85,20 +85,23 @@
         BoxLayout:
             orientation: "horizontal"
             size_hint_y: .4
-            BlackLabel:
-                font_size:30
-                size_hint_x: 0.35
-                bold: True
-                text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: .3
+                Image:
+                    source: "img/poweredbyuniswap2.png"
+                BlackLabel:
+                    font_size:30
+                    bold: True
+                    text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
             BoxLayout:
                 orientation: "horizontal"
-                size_hint_x: 1
+                size_hint_x: 0.7
                 padding: 20
 
                 Label:
                     size_hint_x: 0.2
                 LanguageBar:
-                    # size_hint_y: 0.5
 
                 # MediumButton:
                 #     size_hint_x: .9
