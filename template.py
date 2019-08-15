@@ -16,6 +16,7 @@ import json
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
 import price_tools
+from qr_scanner.util import parse_ethereum_address
 
 
 class ButtonLanguage(Button):
@@ -130,15 +131,15 @@ class ScreenBuyScan(Screen):
         self._led_driver.led_on()
         qr = self._qr_scanner.scan()
         self._led_driver.led_off()
-        if qr is not None:
-            self.manager.get_screen('insert_screen').set_address_from_qr(qr)
+        address = parse_ethereum_address(qr, quiet=True)
+        if address is not None:
+            self.manager.get_screen('insert_screen').set_address(address)
             self.manager.transition.direction = 'left'
             self.manager.current = 'insert_screen'
         else:
             print("QR not found")
 
 class ScreenBuyInsert(Screen):
-    _qr_code_ether = StringProperty("ethereum:0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _cash_in = NumericProperty(0)
     _minimum_eth = NumericProperty(0)
@@ -161,9 +162,8 @@ class ScreenBuyInsert(Screen):
         if amount_received in self._valid_notes:
             self._cash_in += int(amount_received)
 
-    def set_address_from_qr(self, qr):
-        self._qr_code_ether = qr
-        self._address_ether = self._qr_code_ether.split(":")[1]
+    def set_address(self, address):
+        self._address_ether = address
 
     def _leave_without_buy(self):
         # reseting cash in, might want to give money back
