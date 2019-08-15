@@ -159,6 +159,8 @@ class ScreenBuyScan(Screen):
             self.manager.current = 'insert_screen'
         else:
             print("QR not found")
+            self.manager.transition.direction = 'right'
+            self.manager.current = 'menu'
 
 class ScreenBuyInsert(Screen):
     _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
