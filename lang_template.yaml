@@ -1,5 +1,4 @@
 EN:
-  # Sam input
   menu: Menu
   validate: Validate
   confirm: Confirm
@@ -13,18 +12,39 @@ EN:
   connectivity: Connectivity
   crypto: Crypto Currency
   language: Language
-  inputkey: Scan your public key
+  inputkey: Scan your public address
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: Insert your bank notes in the Swap-box
-  sellselect: Please select cashout amount
   thank: Thank you
   cryptovalue: Crypto value
   fiatvalue: Fiat value
   camera_loading: Initializing the camera...
   not_sync: Node not snychronized.
 
+ES:
+  menu: Menú
+  validate: Validar
+  confirm: Confirmar
+  buy: Comprar
+  sell: Vender
+  redeem: Usar un código
+  select_crypto: Seleccione su Crypto
+  welcome: Bienvenido a {} Swap-Box. Pulse en la pantalla para continuar.
+  admin_menu: Menú de Administración
+  main_title: 'Swap-Box {}'
+  connectivity: Conectividad
+  crypto: Crypto Moneda
+  language: Idioma
+  inputkey: Escanee su dirección pública
+  inputwallet: Por favor, coloque su billetera de destino frente a la cámara
+  inputfiat: Introduzca sus billetes de banco en la Swap-box
+  thank: Gracias
+  cryptovalue: Valor en crypto
+  fiatvalue: Valor en Fiat
+  camera_loading: Inicialización de la cámara...
+  not_sync: Nodo no sincronizado.
+
 FR:
-  # Sam input
   menu: Menu
   validate: Valider
   confirm: Confirmer
@@ -32,13 +52,13 @@ FR:
   sell: Vendre
   redeem: Utiliser un code
   select_crypto: Choisissez une Crypto
-  welcome: "Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer"
+  welcome: 'Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer'
   admin_menu: Menu Administrateur
   main_title: 'Swap-Box {}'
   connectivity: Connectivité
   crypto: Crypto Devise
   language: Langue
-  inputkey: Scannez votre clé publique
+  inputkey: Scannez votre adresse publique
   inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
   thank: Merci
@@ -47,8 +67,30 @@ FR:
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
 
+IT:
+  menu: Menu
+  validate: Validare
+  confirm: Confermare
+  buy: Comprare
+  sell: Vendere
+  redeem: Usa un codice
+  select_crypto: Scegliere un Crypto
+  welcome: Benvenuti alla Swap-Box {}. Toccare lo schermo per continuare
+  admin_menu: Menu Amministratore
+  main_title: 'Swap-Box de {}'
+  connectivity: Connettività
+  crypto: Crypto Valuta
+  language: Lingua
+  inputkey: Scansiona il tuo indirizzo pubblico
+  inputwallet: Per favore, metti il portafoglio di destinazione davanti alla telecamera.
+  inputfiat: Inserisci le vostre banconote nel Swap-box
+  thank: Grazie
+  cryptovalue: Valore in Crypto
+  fiatvalue: Valore in Fiat
+  camera_loading: Inizializzazione della telecamera
+  not_sync: Nodo non sincronizzato.
+
 PT:
-  # Sam input
   menu: Menu
   validate: Validar
   confirm: Confirmar
@@ -62,11 +104,12 @@ PT:
   connectivity: Conectividade
   crypto: Crypto moeda
   language: Idioma
-  inputkey: Digitalizar a sua chave publica
+  inputkey: Digitalizar o seu endereço público
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
   thank: Obrigado
   cryptovalue: Valor em Crypto
   fiatvalue: Valor em Fiat
   camera_loading: Inicialização da câmera...
-  not_sync: Node not snychronized.
+  not_sync: Nó não sincronizado.
+  
