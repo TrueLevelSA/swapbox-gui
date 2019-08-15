@@ -24,7 +24,7 @@ class ButtonLanguage(Button):
         self._language = language
         self._callback =  callback
         #self.text = language
-        self.background_down = 'img/flags/large/' + language + '.png'
+        self.background_down = 'img/flags/medium/' + language + '.png'
         self.background_normal = self.background_down
         super().__init__(**kwargs)
 
@@ -32,6 +32,19 @@ class ButtonLanguage(Button):
         App.get_running_app().change_language(self._language)
         if self._callback is not None:
             self._callback()
+
+class LanguageBar(BoxLayout):
+    spacing = 10
+    def __init__(self, **kwargs):
+        super(LanguageBar, self).__init__(**kwargs)
+        self.add_widgets()
+
+    def add_widgets(self, *args, **kwargs):
+        # has to match the array in lang_template.yaml
+        languages = ['EN', 'FR', 'IT', 'PT', 'ES']
+        for l in languages:
+            self.add_widget(ButtonLanguage(l))
+        # self.add_widget(wid)
 
 class LayoutPopup(BoxLayout):
     pass
@@ -43,7 +56,7 @@ class LanguagePopup(FullScreenPopup):
     def __init__(self):
         super().__init__()
         # has to match the array in lang_template.yaml
-        languages = ['FR', 'EN', 'PT']
+        languages = ['EN', 'DE', 'FR', 'PT']
         wid = LayoutPopup()
         for l in languages:
             wid.add_widget(ButtonLanguage(l, self.dismiss))

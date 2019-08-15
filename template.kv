@@ -73,31 +73,35 @@
     Background
     BoxLayout:
         orientation: "vertical"
-        padding: 50
+        padding: 10
         BoxLayout:
             orientation: "horizontal"
-            size_hint_y: .3
+            size_hint_y: .4
             BlackLabel:
                 font_size:30
+                size_hint_x: 0.3
                 text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
             BoxLayout:
                 orientation: "horizontal"
-                size_hint_x: .6
+                size_hint_x: 1
                 padding: 10
-                #Button:
+                #Button5
                 #    size_hint_x: .3
                 #    text: app._languages[app._selected_language]["admin_menu"]
                 #    on_press:
                 #        root.manager.transition.direction = 'left'
                 #        root.manager.current = "settings"
+
                 Label:
-                    size_hint_x: 0.3
-                MediumButton:
-                    size_hint_x: .9
-                    size_hint_y: 1.5
-                    disabled: False
-                    on_press: Factory.LanguagePopup().open()
-                    text: app._languages[app._selected_language]["language"]
+                    size_hint_x: 0.2
+                LanguageBar:
+                    # width: 170
+                # MediumButton:
+                #     size_hint_x: .9
+                #     size_hint_y: 1.5
+                #     disabled: False
+                #     on_press: Factory.LanguagePopup().open()
+                #     text: app._languages[app._selected_language]["language"]
 
         ScreenManager:
             id: sm1
