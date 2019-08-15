@@ -25,7 +25,7 @@ class ButtonLanguage(Button):
         self._language = language
         self._callback =  callback
         #self.text = language
-        self.background_down = 'img/flags/large/' + language + '.png'
+        self.background_down = 'img/flags/medium/' + language + '.png'
         self.background_normal = self.background_down
         super().__init__(**kwargs)
 
@@ -33,6 +33,19 @@ class ButtonLanguage(Button):
         App.get_running_app().change_language(self._language)
         if self._callback is not None:
             self._callback()
+
+class LanguageBar(BoxLayout):
+    spacing = 10
+    def __init__(self, **kwargs):
+        super(LanguageBar, self).__init__(**kwargs)
+        self.add_widgets()
+
+    def add_widgets(self, *args, **kwargs):
+        # has to match the array in lang_template.yaml
+        languages = ['EN', 'FR', 'IT', 'PT', 'ES']
+        for l in languages:
+            self.add_widget(ButtonLanguage(l))
+        # self.add_widget(wid)
 
 class LayoutPopup(BoxLayout):
     pass
@@ -44,7 +57,7 @@ class LanguagePopup(FullScreenPopup):
     def __init__(self):
         super().__init__()
         # has to match the array in lang_template.yaml
-        languages = ['FR', 'EN', 'PT']
+        languages = ['EN', 'DE', 'FR', 'PT']
         wid = LayoutPopup()
         for l in languages:
             wid.add_widget(ButtonLanguage(l, self._close))
@@ -83,9 +96,9 @@ class ScreenMain(Screen):
         wid.add_widget(_insert_screen)
         _buy_screen3 = ScreenBuyFinal(name='final_buy_screen')
         wid.add_widget(_buy_screen3)
-        _sell_screen1 = ScreenSell1(name='sell1')
+        _sell_screen1 = ScreenSell1(config, name='sell1')
         wid.add_widget(_sell_screen1)
-        _sell_screen2 = ScreenSell2(name='sell2')
+        _sell_screen2 = ScreenSell2(config, name='sell2')
         wid.add_widget(_sell_screen2)
         _sell_screen3 = ScreenSell3(name='sell3')
         wid.add_widget(_sell_screen3)
@@ -204,10 +217,51 @@ class ScreenRedeem(Screen):
     pass
 
 class ScreenSell1(Screen):
-    pass
+
+    _sell_choice = NumericProperty(0)
+
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
+        self._CASHOUT = config.CASHOUT_DRIVER
+        self._NOTE_BALANCE = {}
+        self._valid_notes = config.NOTES_VALUES
+
+    def on_enter(self):
+        self._CASHOUT.start_cashout()
+        self._NOTE_BALANCE = self._CASHOUT.get_balance()
+        # success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
+
+    def _leave_without_sell_select(self):
+        # reseting cash out process
+        # might use on_pre_leave or on_leave
+        self._sell_choice = 0
+
+    def _sell_select(self, amount):
+        if self._CASHOUT.check_available_notes(self._NOTE_BALANCE, amount):
+            self._sell_choice = amount
+            self.manager.transition.direction = 'left'
+            self.manager.current = "sell2"
+
+        else:
+            # requested amount not available
+            print("dosomething")
+        # Thread(target=self._threaded_buy, daemon=True).start()
 
 class ScreenSell2(Screen):
-    pass
+
+    _qr_image = ObjectProperty()
+
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
+        self._CASHOUT = config.CASHOUT_DRIVER
+        self._QR_GENERATOR = config.QR_GENERATOR
+        self._NOTE_BALANCE = {}
+        self._valid_notes = config.NOTES_VALUES
+        self._node_rpc = config.NODE_RPC
+
+    def on_enter(self):
+        self._QR_GENERATOR.generate_qr_image("some address", os.path.join('tmp', 'qr.png'))
+        self._qr_image = os.path.join('tmp', 'qr.png')
 
 class ScreenSell3(Screen):
     pass

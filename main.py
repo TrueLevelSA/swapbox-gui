@@ -42,7 +42,7 @@ from config_tools import Config as ConfigApp
 # "force" people to use logger
 from config_tools import print_debug as print
 
-from custom_threads.zmq_price_ticker_thread import ZmqPriceTickerThread
+#from custom_threads.zmq_pricefeed import ZmqPriceFeed
 #for fullscreen
 #from kivy.core.window import Window
 #Window.size = (800, 600)
@@ -234,9 +234,9 @@ class SwapBoxApp(App):
         for k in config.NOTES_VALUES:
             self.cash_in[k] = 0
 
-        self.zmq_connect()
+        #self.zmq_connect()
         self._cashinthread = config.CASHIN_THREAD
-        self._cashinthread.start()
+        #self._cashinthread.start()
 
         self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
         self.LANGUAGES = [language for language in self.lang]
@@ -256,7 +256,7 @@ class SwapBoxApp(App):
         self.root._led_driver.close()
 
     def zmq_connect(self):
-        self._zthread = ZmqPriceTickerThread(self.on_message, self._config.ZMQ_PORT)
+        self._zthread = ZmqPriceFeed(self.on_message, self._config.ZMQ_PORT)
         self._zthread.start()
 
     ###@mainthread
@@ -311,8 +311,9 @@ class SwapBoxApp(App):
 
 if __name__ == '__main__':
     config = parse_args()
-    ConfigApp._select_all_drivers(config, lambda x: print(x))
-
+    #ConfigApp._select_all_drivers(config, lambda x: print(x))
+    #ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed, self._update_message_status)
+        
     from kivy.config import Config
     #Config.set('graphics', 'fullscreen', 'fake')
     Config.set('kivy', 'exit_on_escape', 1)
