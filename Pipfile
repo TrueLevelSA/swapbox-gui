@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest = "*"
 
 [packages]
 pexpect = "*"
@@ -20,6 +21,7 @@ qrcode = "*"
 docutils = "==0.14rc2"
 opencv-python = "*"
 pillow = "*"
+pysha3 = "*"
 
 [requires]
 python_version = "3.7"
