@@ -32,6 +32,7 @@ class Config(object):
         self.ZMQ_URL_RPC = None
         self.LED_DRIVER = None
         self.CASHIN_THREAD = None
+        self.CASHOUT_DRIVER = None
         self.QR_SCANNER = None
         self.PRICEFEED = None
         self.NODE_RPC = None
@@ -59,6 +60,16 @@ class Config(object):
         else:
             from cashin_driver.essp_cashin_driver import EsspCashinDriver
             return EsspCashinDriver(callback, config.VALIDATOR_PORT)
+
+    @staticmethod
+    def _select_cashout_driver(config):
+        if config.MOCK_VALIDATOR is True:
+            from cashout_driver.mock_cashout_driver import MockCashoutDriver
+            return MockCashoutDriver()
+        else:
+            from cashout_driver.essp_cashout_driver import EsspCashoutDriver
+            return EsspCashoutDriver(config.VALIDATOR_PORT)
+
 
     @staticmethod
     def _select_qr_scanner(config):
@@ -91,7 +102,10 @@ class Config(object):
     def _select_all_drivers(config, callback_cashin, callback_pricefeed, callback_status):
         config.LED_DRIVER = Config._select_led_driver(config)
         config.QR_SCANNER = Config._select_qr_scanner(config)
+        from qr_generator.qr_generator import QRGenerator
+        config.QR_GENERATOR = QRGenerator()
         config.CASHIN_THREAD = Config._select_cashin_thread(config, callback_cashin)
+        config.CASHOUT_DRIVER = Config._select_cashout_driver(config)
         config.PRICEFEED = Config._select_pricefeed(config, callback_pricefeed)
         config.NODE_RPC = Config._select_node_rpc(config)
         config.STATUS = Config._select_status(config, callback_status)
