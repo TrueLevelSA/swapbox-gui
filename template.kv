@@ -19,23 +19,30 @@
 # Label with black font, small font size
 # used for content
 <BlackLabelSmall@BlackLabel>:
-    font_size: 20
+    font_size: 22
+    font: 'MyriadPro-Bold.otf'
 
 # Label with black font, medium font size
 # used for subtitles
 <BlackLabelMedium@BlackLabel>:
-    font_size: 22
+    font_size: 24
+    font: 'MyriadPro-Bold.otf'
 
 # Label with black font, large font size
 # used for titles
 <BlackLabelLarge@BlackLabel>:
-    font_size: 25
+    font_size: 28
+    font: 'MyriadPro-Bold.otf'
 
-<MediumButton@Button>:
+<MediumButton@ColorDownButton>:
     size_hint_x: 0.1
     size_hint_y: .8
     font_size: 30
-    background_color: [1,0,0,.2]
+    background_color: [1,0,0,.4]
+    color: 1,1,1,1
+    background_color_normal: 0,0,0,0.4
+    background_color_down: 0,0,0,0.6
+    font_size: 30
 
 <FullScreenPopup@ModalView>:
     size_hint_y: 1
@@ -80,23 +87,19 @@
             size_hint_y: .4
             BlackLabel:
                 font_size:30
-                size_hint_x: 0.3
+                size_hint_x: 0.35
+                bold: True
                 text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x: 1
-                padding: 10
-                #Button5
-                #    size_hint_x: .3
-                #    text: app._languages[app._selected_language]["admin_menu"]
-                #    on_press: 
-                #        root.manager.transition.direction = 'left'
-                #        root.manager.current = "settings"
+                padding: 20
 
                 Label:
                     size_hint_x: 0.2
                 LanguageBar:
-                    # width: 170
+                    # size_hint_y: 0.5
+
                 # MediumButton:
                 #     size_hint_x: .9
                 #     size_hint_y: 1.5
@@ -133,10 +136,10 @@
                             allow_stretch: True
                             size_hint_y: .5
                             keep_ratio: True
-                        BlackLabelSmall:
+                        BlackLabelLarge:
                             text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['buy'], app._chf_to_eth)
                             size_hint_y: .1
-                        BlackLabelSmall:
+                        BlackLabelLarge:
                             text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['sell'], app._eth_to_chf)
                             size_hint_y: .1
                 Label:

@@ -7,7 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseInTransition, FallOutTransition
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty
+from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty
 import strictyaml
 from path import Path
 from threading import Thread, Lock
@@ -16,6 +16,27 @@ import json
 from config_tools import parse_args as parse_args
 from config_tools import Config as ConfigApp
 import price_tools
+
+
+class ColorDownButton(Button):
+    """
+    Button with a possibility to change the color on on_press
+    (similar to background_down in normal Button widget)
+    """
+    background_color_normal = ListProperty([0, 0, 0, 0.4])
+    background_color_down = ListProperty([0, 0, 0, 0.6])
+
+    def __init__(self, **kwargs):
+        super(ColorDownButton, self).__init__(**kwargs)
+        self.background_normal = ""
+        self.background_down = ""
+        self.background_color = self.background_color_normal
+
+    def on_press(self):
+        self.background_color = self.background_color_down
+
+    def on_release(self):
+        self.background_color = self.background_color_normal
 
 
 class ButtonLanguage(Button):
@@ -42,7 +63,7 @@ class LanguageBar(BoxLayout):
 
     def add_widgets(self, *args, **kwargs):
         # has to match the array in lang_template.yaml
-        languages = ['EN', 'FR', 'IT', 'PT', 'ES']
+        languages = ['EN', 'DE', 'FR', 'IT', 'PT', 'ES']
         for l in languages:
             self.add_widget(ButtonLanguage(l))
         # self.add_widget(wid)
@@ -333,7 +354,7 @@ class TemplateApp(App):
         # received values are in weis
         one_xchf_buys = price_tools.get_buy_price(sample_amount, xchf_reserve, eth_reserve) / sample_amount
         self._chf_to_eth = 1/one_xchf_buys
-        sample_chf_buys = price_tools.get_sell_price(sample_amount, eth_reserve, xchf_reserve) 
+        sample_chf_buys = price_tools.get_sell_price(sample_amount, eth_reserve, xchf_reserve)
         self._eth_to_chf = sample_amount / sample_chf_buys
 
     def _update_message_cashin(self, message):
@@ -372,7 +393,7 @@ class TemplateApp(App):
         self._config.CASHIN_THREAD.stop_cashin()
         self._config.PRICEFEED.stop_listening()
         self._config.NODE_RPC.stop()
-    
+
     # this method is ugly but we play with the raspicam overlay and have no choice
     def before_popup(self):
         ''' used to cleanup the overlay in case a popup is opened while in scanning mode

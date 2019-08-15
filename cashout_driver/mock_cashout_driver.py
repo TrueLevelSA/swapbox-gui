@@ -8,7 +8,7 @@ class MockCashoutDriver(CashoutDriver):
     def stop_cashout(self):
         pass
 
-    def get_balance(self):
+    def get_balance(self, denomination):
         return 1
 
     def do_cashout(self, amount, currency="CHF"):

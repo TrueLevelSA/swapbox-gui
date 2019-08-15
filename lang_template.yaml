@@ -1,11 +1,11 @@
 EN:
   # Sam input
-  menu: Menu
+  menu: BACK
   validate: Validate
   confirm: Confirm
-  buy: Buy
-  sell: Sell
-  redeem: Redeem a code
+  buy: BUY
+  sell: SELL
+  redeem: REDEEM CODE
   select_crypto: Select your Crypto
   welcome: 'Welcome to {} Swap-Box. Press on the screen to continue'
   admin_menu: Admin Menu
@@ -15,7 +15,7 @@ EN:
   language: Language
   inputkey: Scan your public address
   inputwallet: Please, place your destination wallet in front of the camera
-  inputfiat: Insert your bank notes in the Swap-box
+  inputfiat: INSERT CASH
   sellselect: Please select amount to cashout
   thank: Thank you
   cryptovalue: Crypto value
@@ -31,15 +31,16 @@ DE:
   sell: Verkaufen
   redeem: Code einlösen
   select_crypto: Kryptowährung wählen
-  welcome: Willkommen bei Atola Swap-Box. Bildschirm berühren um Vorgang fortzusetzen
+  welcome: 'Willkommen bei {} Swap-Box. Bildschirm berühren um Vorgang fortzusetzen'
   admin_menu: Menü Admin
-  main_title: Atola Swap-Box
+  main_title: '{} Swap-Box'
   connectivity: Konnektivität
   crypto: Kryptowährung
   language: Sprache
   inputkey: Public-Key einscannen
   inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
   inputfiat: Geldscheine in die Swap-Box einlegen
+  sellselect: Please select amount to cashout
   thank: Danke
   cryptovalue: Kryptowährung
   fiatvalue: Fiatgeld Tauschwert
