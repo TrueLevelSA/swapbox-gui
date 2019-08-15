@@ -16,6 +16,7 @@ EN:
   inputkey: Scan your public key
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: Insert your bank notes in the Swap-box
+  sellselect: Please select cashout amount
   thank: Thank you
   cryptovalue: Crypto value
   fiatvalue: Fiat value
@@ -31,7 +32,7 @@ FR:
   sell: Vendre
   redeem: Utiliser un code
   select_crypto: Choisissez une Crypto
-  welcome: 'Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer'
+  welcome: "Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer"
   admin_menu: Menu Administrateur
   main_title: 'Swap-Box {}'
   connectivity: Connectivité
