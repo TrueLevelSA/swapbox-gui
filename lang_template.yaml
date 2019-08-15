@@ -1,5 +1,4 @@
 EN:
-  # Sam input
   menu: Menu
   validate: Validate
   confirm: Confirm
@@ -22,8 +21,30 @@ EN:
   camera_loading: Initializing the camera...
   not_sync: Node not snychronized.
 
+DE:
+  menu: Menü
+  validate: Validieren
+  confirm: Bestätigen
+  buy: Kaufen
+  sell: Verkaufen
+  redeem: Code einlösen
+  select_crypto: Kryptowährung wählen
+  welcome: Willkommen bei Atola Swap-Box. Bildschirm berühren um Vorgang fortzusetzen
+  admin_menu: Menü Admin
+  main_title: Atola Swap-Box
+  connectivity: Konnektivität
+  crypto: Kryptowährung
+  language: Sprache
+  inputkey: Public-Key einscannen
+  inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
+  inputfiat: Geldscheine in die Swap-Box einlegen
+  thank: Danke
+  cryptovalue: Kryptowährung
+  fiatvalue: Fiatgeld Tauschwert
+  camera_loading: Initialisierung der Kamera...
+  not_sync: Node nicht synchronisiert.
+
 FR:
-  # Sam input
   menu: Menu
   validate: Valider
   confirm: Confirmer
@@ -38,16 +59,15 @@ FR:
   crypto: Crypto Devise
   language: Langue
   inputkey: Scannez votre clé publique
-  inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
+  inputwallet: S'il vous plait, placez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
   thank: Merci
   cryptovalue: Valeur en Crypto
-  fiatvalue: Valeur en Fiat 
+  fiatvalue: Valeur en Fiat
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
 
 PT:
-  # Sam input
   menu: Menu
   validate: Validar
   confirm: Confirmar
@@ -59,13 +79,13 @@ PT:
   admin_menu: Menu Administrador
   main_title: Swap-Box de Atola
   connectivity: Conectividade
-  crypto: Crypto moeda 
+  crypto: Crypto moeda
   language: Idioma
   inputkey: Digitalizar a sua chave publica
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
   thank: Obrigado
   cryptovalue: Valor em Crypto
-  fiatvalue: Valor em Fiat 
+  fiatvalue: Valor em Fiat
   camera_loading: Inicialização da câmera...
   not_sync: Node not snychronized.
