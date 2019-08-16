@@ -31,9 +31,16 @@
     markup: True
 
 # Label with black font, large font size
-# used for titles
 <BlackLabelLarge@BlackLabel>:
     font_size: 28
+    font: 'MyriadPro-Bold.otf'
+    markup: True
+
+# Label with white font, large font size
+# used for titles
+<WhiteLabelLarge@BlackLabel>:
+    font_size: 60
+    color: 1,1,1,1
     font: 'MyriadPro-Bold.otf'
     markup: True
 
@@ -41,7 +48,7 @@
     size_hint_x: 0.1
     size_hint_y: .8
     font_size: 30
-    background_color: [1,0,0,.4]
+    background_color: [0,0,0,.4]
     color: 1,1,1,1
     background_color_normal: 0,0,0,0.4
     background_color_down: 0,0,0,0.6
@@ -56,7 +63,7 @@
     size_hint_y: .8
     canvas.before:
         Color:
-            rgba: 5,5,5,.5
+            rgba: 5,5,5,.4
         Rectangle:
             pos: self.pos
             size: self.size
@@ -126,7 +133,7 @@
             orientation: "horizontal"
             BoxLayout:
                 orientation: "vertical"
-                BlackLabelLarge:
+                WhiteLabelLarge:
                     size_hint_y: .15
                     text: app._languages[app._selected_language]["select_crypto"]
                 BoxLayout:
@@ -232,19 +239,13 @@
             BlackLabelLarge:
                 text: app._languages[app._selected_language]["inputfiat"]
                 bold: True
-                font_size: 50
-                size_hint_y: 0.1
-            BoxLayout:
-                size_hint_y: 0.05
-            BlackLabelMedium:
-                text: "Your wallet: {}".format(root._address_ether)
+                color: 1,1,1,1
+                font_size: 60
                 size_hint_y: 0.1
             BoxLayout:
                 orientation: "vertical"
                 BoxLayout:
-                    size_hint_y : .2
-                    BlackLabelSmall:
-                        text: ''
+                    size_hint_y : .1
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -254,11 +255,11 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "[b]{}[/b]  {} CHF".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in)
+                        text: "{}  [b]{} CHF[/b]".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in)
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "[b]{}[/b]  ~{:.18f} ETH".format(app._languages[app._selected_language]["cryptovalue"], (root._cash_in / app._chf_to_eth))
+                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], (root._cash_in / app._chf_to_eth))
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -268,7 +269,14 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "[b]{}[/b]  {:.18f} ETH".format(app._languages[app._selected_language]["cryptoslippage"], (root._cash_in / app._chf_to_eth * 0.98))
+                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptoslippage"], (root._cash_in / app._chf_to_eth * 0.98))
+                BoxLayout:
+                    size_hint_y: 0.05
+                BlackLabelLarge:
+                    text: "{} [b]{}[/b]".format(app._languages[app._selected_language]["customeraddress"], root._address_ether)
+                    size_hint_y: 0.1
+                BoxLayout:
+                    size_hint_y: 0.05
         ButtonBox:
             # BoxLayout:
             #     orientation: "horizontal"
