@@ -34,24 +34,6 @@ class EsspCashoutDriver(CashoutDriver):
             time.sleep(0.5)
         return balance
 
-
-    # def check_available_notes(self, balance, amount):
-    #     notes = EsspCashoutDriver._MAP_CHANNEL_NOTES.values()
-    #     noteCounter = [0, 0, 0, 0, 0]
-    #     for note, distribute in zip(notes, noteCounter):
-    #         if amount >= note:
-    #             c = amount // note
-    #             if c >= balance[note]:
-    #                 distribute = balance[note]
-    #             else:
-    #                 distribute = c
-    #             amount = amount - distribute * note
-    #     if amount == 0:
-    #         return True
-    #     else:
-    #         return False
-
-
     def do_cashout(self, amount, currency):
         validator.payout(int(amount), currency)
 
