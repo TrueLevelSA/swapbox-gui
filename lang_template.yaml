@@ -2,7 +2,7 @@ EN:
   # Sam input
   menu: BACK
   validate: Validate
-  confirm: Confirm
+  confirm: CONFIRM
   buy: BUY
   sell: SELL
   redeem: REDEEM CODE
@@ -18,7 +18,8 @@ EN:
   inputfiat: INSERT CASH
   sellselect: Please select amount to cashout
   thank: Thank you
-  cryptovalue: Crypto value
+  cryptovalue: Estimated Crypto value
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Fiat value
   camera_loading: Initializing the camera...
   not_sync: Node not snychronized.
@@ -43,6 +44,7 @@ DE:
   sellselect: Please select amount to cashout
   thank: Danke
   cryptovalue: Kryptowährung
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Fiatgeld Tauschwert
   camera_loading: Initialisierung der Kamera...
   not_sync: Node nicht synchronisiert.
@@ -67,6 +69,7 @@ ES:
   sellselect: Please select amount to cashout
   thank: Gracias
   cryptovalue: Valor en crypto
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Valor en Fiat
   camera_loading: Inicialización de la cámara...
   not_sync: Nodo no sincronizado.
@@ -91,6 +94,7 @@ FR:
   sellselect: Please select amount to cashout
   thank: Merci
   cryptovalue: Valeur en Crypto
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Valeur en Fiat
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
@@ -115,6 +119,7 @@ IT:
   sellselect: Please select amount to cashout
   thank: Grazie
   cryptovalue: Valore in Crypto
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Valore in Fiat
   camera_loading: Inizializzazione della telecamera
   not_sync: Nodo non sincronizzato.
@@ -139,6 +144,7 @@ PT:
   sellselect: Por favor escolha o montante a retirar
   thank: Obrigado
   cryptovalue: Valor em Crypto
+  cryptoslippage: Minimum Crypto value
   fiatvalue: Valor em Fiat
   camera_loading: Inicialização da câmera...
   not_sync: Nó não sincronizado.

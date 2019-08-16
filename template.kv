@@ -21,18 +21,21 @@
 <BlackLabelSmall@BlackLabel>:
     font_size: 22
     font: 'MyriadPro-Bold.otf'
+    markup: True
 
 # Label with black font, medium font size
 # used for subtitles
 <BlackLabelMedium@BlackLabel>:
     font_size: 24
     font: 'MyriadPro-Bold.otf'
+    markup: True
 
 # Label with black font, large font size
 # used for titles
 <BlackLabelLarge@BlackLabel>:
     font_size: 28
     font: 'MyriadPro-Bold.otf'
+    markup: True
 
 <MediumButton@ColorDownButton>:
     size_hint_x: 0.1
@@ -160,7 +163,7 @@
                 on_press:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "sell1"
-                disabled: True
+                # disabled: True
             MediumButton:
                 text: app._languages[app._selected_language]["redeem"]
                 on_press:
@@ -228,6 +231,8 @@
                 size_hint_y: 0.05
             BlackLabelLarge:
                 text: app._languages[app._selected_language]["inputfiat"]
+                bold: True
+                font_size: 50
                 size_hint_y: 0.1
             BoxLayout:
                 size_hint_y: 0.05
@@ -239,7 +244,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelSmall:
-                        text: app._languages[app._selected_language]["fiatvalue"]
+                        text: ''
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -248,12 +253,12 @@
                         Rectangle:
                             pos: self.pos
                             size: self.size
-                    BlackLabelSmall:
-                        text: "{} CHF".format(root._cash_in)
+                    BlackLabelLarge:
+                        text: "[b]{}[/b]  {} CHF".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in)
                 BoxLayout:
                     size_hint_y : .2
-                    BlackLabelSmall:
-                        text: app._languages[app._selected_language]["cryptovalue"]
+                    BlackLabelLarge:
+                        text: "[b]{}[/b]  ~{:.18f} ETH".format(app._languages[app._selected_language]["cryptovalue"], (root._cash_in / app._chf_to_eth))
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -262,12 +267,12 @@
                         Rectangle:
                             pos: self.pos
                             size: self.size
-                    BlackLabelSmall:
-                        text: "~{:.2f} ETH".format(root._cash_in / app._chf_to_eth)
+                    BlackLabelLarge:
+                        text: "[b]{}[/b]  {:.18f} ETH".format(app._languages[app._selected_language]["cryptoslippage"], (root._cash_in / app._chf_to_eth * 0.98))
         ButtonBox:
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .1
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .1
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 disabled: root._cash_in > 0
@@ -280,9 +285,9 @@
                 text: app._languages[app._selected_language]["confirm"]
                 on_press:
                     root._buy()
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .1
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .1
 
 <ScreenBuyFinal>:
     BoxLayout:
@@ -334,17 +339,19 @@
                 size_hint_x : .05
 
         ButtonBox:
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .2
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .2
+            Label:
+                text: ''
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
                 on_press:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .2
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .2
 
 <ScreenLoading>:
     BoxLayout:
