@@ -155,18 +155,18 @@
         ButtonBox:
             MediumButton:
                 text: app._languages[app._selected_language]["buy"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "scan_screen"
             MediumButton:
                 text: app._languages[app._selected_language]["sell"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "sell1"
                 # disabled: True
             MediumButton:
                 text: app._languages[app._selected_language]["redeem"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "redeem"
                 disabled: True
@@ -214,7 +214,7 @@
             MediumButton:
 
                 text: app._languages[app._selected_language]["menu"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             BoxLayout:
@@ -276,14 +276,14 @@
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 disabled: root._cash_in > 0
-                on_press:
+                on_release:
                     root._leave_without_buy()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:
                 disabled: root._cash_in <= 0
                 text: app._languages[app._selected_language]["confirm"]
-                on_press:
+                on_release:
                     root._buy()
             # BoxLayout:
             #     orientation: "horizontal"
@@ -346,7 +346,7 @@
                 text: ''
             MediumButton:
                 text: app._languages[app._selected_language]["confirm"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             # BoxLayout:
@@ -365,7 +365,7 @@
                 size_hint_x: .2
             MediumButton:
                 text: app._languages[app._selected_language]["menu"] + " /!\\"
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             BoxLayout:
@@ -383,7 +383,7 @@
             MediumButton:
 
                 text: app._languages[app._selected_language]["menu"]
-                on_press:
+                on_release:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
 
@@ -405,8 +405,9 @@
             BoxLayout:
                 size_hint_y: 0.05
             GridLayout:
-                cols: 3
+                cols: 2
                 spacing: 10
+                padding:  [80, 20, 80, 20]
                 #size_hint: .3,1
                 MediumButton:
                     text: '10 Fr.'
@@ -434,8 +435,8 @@
                 MediumButton:
                     text: '400 Fr.'
                     on_release: root._sell_select(400)
-                Label:
-                    text:''
+                # Label:
+                #     text:''
                 MediumButton:
                     text: '100 Fr.'
                     on_release: root._sell_select(100)
@@ -443,9 +444,9 @@
                     text: "other"
                     disabled: True
         ButtonBox:
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .1
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .1
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
@@ -457,9 +458,9 @@
                 text: app._languages[app._selected_language]["confirm"]
                 on_press:
                     root._buy()
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .1
+            # BoxLayout:
+            #     orientation: "horizontal"
+            #     size_hint_x : .1
 
 <ScreenSell2>:
     BoxLayout:
