@@ -28,6 +28,7 @@ class EsspCashoutDriver(CashoutDriver):
 
 
     def get_balance(self):
+        balance = {}
         for note in EsspCashoutDriver._MAP_CHANNEL_NOTES.values():
             balance[note] = self.validator.get_note_amount(int(note))
             time.sleep(0.5)

@@ -32,9 +32,6 @@ class CashoutDriver(ABC):
         for note, distribute in zip(notes, note_counter):
             if amount >= note:
                 c = amount // note
-                print("LOOOK")
-                print(balance)
-                print(balance[note])
                 if c >= balance[note]:
                     distribute = balance[note]
                 else:
