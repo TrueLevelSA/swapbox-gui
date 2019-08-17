@@ -1,6 +1,6 @@
 debug: True
 # Validator Settings
-mock_validator: nope 
+mock_validator: nope
 zmq_url_mock_validator: tcp://localhost:5555
 validator_port: /dev/ttyUSB0
 validator_nv11: False
@@ -16,3 +16,5 @@ relay_method: NONE
 # set to false to use camera (signed) auth
 admin_pin: 1234
 is_fullscreen: True
+default_slippage: 0.02
+buy_limit: 100

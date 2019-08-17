@@ -18,6 +18,7 @@ EN:
   inputfiat: INSERT CASH
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: SELECT CASHOUT AMOUNT
   thank: THANK YOU
   cryptovalue: Estimated Crypto value
@@ -45,6 +46,7 @@ DE:
   inputfiat: Geldscheine in die Swap-Box einlegen
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Danke
   cryptovalue: Kryptowährung
@@ -72,6 +74,7 @@ ES:
   inputfiat: Introduzca sus billetes de banco en la Swap-box
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Gracias
   cryptovalue: Valor en crypto
@@ -99,6 +102,7 @@ FR:
   inputfiat: Inserez vos billets de banque dans la Swap-box
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Merci
   cryptovalue: Valeur en Crypto
@@ -126,6 +130,7 @@ IT:
   inputfiat: Inserisci le vostre banconote nel Swap-box
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Grazie
   cryptovalue: Valore in Crypto
@@ -153,6 +158,7 @@ PT:
   inputfiat: Insira as suas notas na Swap-Box
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
+  limitreached: LIMIT REACHED
   sellselect: Por favor escolha o montante a retirar
   thank: Obrigado
   cryptovalue: Valor em Crypto

@@ -174,6 +174,7 @@ class ScreenBuyInsert(Screen):
         self._CASHIN = config.CASHIN_THREAD
         self._valid_notes = config.NOTES_VALUES
         self._node_rpc = config.NODE_RPC
+        self._buy_limit = config.BUY_LIMIT
 
     def on_pre_enter(self):
         t = Thread(target = self._CASHIN.start_cashin(), daemon=True)
@@ -187,6 +188,11 @@ class ScreenBuyInsert(Screen):
         if amount_received in self._valid_notes:
             self._cash_in += int(amount_received)
             self._get_eth_price(App.get_running_app())
+            # for this limit to be half effective we must only accept notes smaller than the limit
+            if self._cash_in >= self._buy_limit:
+                self._CASHIN.stop_cashin()
+                self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["limitreached"]
+
 
     def set_address(self, address):
         self._address_ether = address
@@ -194,6 +200,7 @@ class ScreenBuyInsert(Screen):
     def _leave_without_buy(self):
         # reseting cash in, might want to give money back
         # might use on_pre_leave or on_leave
+        self._CASHIN.stop_cashin()
         self._cash_in = 0
         self._minimum_wei = 0
         self._address_ether = '0x0'
@@ -224,6 +231,7 @@ class ScreenBuyInsert(Screen):
             self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
             self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["confirm"]
             self.ids.buy_confirm.disabled = False
+            self.ids.buy_limit.text = ""
             self._cash_in = 0
             self._minimum_wei = 0
             self._estimated_eth = 0

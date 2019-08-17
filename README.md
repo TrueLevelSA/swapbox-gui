@@ -89,6 +89,7 @@ Run (with logfile)
 TO-DO
 -----
 - Helper function for price calculations (using Decimal+Quantize more accurate and cleaner in .kv)
-- Implement new SSP lib
+- Get txid back from swap-box-web3 and show on final_buy_screen
 - Admin interface??
-- Multi fiat currency support
+- Multi token support
+- Multi fiat currency support ?

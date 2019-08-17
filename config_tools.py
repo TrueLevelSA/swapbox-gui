@@ -142,6 +142,8 @@ def parse_args():
     config.ZMQ_URL_RPC = machine_config.get("zmq_url_rpc")
     config.ZMQ_URL_STATUS = machine_config.get("zmq_url_status")
     config.IS_FULLSCREEN = machine_config.get("is_fullscreen").lower in valid_true_values
+    config.DEFAULT_SLIPPAGE = machine_config.get("default_slippage")
+    config.BUY_LIMIT = int(machine_config.get("buy_limit"))
 
     if not os.uname()[4].startswith("arm"):
         config.RELAY_METHOD = RelayMethod.NONE

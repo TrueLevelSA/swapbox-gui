@@ -273,6 +273,11 @@
                     size_hint_y: 0.1
                 BoxLayout:
                     size_hint_y: 0.05
+                    BlackLabelLarge:
+                        id: buy_limit
+                        color: 1,0,0,1
+                        text: ""
+
         ButtonBox:
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
@@ -313,11 +318,11 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "[b]{}[/b]  {:.5f} ETH".format(app._languages[app._selected_language]["cryptovalue"], root._eth_bought)
+                        text: "{}  [b]{:.5f} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], root._eth_bought)
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "[b]{}[/b]  {}".format(app._languages[app._selected_language]["customeraddress"], root._address_ether)
+                        text: "{}  [b]{}[/b]".format(app._languages[app._selected_language]["customeraddress"], root._address_ether)
 
 
         ButtonBox:
