@@ -18,7 +18,7 @@ EN:
   inputfiat: INSERT CASH
   customeraddress: Funds will be sent to
   sellselect: SELECT CASHOUT AMOUNT
-  thank: Thank you
+  thank: THANK YOU
   cryptovalue: Estimated Crypto value
   cryptoslippage: Minimum Crypto value
   fiatvalue: Amount inserted
