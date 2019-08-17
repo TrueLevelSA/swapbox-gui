@@ -17,7 +17,7 @@ EN:
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: INSERT CASH
   customeraddress: Funds will be sent to
-  sellselect: Please select amount to cashout
+  sellselect: SELECT CASHOUT AMOUNT
   thank: Thank you
   cryptovalue: Estimated Crypto value
   cryptoslippage: Minimum Crypto value

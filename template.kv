@@ -40,6 +40,7 @@
 # used for titles
 <WhiteLabelLarge@BlackLabel>:
     font_size: 60
+    bold: True
     color: 1,1,1,1
     font: 'MyriadPro-Bold.otf'
     markup: True
@@ -63,7 +64,7 @@
     size_hint_y: .8
     canvas.before:
         Color:
-            rgba: 5,5,5,.4
+            rgba: 5,5,5,.3
         Rectangle:
             pos: self.pos
             size: self.size
@@ -236,11 +237,8 @@
             orientation: "vertical"
             BoxLayout:
                 size_hint_y: 0.05
-            BlackLabelLarge:
+            WhiteLabelLarge:
                 text: app._languages[app._selected_language]["inputfiat"]
-                bold: True
-                color: 1,1,1,1
-                font_size: 60
                 size_hint_y: 0.1
             BoxLayout:
                 orientation: "vertical"
@@ -407,7 +405,7 @@
             orientation: "vertical"
             BoxLayout:
                 size_hint_y: 0.05
-            BlackLabelLarge:
+            WhiteLabelLarge:
                 text: app._languages[app._selected_language]["sellselect"]
                 size_hint_y: 0.1
             BoxLayout:
