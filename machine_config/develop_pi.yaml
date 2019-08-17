@@ -1,13 +1,11 @@
-# Operator name
-name: Your Name
 debug: True
 # Validator Settings
-mock_validator: False
+mock_validator: nope
 zmq_url_mock_validator: tcp://localhost:5555
 validator_port: /dev/ttyUSB0
 validator_nv11: False
 # Camera Settings (camera_device only for ZBARCAM method)
-camera_method: ZBARCAM
+camera_method: OPENCV
 camera_device: /dev/video0
 #ZMQ settings
 zmq_url_pricefeed: tcp://localhost:5556

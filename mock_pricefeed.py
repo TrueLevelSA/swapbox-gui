@@ -15,28 +15,39 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import zmq
-from random import random
+import math
 from time import time, sleep
-port = '5555'
+import json
+port = '5556'
 
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.bind('tcp://*:{}'.format(port))
 
-currency = "CHF"
+
+value = 100e18
+index = 0.1
+increment = 0.1/4
+
+
+def noise_this_number(number, amplitude):
+    global index
+    global increment
+    index += increment
+    return number + amplitude * math.sin(index)
+
+obeuhjeuh = {
+        'eth_reserve': 20,
+        'token_reserve': 100,
+}
 
 try:  # Command Interpreter
     while True:
-        choice = input("What to do: (i)nsert (q)uit + Enter\n")
-        if choice == "i" or choice == "insert":  # Input "choice" value bill ( 10, 20, 50, 100, etc. )
-            choice = input("Amount:\n")
-            data = "{}:{}".format(currency, choice)
-            #data = {'currency': currency, 'choice': choice}
-            print(" Sending {}".format(data))
-            socket.send_string(data)
-
-        elif choice == "q" or choice == "quit":  # Exit
-            exit(0)
+        obeuhjeuh['eth_reserve'] = noise_this_number(1e18, 0.1e18)
+        obeuhjeuh['token_reserve'] = noise_this_number(200e18, -10e18)
+        print(" Sending {}".format(obeuhjeuh))
+        socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
+        sleep(1)
 
 except KeyboardInterrupt:  # If user do CTRL+C
     print("Exiting")

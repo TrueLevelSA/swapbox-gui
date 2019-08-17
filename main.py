@@ -1,5 +1,7 @@
 __version__ = "1.3.0"
 
+import os
+
 from kivy.app import App
 from kivy.base import runTouchApp
 from kivy.lang import Builder
@@ -21,75 +23,31 @@ from functools import partial
 import threading
 import pexpect
 #for Note Validator
-from eSSP.constants import Status
-from eSSP import eSSP  # Import the library
+if os.uname()[4].startswith("arm"):
+    from eSSP.constants import Status
+    from eSSP import eSSP  # Import the library
 #import eSSP
 from decimal import Decimal, ROUND_UP, ROUND_DOWN
 import requests
 import json
-import os
 import zmq
 from threading import Thread
-from path import Path
-import strictyaml
-import argument
-from enum import auto, Enum
 import qrcode
+import strictyaml
+from path import Path
 
-class CameraMethod(Enum):
-    ZBARCAM = auto()
-    OPENCV = auto()
-    KIVY = auto()
+from config_tools import parse_args as parse_args
+from config_tools import Config as ConfigApp
 
-class RelayMethod(Enum):
-    PIFACE = auto()
-    GPIO = auto()
-    NONE = auto()
+# "force" people to use logger
+from config_tools import print_debug as print
 
-
-# Get config file as required arguemnt and load
-f = argument.Arguments()
-f.always("config", help="Machine Config file name")
-arguments, errors = f.parse()
-
-if arguments.get("config") is not None:
-    machine_config = strictyaml.load(Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
-else:
-    print("Config file must be specified")
-    exit(0)
-
-DEBUG = machine_config.get("debug")
-CAMERA_METHOD = machine_config.get("camera_method")
-ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
-RELAY_METHOD = machine_config.get("relay_method")
-MOCK_VALIDATOR = machine_config.get("mock_validator")
-NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11")
-VALIDATOR_PORT = machine_config.get("validator_port")
-
-
-# For pifacedigital relay
-if os.uname()[4].startswith("arm"):
-    if RelayMethod[RELAY_METHOD] is RelayMethod.PIFACE:
-        import pifacedigitalio
-    elif RelayMethod[RELAY_METHOD] is RelayMethod.GPIO:
-        import RPi.GPIO as GPIO
-        GPIO.cleanup()
-else:
-    RELAY_METHOD = None
-
-
+#from custom_threads.zmq_pricefeed import ZmqPriceFeed
 #for fullscreen
 #from kivy.core.window import Window
 #Window.size = (800, 600)
 #Window.fullscreen = False
 
-from kivy.config import Config
-#Config.set('graphics', 'fullscreen', 'fake')
-Config.set('kivy', 'exit_on_escape', 1)
-#Config.set('kivy', 'desktop', 1)
-Config.set('kivy', 'invert_x', 1)
-
-Config.write()
 
 class ColorDownButton(Button):
     """
@@ -138,8 +96,6 @@ class SellFinishScreen(Screen):
 class MyScreenManager(ScreenManager):
     pass
 
-mockport = '5555'
-
 class RootWidget(FloatLayout):
     '''
        This the class representing your root widget.
@@ -153,7 +109,18 @@ class RootWidget(FloatLayout):
     stop_scan = threading.Event()
     # current_ticker = Decimal(0)
 
+    def __init__(self, config, app, **kwargs):
+        self._config = config
+
+        self._led_driver = config.LED_DRIVER
+        self._qr_scanner = config.QR_SCANNER
+        self._cashin_thread = ConfigApp._select_cashin_thread(config, app.cashin_update_label_text)
+
+        super(RootWidget, self).__init__(**kwargs)
+
+    # imports in functions because we cannot import not-installed stuff
     def start_sendcoins_thread(self):
+        Logger.debug("start_sendcoinds_thread")
         threading.Thread(target=self.sendcoins_thread).start()
 
     def sendcoins_thread(self):
@@ -162,92 +129,35 @@ class RootWidget(FloatLayout):
         pass
 
     def start_qr_thread(self):
-        print("start qr")
+        Logger.debug("start qr")
         threading.Thread(target=self.qr_thread).start()
+
     def qr_thread(self):
         # This is the code executing in the new thread.
-        #
-        # cmd = 'pifacedigitalio(Relay(0)Ligth_on)'
-        if RELAY_METHOD == 'piface':
-            pifacedigital = pifacedigitalio.PiFaceDigital()
-            pifacedigital.output_pins[0].turn_on() # this command does the same thing..
-            pifacedigital.leds[0].turn_on() # as this command
-        elif RELAY_METHOD == 'gpio':
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(7, GPIO.OUT)
-            GPIO.output(7, GPIO.HIGH)
-            GPIO.output(7, GPIO.LOW)
 
-        if CameraMethod[CAMERA_METHOD] is CameraMethod.ZBARCAM:
-            cmd = 'zbarcam --prescale=320x320 {}'.format(ZBAR_VIDEO_DEVICE)
-        elif CameraMethod[CAMERA_METHOD] is RelayMethod.OPENCV:
-            cmd = '/home/pi/Prog/zbar-build/test/a.out'
-        else:
-            print("No CameraMethod selected")
+        self._led_driver.led_on()
+        qr = self._qr_scanner.scan()
+        self._led_driver.led_off()
+        if qr is not None:
+            self.qr_thread_update_label_text(qr)
 
-        self.execute = pexpect.spawn(cmd, [], 300)
 
-        # infinite loop
-        while True:
-            try:
-                self.execute.expect('\n')
-                # Get last line fron expect
-                line = self.execute.before
-                print(line)
-                if os.uname()[4].startswith("arm"):
-                    if line != "" and line != None and line.startswith("decoded QR-Code symbol"):
-                        self.qr_thread_update_label_text(line[22:])
-                        # wal.close()
-                        print("found qr: %s" % line[22:])
-                        execute.close(True)
-                        if RELAY_METHOD == 'piface':
-                            # pifacedigital(ligth_off)
-                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
-                            pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio':
-                            GPIO.output(7, GPIO.HIGH)
-                        break
-                else:
-                    if line != "" and line != None and line.startswith(b"QR-Code:"):
-                        self.qr_thread_update_label_text(line[8:])
-                        self.execute.close(True)
-                        if RELAY_METHOD == 'piface':
-                            # pifacedigital(ligth_off)
-                            pifacedigital.output_pins[0].turn_off()  # this command does the same thing..
-                            pifacedigital.leds[0].turn_off()  # as this command
-                        elif RELAY_METHOD == 'gpio':
-                            GPIO.output(7, GPIO.HIGH)
-                        break
-            except pexpect.EOF:
-                # Ok maybe not a complete infinite loooop but you get what i mean
-                break
-            except pexpect.TIMEOUT:
-                print("timeout")
-                break
-        print("clear stop scan")
-        self.stop_scan.clear()
-        return
     ###@mainthread
     def qr_thread_update_label_text(self, new_text):
         app = App.get_running_app()
         text = str(new_text)
-        print("the text")
-        print(text)
-        text = text.replace('b\'', '').strip()
-        text = text.replace('\\r\'', '').strip()
-        text = text.replace('\"', '').strip()
-        # text = ''.join(filter(str.isalnum, text))
-        print(text)
+        Logger.debug("the text")
+        Logger.debug(text)
         address = text.split(":")
-        print(address)
+        Logger.debug(address)
         if address[0] == 'bitcoin':
-            print("not for now :(")
+            Logger.debug("not for now :(")
             # label.text = address[1].rstrip()
-            # print(address[1])
+            # Logger.debug(address[1])
             # self.root_manager.current = 'buy'
             # self.start_cashin_thread()
         elif address[0] == 'ethereum':
-            print("ok")
+            Logger.debug("ok")
             app.clientaddress = address[1].rstrip()
             self.root_manager.current = 'buy'
         else:
@@ -255,19 +165,15 @@ class RootWidget(FloatLayout):
 
 
     def stop_scanning(self):
-        self.execute.close(True)
-        #self.execute.terminate()
+        self._qr_scanner.stop_scan()
 
     def cashin_reset_session(self):
         app = App.get_running_app()
 
         app.clientaddress = ""
         app.cashintotal = 0
-        app.cashin10 = 0
-        app.cashin20 = 0
-        app.cashin50 = 0
-        app.cashin100 = 0
-        app.cashin200 = 0
+        for k in self._config.NOTES_VALUES:
+            app.cash_in[k] = 0
 
     ###@mainthread
     def generate_qr(self):
@@ -284,14 +190,14 @@ class RootWidget(FloatLayout):
         qr.make(fit=True)
         img = self.root_manager.get_screen('sellfinish').ids["'generate_qr'"]
         imgn = qr.make_image()
-        print(imgn)
-        print(dir(imgn))
+        Logger.debug(imgn)
+        Logger.debug(dir(imgn))
         #data = io.BytesIO(open("image.png", "rb").read())
-        print("before coreimage")
+        Logger.debug("before coreimage")
         #imgo = CoreImage(imgn)
-        print("after coreimage")
+        Logger.debug("after coreimage")
         #print imgo
-        print(dir(img))
+        Logger.debug(dir(img))
         #img.canvas.clear()
         img_tmp_file = open(os.path.join('tmp', 'qr.png'), 'wb')
         imgn.save(img_tmp_file, 'PNG')
@@ -299,132 +205,9 @@ class RootWidget(FloatLayout):
         self.root_manager.get_screen('sellfinish').ids["'generate_qr'"].source = os.path.join('tmp', 'qr.png')
 
 
-class CashInThread(Thread):
-
-    def __init__(self, app):
-        super(CashInThread, self).__init__()
-        self.app = app
-        self.stopcashin = threading.Event()
-        self.daemon = True
-
-    def run(self):
-        """Run Worker Thread."""
-        if MOCK_VALIDATOR:
-            zctx = zmq.Context()
-            self.zsock = zctx.socket(zmq.SUB)
-            self.zsock.connect('tcp://localhost:{}'.format(mockport))
-            self.zsock.setsockopt_string(zmq.SUBSCRIBE,'')
-
-            while True:
-                msg = self.zsock.recv_multipart()
-                if not self.stopcashin.is_set():
-                    if DEBUG:
-                        Logger.info(' Mock Validator msg:%s' % (msg))
-                    self.app.cashin_update_label_text(msg[0]) # "CHF:10"
-
-        else:
-            #  Create a new object ( Validator Object ) and initialize it
-            validator = eSSP(com_port=VALIDATOR_PORT, ssp_address="0", nv11=False, debug=DEBUG)
-
-            while not self.stopcashin.is_set():
-
-                # ---- Example of interaction with events ---- #
-                if validator.nv11: # If the model is an NV11, put every 100 note in the storage, and others in the stack(cashbox), but that's just for this example
-                    (note, currency,event) = validator.get_last_event()
-                    if note == 0 or currency == 0 or event == 0:
-                        pass  # Operation that do not send money info, we don't do anything with it
-                    else:
-                        if note != 4 and event == Status.SSP_POLL_CREDIT:
-                            validator.print_debug("NOT A 100 NOTE")
-                            validator.nv11_stack_next_note()
-                            validator.enable_validator()
-                        elif note == 4 and event == Status.SSP_POLL_READ:
-                            validator.print_debug("100 NOTE")
-                            validator.set_route_storage(100)  # Route to storage
-                            validator.do_actions()
-                            validator.set_route_cashbox(50)  # Everything under or equal to 50 to cashbox ( NV11 )
-                else:
-                    print("Read on Channel " + str(poll[1][1]))
-                time.sleep(0.5)
-        #
-        # k = eSSP.eSSP('/dev/ttyUSB0')
-        # print(k.sync())
-        # print(k.enable_higher_protocol())
-        # print(k.set_inhibits(k.easy_inhibit([1, 1, 1, 1]), '0x00'))
-        # print(k.enable())
-        # #Publisher().subscribe(self.stoprun, "stoprun")
-        # var = 1
-        # i = 0
-        # #self.stopflag = False
-        #
-        #
-        # while not self.stopcashin.is_set():
-        #     poll = k.poll()
-        #
-        #     if len(poll) > 1:
-        #         if len(poll[1]) == 2:
-        #             print(poll[1][0])
-        #             if poll[1][0] == '0xef':
-        #                 if poll[1][1] == 1 or poll[1][1] == 3:
-        #                     while i < 2:
-        #                         k.hold()
-        #                         print("Hold " + str(i))
-        #                         time.sleep(0.5)
-        #                         i += 1
-        #             if poll[1][0] == '0xef':
-        #                 print("Read on Channel " + str(poll[1][1]))
-        #             if poll[1][0] == '0xe6':
-        #                 print("Fraud on Channel " + str(poll[1][1]))
-        #
-        #             if poll[1][0] == '0xee':
-        #                 print("Credit on Channel " + str(poll[1][1]))
-        #                 if poll[1][1] == 1:
-        #                     self.cashin_update_label_text("CHF:10")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:10"), -1)
-        #                 if poll[1][1] == 2:
-        #                     self.cashin_update_label_text("CHF:20")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:20"), -1)
-        #                 if poll[1][1] == 3:
-        #                     self.cashin_update_label_text("CHF:50")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:50"), -1)
-        #                 if poll[1][1] == 4:
-        #                     self.cashin_update_label_text("CHF:100")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:100"), -1)
-        #                 if poll[1][1] == 5:
-        #                     self.cashin_update_label_text("CHF:200")
-        #                     #Clock.schedule_once(partial(self.cashin_update_label_text, "CHF:200"), -1)
-        #                 #if poll[1][1] == 6:
-        #                 #    wx.CallAfter(self.SendInfo, "CHF:200")
-        #                 #wx.CallAfter(self.SendInfo, k.unit_data())
-        #             i = 0
-        #
-        #     time.sleep(0.5)
-        self.stopcashin.clear()
-
-        return
-
-port = '5556'
-class ZmqThread(Thread):
-    def __init__(self, app):
-        super(ZmqThread, self).__init__()
-        self.app = app
-        self.daemon = True
-
-    def run(self):
-        app = self.app
-        zctx = zmq.Context()
-        zsock = zctx.socket(zmq.SUB)
-        zsock.connect('tcp://localhost:{}'.format(port))
-        zsock.setsockopt_string(zmq.SUBSCRIBE,'priceticker')
-
-        while True:
-            topic, msg = zsock.recv_multipart()
-            if DEBUG:
-                Logger.info('   Topic: %s, msg:%s' % (topic, msg))
-            app.on_message(msg)
 
 
-class AtmClientApp(App):
+class SwapBoxApp(App):
     # def stop_scan(self):
     #     # The Kivy event loop is about to stop, set a stop signal;
     #     # otherwise the app window will close, but the Python process will
@@ -435,44 +218,69 @@ class AtmClientApp(App):
     l = ObjectProperty(strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data['English'])
     # current_buy_transaction = ObjectProperty({'cashin10': 0, 'cashin20': 0, 'cashin50': 0, 'cashin100': 0, 'cashin200': 0})
 
+
     # current buy vars
-    cashin10 = NumericProperty(0)
-    cashin20 = NumericProperty(0)
-    cashin50 = NumericProperty(0)
-    cashin100 = NumericProperty(0)
-    cashin200 = NumericProperty(0)
+    cash_in = ObjectProperty({})
     cashintotal = NumericProperty(0)
     clientaddress = ObjectProperty('N/A')
 
+    def __init__(self, config, **kwargs):
+        # see build function as well
+        self._config = config
+
+        super(SwapBoxApp, self).__init__(**kwargs)
+
+    def build(self):
+        for k in config.NOTES_VALUES:
+            self.cash_in[k] = 0
+
+        #self.zmq_connect()
+        self._cashinthread = config.CASHIN_THREAD
+        #self._cashinthread.start()
+
+        self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
+        self.LANGUAGES = [language for language in self.lang]
+        # self.language = self.lang
+
+        self.root = RootWidget(self._config, self)
+
+        Logger.info('Frontend Started')
+
+        self.root.root_manager.current = 'welcome'
+
+        return self.root
+
+
+    def on_stop(self):
+        # cleanup low level stuff
+        self.root._led_driver.close()
+
     def zmq_connect(self):
-        self._zthread = ZmqThread(self)
+        self._zthread = ZmqPriceFeed(self.on_message, self._config.ZMQ_PORT)
         self._zthread.start()
 
     ###@mainthread
     def on_message(self, data):
-        print(data)
+        ''' callback for zmq price '''
+        Logger.debug(data)
         self.price = json.loads(data)
 
     ###@mainthread
     def change_language(self, lang):
-        print("change language to %s" % lang)
+        Logger.debug("change language to %s" % lang)
         self.l = self.lang[lang]
 
 
-    def start_cashin_thread(self):
-        #threading.Thread(target=self.cashin_thread).start()
-        self._cashinthread = CashInThread(self)
-        self._cashinthread.start()
-
+    # called on click in swapbox.kv, but thread is never restarded?
     def stop_cashin(self):
-        print("set stop.cashin")
-        self._cashinthread.stopcashin.set()
+        Logger.debug("set stop.cashin")
+        self._cashinthread.stop_cashin()
 
     def process_buy(self):
-        print("process buy")
+        Logger.debug("process buy")
         zctx = zmq.Context()
         zsock = zctx.socket(zmq.REQ)
-        zsock.connect('tcp://localhost:5557')
+        zsock.connect('tcp://localhost:{}'.format(self._config.ZMQ_PORT_BUY))
         data = {'method': 'buy', 'amount': self.cashintotal, 'address': self.clientaddress}
         zsock.send_json(data)
         message = zsock.recv()
@@ -482,49 +290,36 @@ class AtmClientApp(App):
 
     ###@mainthread
     def cashin_update_label_text(self, new_credit):
-        print(new_credit)
+        ''' callback on cashin events '''
+        Logger.debug(new_credit)
         credit = new_credit.decode('utf-8')
-        cr = credit.split(':')
+        credit = credit.split(':')
 
-        if cr[1] == "10":
-            #self.channel1_count += 1
-            self.cashin10 += 1
-            self.cashintotal += 10
-            #totallabel = self.get_screen('buy').ids["'total_quote'"]
-            #totallabel.text = '[font=MyriadPro-Bold.otf][b]0 Fr. = 0 BTC[/b][/font]'
-        if cr[1] == "20":
-            #self.channel2_count += 1
-            self.cashin20 += 1
-            self.cashintotal += 20
-        if cr[1] == "50":
-            #self.channel3_count += 1
-            self.cashin50 += 1
-            self.cashintotal += 50
-        if cr[1] == "100":
-            #self.channel4_count += 1
-            self.cashin100 += 1
-            self.cashintotal += 100
-        if cr[1] == "200":
-            #self.channel5_count += 1
-            self.cashin200 += 1
-            self.cashintotal += 200
+        if len(credit) < 2:
+            Logger.debug("wrong format for credit message")
+            return
 
-    def build(self):
-        self.zmq_connect()
-        self.start_cashin_thread()
-
-        self.lang = strictyaml.load(Path("lang.yaml").bytes().decode('utf8')).data
-        self.LANGUAGES = [language for language in self.lang]
-        # self.language = self.lang
-
-        self.root = RootWidget()
-
-        Logger.info('Frontend Started')
-
-        self.root.root_manager.current = 'welcome'
-
-        return self.root
+        if credit[1] in self._config.NOTES_VALUES:
+            note = credit[1]
+            self.cash_in[note] += 1
+            self.cashintotal += int(note)
+            Logger.debug("cashtotal {}".format(self.cashintotal))
+            Logger.debug("cash {}".format(self.cash_in))
+        else:
+            Logger.debug("wrong format for credit message")
 
 
 if __name__ == '__main__':
-    AtmClientApp().run()
+    config = parse_args()
+    #ConfigApp._select_all_drivers(config, lambda x: print(x))
+    #ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed, self._update_message_status)
+        
+    from kivy.config import Config
+    #Config.set('graphics', 'fullscreen', 'fake')
+    Config.set('kivy', 'exit_on_escape', 1)
+    #Config.set('kivy', 'desktop', 1)
+    Config.set('kivy', 'invert_x', 1)
+    if config.DEBUG:
+        Config.set('kivy', 'log_level', 'debug')
+    Config.write()
+    SwapBoxApp(config).run()
