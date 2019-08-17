@@ -166,7 +166,8 @@ class ScreenBuyScan(Screen):
 class ScreenBuyInsert(Screen):
     _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _cash_in = NumericProperty(0)
-    _minimum_eth = NumericProperty(0)
+    _estimated_eth = NumericProperty(0)
+    _minimum_wei = NumericProperty(0)
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
@@ -185,6 +186,7 @@ class ScreenBuyInsert(Screen):
         amount_received = message.split(':')[1]
         if amount_received in self._valid_notes:
             self._cash_in += int(amount_received)
+            self._get_eth_price(App.get_running_app())
 
     def set_address(self, address):
         self._address_ether = address
@@ -193,32 +195,39 @@ class ScreenBuyInsert(Screen):
         # reseting cash in, might want to give money back
         # might use on_pre_leave or on_leave
         self._cash_in = 0
-        self._minimum_eth = 0
+        self._minimum_wei = 0
+        self._address_ether = '0x0'
 
-    def _get_eth_price(self, app, cash_in):
+    def _get_eth_price(self, app):
         if self._cash_in == 0:
             return 0
         amount_xchf = self._cash_in * 1e18
         eth_amount = price_tools.get_buy_price(amount_xchf, app._xchf_reserve, app._eth_reserve)
-        self._minimum_eth = eth_amount
+        self._estimated_eth = eth_amount
+        self._minimum_wei = eth_amount * 0.98
         return eth_amount/1e18
 
 
     def _buy(self):
-        self.manager.transition.direction = 'left'
-        self.manager.current = "loading_screen"
+        self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["pleasewait"]
+        self.ids.buy_confirm.disabled = True
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
-        min_eth = self._minimum_eth//1000000000000
-        print("exact min eth", self._minimum_eth)
+        min_eth = self._minimum_wei/1e18
+        print("exact min wei", self._minimum_wei)
         print("min eth", min_eth)
-        success, value = self._node_rpc.buy(str(int(1e18*self._cash_in)), self._address_ether, min_eth)
+        success, value = self._node_rpc.buy(str(int(1e18*self._cash_in)), self._address_ether, self._minimum_wei)
         if success:
             self.manager.get_screen("final_buy_screen")._chf_sold = self._cash_in
-            self.manager.get_screen("final_buy_screen")._eth_bought = float(value)/1e18
-            print("got", int(value))
+            self.manager.get_screen("final_buy_screen")._eth_bought = min_eth
+            self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
+            self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["confirm"]
+            self.ids.buy_confirm.disabled = False
             self._cash_in = 0
+            self._minimum_wei = 0
+            self._estimated_eth = 0
+            self._address_ether = '0x0'
             self.manager.transition.direction = 'left'
             self.manager.current = "final_buy_screen"
         else:
@@ -226,13 +235,14 @@ class ScreenBuyInsert(Screen):
             self.manager.current = "insert_screen"
 
 class ScreenBuyFinal(Screen):
-    _address = StringProperty('')
+    _address_ether = StringProperty('')
     _chf_sold = NumericProperty(0)
     _eth_bought = NumericProperty(0)
 
     def on_leave(self):
         self._chf_sold = 0
         self._eth_bought = 0
+        self.address = ''
 
 class ScreenSettings(Screen):
     pass
@@ -273,6 +283,7 @@ class ScreenSell1(Screen):
 
 class ScreenSell2(Screen):
 
+    _payment_address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _qr_image = ObjectProperty()
 
     def __init__(self, config, **kwargs):

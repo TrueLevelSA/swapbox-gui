@@ -46,7 +46,7 @@
     markup: True
 
 <MediumButton@ColorDownButton>:
-    size_hint_x: 0.1
+    # size_hint_x: 0.1
     size_hint_y: .8
     font_size: 30
     background_color: [0,0,0,.4]
@@ -156,8 +156,6 @@
                             text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['sell'], app._eth_to_chf)
                             size_hint_y: .1
                 Label:
-                    #text: 'Message Tu es la'
-                    #font_size: '20'
                     size_hint_y: .1
 
         ButtonBox:
@@ -257,7 +255,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], (root._cash_in / app._chf_to_eth))
+                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], root._estimated_eth / 1e18)
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -267,7 +265,7 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptoslippage"], (root._cash_in / app._chf_to_eth * 0.98))
+                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptoslippage"], root._minimum_wei / 1e18)
                 BoxLayout:
                     size_hint_y: 0.05
                 BlackLabelLarge:
@@ -276,9 +274,6 @@
                 BoxLayout:
                     size_hint_y: 0.05
         ButtonBox:
-            # BoxLayout:
-            #     orientation: "horizontal"
-            #     size_hint_x : .1
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 disabled: root._cash_in > 0
@@ -287,71 +282,53 @@
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:
+                id: buy_confirm
                 disabled: root._cash_in <= 0
                 text: app._languages[app._selected_language]["confirm"]
                 on_release:
                     root._buy()
-            # BoxLayout:
-            #     orientation: "horizontal"
-            #     size_hint_x : .1
 
 <ScreenBuyFinal>:
     BoxLayout:
         orientation: "vertical"
-        BoxLayout:
+        MainBox:
             orientation: "horizontal"
+            # size_hint_x : .1
             BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .05
-            MainBox:
-                orientation: "horizontal"
-                size_hint_x : .1
+                orientation: "vertical"
                 BoxLayout:
-                    orientation: "vertical"
-                    BoxLayout:
-                        size_hint_y : .2
-                        BlackLabelSmall:
-                            text: app._languages[app._selected_language]["thank"]
-                    BoxLayout:
-                        size_hint_y : .2
-                        canvas.before:
-                            Color:
-                                rgba: 5,5,5,.5
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                        BlackLabelSmall:
-                            text: "500 CHF"
-                    BoxLayout:
-                        size_hint_y : .2
-                        BlackLabelSmall:
-                            text: app._languages[app._selected_language]["cryptovalue"]
-                    BoxLayout:
-                        size_hint_y : .2
-                        canvas.before:
-                            Color:
-                                rgba: 5,5,5,.5
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-                        BlackLabelSmall:
-                            text: "(ETH) {:.5f}".format(root._eth_bought)
-                    BoxLayout:
-                        size_hint_y : .2
-                        BlackLabelSmall:
-                            text: root._address
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .05
+                    size_hint_y : .2
+                    WhiteLabelLarge:
+                        text: app._languages[app._selected_language]["thank"]
+                BoxLayout:
+                    size_hint_y : .2
+                    BlackLabelLarge:
+                        text: "[b]{}[/b] {:.2f} CHF".format(app._languages[app._selected_language]["fiatvalue"], root._chf_sold)
+                BoxLayout:
+                    size_hint_y : .2
+                    canvas.before:
+                        Color:
+                            rgba: 5,5,5,.5
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    BlackLabelLarge:
+                        text: "[b]{}[/b]  {:.5f} ETH".format(app._languages[app._selected_language]["cryptovalue"], root._eth_bought)
+                BoxLayout:
+                    size_hint_y : .2
+                    BlackLabelLarge:
+                        text: "[b]{}[/b]  {}".format(app._languages[app._selected_language]["customeraddress"], root._address_ether)
+
 
         ButtonBox:
             # BoxLayout:
             #     orientation: "horizontal"
             #     size_hint_x : .2
-            Label:
+            Button:
                 text: ''
+                background_color: [1, 1, 1, 0]
             MediumButton:
-                text: app._languages[app._selected_language]["confirm"]
+                text: app._languages[app._selected_language]["thank"]
                 on_release:
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"

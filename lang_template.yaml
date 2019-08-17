@@ -13,10 +13,11 @@ EN:
   connectivity: Connectivity
   crypto: Crypto Currency
   language: Language
-  inputkey: Scan your public address
+  inputkey: Scan your address
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: INSERT CASH
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: SELECT CASHOUT AMOUNT
   thank: THANK YOU
   cryptovalue: Estimated Crypto value
@@ -43,6 +44,7 @@ DE:
   inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
   inputfiat: Geldscheine in die Swap-Box einlegen
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: Please select amount to cashout
   thank: Danke
   cryptovalue: Kryptowährung
@@ -69,6 +71,7 @@ ES:
   inputwallet: Por favor, coloque su billetera de destino frente a la cámara
   inputfiat: Introduzca sus billetes de banco en la Swap-box
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: Please select amount to cashout
   thank: Gracias
   cryptovalue: Valor en crypto
@@ -95,6 +98,7 @@ FR:
   inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: Please select amount to cashout
   thank: Merci
   cryptovalue: Valeur en Crypto
@@ -121,6 +125,7 @@ IT:
   inputwallet: Per favore, metti il portafoglio di destinazione davanti alla telecamera.
   inputfiat: Inserisci le vostre banconote nel Swap-box
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: Please select amount to cashout
   thank: Grazie
   cryptovalue: Valore in Crypto
@@ -147,6 +152,7 @@ PT:
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
   customeraddress: Funds will be sent to
+  pleasewait: .. please wait ..
   sellselect: Por favor escolha o montante a retirar
   thank: Obrigado
   cryptovalue: Valor em Crypto
