@@ -78,7 +78,7 @@
     Background
     BoxLayout:
         BlackLabelLarge:
-            text: app._languages[app._selected_language]["not_sync"] + " {}/{}".format(app._sync_block, app._current_block)
+            text: app._languages[app._selected_language]["not_sync"] # + " {}/{}".format(app._sync_block, app._current_block)
 
 <ScreenWelcome>:
     BoxLayout:
@@ -169,7 +169,7 @@
                 on_release:
                     root.manager.transition.direction = 'left'
                     root.manager.current = "sell1"
-                # disabled: True
+                    disabled: True
             MediumButton:
                 text: app._languages[app._selected_language]["redeem"]
                 on_release:
