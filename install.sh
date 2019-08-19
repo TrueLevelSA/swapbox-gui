@@ -9,4 +9,6 @@ DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 python3 template.py develop
 # in ~/.kivy/config.ini
 # install opencv, zbar, uv4l, and compile our custom zbar following instructions in qr_scanner/zbar_c
 
+# to be merged to Minege's repo and added back to pipfile
+pipenv run python -m pip install git+https://github.com/ymaktepi/eSSP@upgrades
 # to map any note validator to port /dev/note_validator, see config/99-essp.rules
