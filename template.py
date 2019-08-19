@@ -234,6 +234,7 @@ class ScreenBuyInsert(Screen):
     def _buy(self):
         self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["pleasewait"]
         self.ids.buy_confirm.disabled = True
+        self._CASHIN.stop_cashin()
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
