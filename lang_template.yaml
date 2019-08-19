@@ -25,7 +25,7 @@ EN:
   cryptoslippage: Minimum Crypto value
   fiatvalue: Amount inserted
   camera_loading: Initializing the camera...
-  not_sync: Node not snychronized.
+  not_sync: Node not synchronized.
 
 DE:
   menu: Menü
