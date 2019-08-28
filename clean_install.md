@@ -135,4 +135,5 @@ sudo ldconfig
 `DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 pipenv run python template.py develop_pi`
 
 ## Service install
-__TODO__: Create systemd services.
+- Set the `launch.sh` script to start when the GUI is started:  
+  `echo "@/home/pi/swap-box/launch.sh" | sudo tee -a /etc/xdg/lxsession/LXDE-pi/autostart`
