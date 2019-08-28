@@ -1,7 +1,7 @@
 #:import Factory kivy.factory.Factory
 
 <Background@Image>:
-    source: 'img/bgreen.jpg'
+    source: 'assets/img/bgreen.jpg'
     allow_stretch: True
     keep_ratio: False
 
@@ -10,7 +10,7 @@
         Rectangle:
             pos: self.pos
             size: self.size
-            source: 'img/bgreen.jpg'
+            source: 'assets/img/bgreen.jpg'
 
 # Label with black font
 <BlackLabel@Label>:
@@ -100,7 +100,7 @@
                 orientation: "vertical"
                 size_hint_x: .3
                 Image:
-                    source: "img/poweredbyuniswap2.png"
+                    source: "assets/img/poweredbyuniswap2.png"
                 BlackLabel:
                     font_size:30
                     bold: True
@@ -145,7 +145,7 @@
                             text: 'ETHEREUM (ETH)'
                             size_hint_y: .2
                         Image:
-                            source: 'img/ETH-logo.png'
+                            source: 'assets/img/ETH-logo.png'
                             allow_stretch: True
                             size_hint_y: .5
                             keep_ratio: True
@@ -187,7 +187,7 @@
                 BlackLabelSmall:
                     text: app._languages[app._selected_language]["inputkey"]
                 Image:
-                    source: 'img/phoneqr.png'
+                    source: 'assets/img/phoneqr.png'
                     allow_stretch: True
                     keep_ratio: True
                 BoxLayout:

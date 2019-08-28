@@ -64,7 +64,7 @@ class ButtonLanguage(Button):
         self._language = language
         self._callback =  callback
         #self.text = language
-        self.background_down = 'img/flags/medium/' + language + '.png'
+        self.background_down = 'assets/img/flags/medium/' + language + '.png'
         self.background_normal = self.background_down
         super().__init__(**kwargs)
 
