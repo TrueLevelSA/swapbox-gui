@@ -71,18 +71,9 @@ pipenv run python mock_web3.py
 RaspberryPi Setup Instructions
 ------------------------------
 
-*   RaspberryPi (2 B+ recommended)
+*   RaspberryPi (4 B+ recommended)
 
-Performance stuff
------------------
-
-in /boot/config.txt set:
-
-    gpu_mem=256
-
-in /etc/uv4l/uv4l-raspicam.conf To adjust raspberry preview window size and location:
-
-
+Follow instructions in [clean_install.md](./clean_install.md)
 
 For inverted screen (black machine)
 -------------------
@@ -105,7 +96,7 @@ in /boot/config.txt to rotate screen 180 deg:
 Running
 -------
 ```
-DISPLAY=:0 KIVY_GL_BACKEND=sdl2 python3 template.py develop_pi
+DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 pipenv run python template.py develop_pi
 ```
 
 TO-DO

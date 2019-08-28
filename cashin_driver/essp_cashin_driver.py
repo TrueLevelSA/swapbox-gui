@@ -62,7 +62,7 @@ class EsspCashinDriver(CashinDriver):
     def _setup_validator(validator):
         # all notes are sent to cashbox
         for note in EsspCashinDriver._MAP_CHANNEL_NOTES.values():
-            validator.set_route_storage(int(note))
+            validator.set_route_cashbox(int(note))
             time.sleep(0.5)
 
     @staticmethod

@@ -19,7 +19,6 @@ pyserial = "*"
 pifacedigitalio = "*"
 qrcode = "*"
 docutils = "==0.14rc2"
-opencv-python = "*"
 pillow = "*"
 pysha3 = "*"
 
