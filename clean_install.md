@@ -2,8 +2,8 @@
 
 ## Download and install Raspbian
 - Use a Class10 SD card (16Gb at least)
-- Download Raspbian Buster Desktop
-  `wget https://downloads.raspberrypi.org/raspbian_latest`
+- Download Raspbian Buster Desktop  
+  `wget https://downloads.raspberrypi.org/raspbian_latest`  
   Current version: 2019-07-10
 - Install Raspbian
   [https://www.raspberrypi.org/documentation/installation/installing-images/README.md](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)https://www.raspberrypi.org/documentation/installation/installing-images/README.md)
@@ -29,7 +29,7 @@
 
 ### Requirements
 - Python3
-- Pipenv 
+- Pipenv  
   `pip3 install --upgrade pip && pip3 install pipenv --user`
 - Some libs:
 ```bash
@@ -60,8 +60,8 @@ sudo apt install uv4l uv4l-raspicam uv4l-raspicam-extras
 
 ### Process
 #### Python packages install and config
-- Clone the repo 
-  `git clone git@gitlab.com:atola/swap-box.git`
+- Clone the repo  
+  `git clone git@gitlab.com:atola/swap-box.git`  
   `cd swap-box`
 - Install the python dependencies
   - `pipenv install` (go get a coffee)
@@ -70,8 +70,8 @@ sudo apt install uv4l uv4l-raspicam uv4l-raspicam-extras
     - add `,param=invert_y=0` to the `%(name)s = probesysfs,provider=hidinput` line under `[input]` 
 
 #### Zbar install
-- Move to a clean directory
-  `cd ~/Downloads`
+- Move to a clean directory  
+  `cd ~/Downloads`  
 - Download Zbar and extract it
 ```bash
 wget http://sourceforge.net/projects/zbar/files/zbar/0.10/zbar-0.10.tar.bz2/download -O zbar-0.10.tar.bz2
@@ -97,8 +97,8 @@ sudo ldconfig
 #### OpenCV install
 > note: Compilation fails with some other versions
 
-- Move to a clean directory
-  `cd ~/Downloads`
+- Move to a clean directory  
+  `cd ~/Downloads`  
 - Download OpenCV2 and extract it
 ```bash
 wget https://github.com/opencv/opencv/archive/2.4.13.6.zip  
@@ -110,9 +110,9 @@ cd opencv-2.4.13.6
 mkdir build && cd build
 cmake -D CMAKE_BUILD_TYPE=RELEASE -D INSTALL_C_EXEMPLES=ON -D INSTALL_PYTHON_EXEMPLES=ON -D BUILD_EXEMPLES=ON -D WITH_QT=ON -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_OPENGL=ON -D WITH_V4L=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_TBB=ON -Wno-dev ..
 ```
-- Compile (and get a large coffee)
-  `make -j4`
-- or if you're using SSH, you may want to use screen if connection closes unexpectedly:
+- Compile (and get a large coffee)  
+  `make -j4`  
+- or if you're using SSH, you may want to use screen if connection closes unexpectedly:  
   `screen make -j4`
 - Install the lib and configure the system to use it
 ```bash
@@ -124,9 +124,9 @@ sudo ldconfig
 
 #### QR Scanner compilation
 - Install OpenCV and Zbar as explained 
-- Go to the compilation folder
-  `cd PATH_REPO/qr_scanner/zbar_c`
-- Compile
+- Go to the compilation folder  
+  `cd PATH_REPO/qr_scanner/zbar_c`  
+- Compile  
   `make`
 
 ## Run the application
