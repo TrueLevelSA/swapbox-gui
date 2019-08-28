@@ -136,4 +136,4 @@ sudo ldconfig
 
 ## Service install
 - Set the `launch.sh` script to start when the GUI is started:  
-  `echo "@/home/pi/swap-box/launch.sh" | sudo tee -a /etc/xdg/lxsession/LXDE-pi/autostart`
+  `echo "@PATH_TO_REPO_FOLDER/launch.sh" | sudo tee -a /etc/xdg/lxsession/LXDE-pi/autostart`
