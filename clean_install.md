@@ -6,7 +6,7 @@
   `wget https://downloads.raspberrypi.org/raspbian_latest`  
   Current version: 2019-07-10
 - Install Raspbian
-  [https://www.raspberrypi.org/documentation/installation/installing-images/README.md](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)https://www.raspberrypi.org/documentation/installation/installing-images/README.md)
+  [https://www.raspberrypi.org/documentation/installation/installing-images/README.md](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)
 - Enable SSH or attach a keyboard and a monitor to your Pi
 
 ## Basic config
