@@ -108,8 +108,8 @@ unzip 2.4.13.6.zip
 ```bash
 cd opencv-2.4.13.6
 mkdir build && cd build
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D INSTALL_C_EXEMPLES=ON -D INSTALL_PYTHON_EXEMPLES=ON \
-  -D BUILD_EXEMPLES=ON -D WITH_QT=ON -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_OPENGL=ON \
+cmake -D CMAKE_BUILD_TYPE=RELEASE \
+  -D WITH_QT=ON -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_OPENGL=ON \
   -D WITH_V4L=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_TBB=ON -Wno-dev ..
 ```
 - Compile (and get a large coffee)  
