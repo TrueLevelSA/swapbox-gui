@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from qr_scanner.qr_scanner_base import QrScanner
+from src_backends.qr_scanner.qr_scanner_base import QrScanner
 
 
 class QrScannerNone(QrScanner):

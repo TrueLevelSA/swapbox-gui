@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from cashout_driver.cashout_driver_base import CashoutDriver
+from src_backends.cashout_driver.cashout_driver_base import CashoutDriver
 import time
 from eSSP import eSSP
 from eSSP.constants import Status

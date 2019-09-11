@@ -30,10 +30,10 @@ from threading import Thread, Lock
 import json
 import os
 
-from config_tools import parse_args as parse_args
-from config_tools import Config as ConfigApp
-import price_tools
-from qr_scanner.util import parse_ethereum_address
+from src_backends.config_tools import parse_args as parse_args
+from src_backends.config_tools import Config as ConfigApp
+import src_backends.price_tools
+from src_backends.qr_scanner.util import parse_ethereum_address
 
 
 class ColorDownButton(Button):

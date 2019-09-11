@@ -14,23 +14,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from led_driver.led_driver_base import LedDriver
-import RPi.GPIO as GPIO
-GPIO.cleanup()
+from src_backends.cashin_driver.cashin_driver_base import CashinDriver
+import zmq
 
-class LedDriverGPIO(LedDriver):
-    def __init__(self):
-        super().__init__()
-        self._led_pin = 7
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self._led_pin, GPIO.OUT)
-        GPIO.output(self._led_pin, GPIO.HIGH)
+class MockCashinDriver(CashinDriver):
 
-    def led_on(self):
-        GPIO.output(self._led_pin, GPIO.LOW)
+    def __init__(self, callback_message, zmq_mock_url):
+        super().__init__(callback_message)
+        self._zmq_mock_url = zmq_mock_url
 
-    def led_off(self):
-        GPIO.output(self._led_pin, GPIO.HIGH)
+    def _start_cashin(self):
+        zctx = zmq.Context()
+        zsock = zctx.socket(zmq.SUB)
+        zsock.connect(self._zmq_mock_url)
+        zsock.setsockopt_string(zmq.SUBSCRIBE, '')
 
-    def close(self):
-        GPIO.cleanup()
+        while not self._stop_cashin.is_set():
+            msg = zsock.recv_multipart()
+            self._callback_message(msg[0].decode('utf-8'))
+
+        zctx.destroy()
