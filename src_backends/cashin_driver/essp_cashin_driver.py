@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from cashin_driver.cashin_driver_base import CashinDriver
+from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 import time
 from eSSP import eSSP
 from eSSP.constants import Status

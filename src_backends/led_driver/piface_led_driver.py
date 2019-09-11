@@ -14,25 +14,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from qr_scanner.qr_scanner_base import QrScanner
+from src_backends.led_driver.led_driver_base import LedDriver
+import pifacedigitalio
 
+class LedDriverPiFace(LedDriver):
+    def __init__(self):
+        super().__init__()
+        self._pifacedigital = pifacedigitalio.PiFaceDigital()
 
-class QrScannerZbar(QrScanner):
+    def led_on(self):
+        self._pifacedigital.output_pins[0].turn_on() # this command does the same thing..
+        self._pifacedigital.leds[0].turn_on() # as this command
 
-    def __init__(self, video_port):
-        cmd =  'zbarcam --prescale=960x720 {}'.format(video_port)
-        super().__init__(cmd)
+    def led_off(self):
+        self._pifacedigital.output_pins[0].turn_off() # this command does the same thing..
+        self._pifacedigital.leds[0].turn_off() # as this command
 
-    def _is_qr_found(self, line):
-        if line != "" and line != None:
-            return line.startswith(b"QR-Code:")
-        return False
-
-    def _get_qr_from_line(self, line):
-        return line[8:]
-
-    def _start_locally(self):
-        pass
-
-    def _stop_locally(self):
-        pass
+    def close(self):
+        self._pifacedigital.deinit_board()

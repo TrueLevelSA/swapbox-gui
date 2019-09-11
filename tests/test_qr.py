@@ -18,7 +18,7 @@ import os
 import sys
 # i hate importes in python
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/..")
-from qr_scanner.zbar_qr_scanner import QrScannerZbar
+from src_backends.qr_scanner.zbar_qr_scanner import QrScannerZbar
 
 # expected output:
 # "ethereum:[ADDRESS]"
