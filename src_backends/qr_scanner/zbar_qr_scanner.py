@@ -14,23 +14,25 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from cashin_driver.cashin_driver_base import CashinDriver
-import zmq
+from src_backends.qr_scanner.qr_scanner_base import QrScanner
 
-class MockCashinDriver(CashinDriver):
 
-    def __init__(self, callback_message, zmq_mock_url):
-        super().__init__(callback_message)
-        self._zmq_mock_url = zmq_mock_url
+class QrScannerZbar(QrScanner):
 
-    def _start_cashin(self):
-        zctx = zmq.Context()
-        zsock = zctx.socket(zmq.SUB)
-        zsock.connect(self._zmq_mock_url)
-        zsock.setsockopt_string(zmq.SUBSCRIBE, '')
+    def __init__(self, video_port):
+        cmd =  'zbarcam --prescale=960x720 {}'.format(video_port)
+        super().__init__(cmd)
 
-        while not self._stop_cashin.is_set():
-            msg = zsock.recv_multipart()
-            self._callback_message(msg[0].decode('utf-8'))
+    def _is_qr_found(self, line):
+        if line != "" and line != None:
+            return line.startswith(b"QR-Code:")
+        return False
 
-        zctx.destroy()
+    def _get_qr_from_line(self, line):
+        return line[8:]
+
+    def _start_locally(self):
+        pass
+
+    def _stop_locally(self):
+        pass

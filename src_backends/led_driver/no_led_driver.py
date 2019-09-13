@@ -14,21 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from led_driver.led_driver_base import LedDriver
-import pifacedigitalio
+from src_backends.led_driver.led_driver_base import LedDriver
 
-class LedDriverPiFace(LedDriver):
+class LedDriverNone(object):
     def __init__(self):
         super().__init__()
-        self._pifacedigital = pifacedigitalio.PiFaceDigital()
 
     def led_on(self):
-        self._pifacedigital.output_pins[0].turn_on() # this command does the same thing..
-        self._pifacedigital.leds[0].turn_on() # as this command
+       pass
 
     def led_off(self):
-        self._pifacedigital.output_pins[0].turn_off() # this command does the same thing..
-        self._pifacedigital.leds[0].turn_off() # as this command
+        pass
 
     def close(self):
-        self._pifacedigital.deinit_board()
+        pass

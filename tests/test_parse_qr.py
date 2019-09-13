@@ -16,7 +16,7 @@
 
 import pytest
 
-from qr_scanner.util import parse_ethereum_address
+from src_backends.qr_scanner.util import parse_ethereum_address
 
 VALID_ADDRESSES = (
     '0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24',

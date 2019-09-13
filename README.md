@@ -50,22 +50,22 @@ pipenv run python template.py develop
 
 ### Simulating Note validator with develop config
 ```
-pipenv run python mock_validator.py
+pipenv run python mock_services/mock_validator.py
 ```
 
 ### Simulating swap-box-web3 status with develop config
 ```
-pipenv run python mock_status.py
+pipenv run python mock_services/mock_status.py
 ```
 
 ### Simulating swap-box-web3 price feed with develop config
 ```
-pipenv run python mock_pricefeed.py
+pipenv run python mock_services/mock_pricefeed.py
 ```
 
 ### Simulating swap-box-web3 transactions with develop config
 ```
-pipenv run python mock_web3.py
+pipenv run python mock_services/mock_web3.py
 ```
 
 RaspberryPi Setup Instructions
