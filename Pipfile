@@ -22,5 +22,3 @@ docutils = "==0.14rc2"
 pillow = "*"
 pysha3 = "*"
 
-[requires]
-python_version = "3.7"
