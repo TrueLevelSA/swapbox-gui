@@ -150,10 +150,10 @@
                             size_hint_y: .5
                             keep_ratio: True
                         BlackLabelLarge:
-                            text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['buy'], app._chf_to_eth)
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['buy'], app._fiat_to_eth, app._base_currency)
                             size_hint_y: .1
                         BlackLabelLarge:
-                            text: '{} = {:.2f} CHF'.format(app._languages[app._selected_language]['sell'], app._eth_to_chf)
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['sell'], app._eth_to_fiat, app._base_currency)
                             size_hint_y: .1
                 Label:
                     size_hint_y: .1
@@ -251,7 +251,7 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "{}  [b]{} CHF[/b]".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in)
+                        text: "{}  [b]{} {}[/b]".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in, app._base_currency)
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
@@ -308,7 +308,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "[b]{}[/b] {:.2f} CHF".format(app._languages[app._selected_language]["fiatvalue"], root._chf_sold)
+                        text: "[b]{}[/b] {:.2f} {}".format(app._languages[app._selected_language]["fiatvalue"], root._fiat_sold, app._base_currency)
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:

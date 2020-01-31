@@ -17,6 +17,7 @@
 from enum import auto, Enum
 import argument
 import strictyaml
+from strictyaml import Seq, Str, Map
 from path import Path
 import os
 
@@ -139,12 +140,21 @@ def parse_args():
 
     if arguments.get("config") is not None:
         machine_config = strictyaml.load(Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
+        if machine_config.get("currency"):
+
+            schema = Map({"denominations": Seq(Str())})
+            notes_config = strictyaml.load(Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'), schema).data
+
+        else:
+            print("Currency must be specified")
+            exit(0)
     else:
         print("Config file must be specified")
         exit(0)
     valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly']
     config = Config()
     config.NAME = machine_config.get("name")
+    config.BASE_CURRENCY = machine_config.get("currency")
     config.DEBUG = machine_config.get("debug").lower() in valid_true_values
     config.CAMERA_METHOD = machine_config.get("camera_method")
     config.ZBAR_VIDEO_DEVICE = machine_config.get("camera_device")
@@ -154,7 +164,7 @@ def parse_args():
     config.NOTE_VALIDATOR_NV11 = machine_config.get("validator_nv11").lower() in valid_true_values
     config.VALIDATOR_PORT = machine_config.get("validator_port")
     config.ZMQ_URL_PRICEFEED = machine_config.get("zmq_url_pricefeed")
-    config.NOTES_VALUES = ["10", "20", "50", "100", "200"]
+    config.NOTES_VALUES = notes_config.get("denominations")
     config.ZMQ_URL_RPC = machine_config.get("zmq_url_rpc")
     config.ZMQ_URL_STATUS = machine_config.get("zmq_url_status")
     config.IS_FULLSCREEN = machine_config.get("is_fullscreen").lower() in valid_true_values

@@ -28,11 +28,11 @@ class NodeRPC():
         self.zmq_socket.close()
         self.zmq_context.destroy()
 
-    def buy(self, chf_amount, client_address, minimum_eth):
-        ''' tries to buy some eth using chf
+    def buy(self, fiat_amount, client_address, minimum_eth):
+        ''' tries to buy some eth using fiat
         returns true when the node could buy and send eth to the client
         and false when an error occured '''
-        data = {'method': 'buy', 'amount': chf_amount, 'address': client_address, 'min_eth': str(int(minimum_eth))}
+        data = {'method': 'buy', 'amount': fiat_amount, 'address': client_address, 'min_eth': str(int(minimum_eth))}
         self.zmq_socket.send_json(data)
         message = self.zmq_socket.recv()
         message = json.loads(message)

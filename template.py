@@ -224,8 +224,8 @@ class ScreenBuyInsert(Screen):
     def _get_eth_price(self, app):
         if self._cash_in == 0:
             return 0
-        amount_xchf = self._cash_in * 1e18
-        eth_amount = price_tools.get_buy_price(amount_xchf, app._xchf_reserve, app._eth_reserve)
+        amount_stablecoin = self._cash_in * 1e18
+        eth_amount = price_tools.get_buy_price(amount_stablecoin, app._stablecoin_reserve, app._eth_reserve, app._synth_rate)
         self._estimated_eth = eth_amount
         self._minimum_wei = eth_amount * 0.98
         return eth_amount/1e18
@@ -243,7 +243,7 @@ class ScreenBuyInsert(Screen):
         print("min eth", min_eth)
         success, value = self._node_rpc.buy(str(int(1e18*self._cash_in)), self._address_ether, self._minimum_wei)
         if success:
-            self.manager.get_screen("final_buy_screen")._chf_sold = self._cash_in
+            self.manager.get_screen("final_buy_screen")._fiat_sold = self._cash_in
             self.manager.get_screen("final_buy_screen")._eth_bought = min_eth
             self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
             self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["confirm"]
@@ -261,11 +261,11 @@ class ScreenBuyInsert(Screen):
 
 class ScreenBuyFinal(Screen):
     _address_ether = StringProperty('')
-    _chf_sold = NumericProperty(0)
+    _fiat_sold = NumericProperty(0)
     _eth_bought = NumericProperty(0)
 
     def on_leave(self):
-        self._chf_sold = 0
+        self._fiat_sold = 0
         self._eth_bought = 0
         self.address = ''
 
@@ -345,23 +345,24 @@ class Manager(ScreenManager):
 
 
 class TemplateApp(App):
-    # with only eth/chf, that's ok but might have to
+    # with only eth/fiat, that's ok but might have to
     # try to share a variable in another way
-    _chf_to_eth = NumericProperty(0)
-    _eth_to_chf = NumericProperty(0)
+    _fiat_to_eth = NumericProperty(0)
+    _eth_to_fiat = NumericProperty(0)
     _selected_language = StringProperty('English')
     #_current_block = NumericProperty(-1)
     #_sync_block = NumericProperty(-1)
-    _xchf_reserve = NumericProperty(-1e18)
+    _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
+    _base_currency = StringProperty('CHF')
 
     def __init__(self, config):
         super().__init__()
         ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed, self._update_message_status)
         self._config = config
         self._m = None
-        self._chf_to_eth = -1
-        self._eth_to_chf = -1
+        self._fiat_to_eth = -1
+        self._eth_to_fiat = -1
         self._popup_sync = None
         self._overlay_lock = Lock()
         self._popup_count = 0
@@ -371,6 +372,7 @@ class TemplateApp(App):
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
         self._selected_language = next(iter(self._languages)) # get a language
+        self._base_currency = self._config.BASE_CURRENCY
 
         self._m = Manager(self._config, transition=RiseInTransition())
         self._config.PRICEFEED.start()
@@ -381,20 +383,24 @@ class TemplateApp(App):
         self._selected_language = selected_language
 
     def _update_message_pricefeed(self, message):
-        ''' only updates the _chf_to_eth attribute '''
+        ''' only updates the _fiat_to_eth attribute '''
         ''' only dispatching the message to the right screen'''
         msg_json = json.loads(message)
         eth_reserve = msg_json['eth_reserve']
         self._eth_reserve = int("0x" + eth_reserve, 16)
-        xchf_reserve = msg_json['token_reserve']
-        self._xchf_reserve = int("0x" + xchf_reserve, 16)
+        stablecoin_reserve = msg_json['token_reserve']
+        self._stablecoin_reserve = int("0x" + stablecoin_reserve, 16)
+
+        self._buy_fee = msg_json['buy_fee']
+        self._sell_fee = msg_json['sell_fee']
+        self._synth_rate = msg_json['synth_rate']
         # we use 20CHF as the standard amount people will buy
         sample_amount = 20e18
         # received values are in weis
-        one_xchf_buys = price_tools.get_buy_price(sample_amount, self._xchf_reserve, self._eth_reserve) / sample_amount
-        self._chf_to_eth = 1/one_xchf_buys
-        sample_chf_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._xchf_reserve)
-        self._eth_to_chf = sample_amount / sample_chf_buys
+        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve, self._eth_reserve, self._synth_rate) / sample_amount
+        self._fiat_to_eth = 1/one_stablecoin_buys
+        sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
+        self._eth_to_fiat = sample_amount / sample_fiat_buys
 
     def _update_message_cashin(self, message):
         ''' only dispatching the message to the right screen'''

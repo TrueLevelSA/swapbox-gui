@@ -1,6 +1,8 @@
 # Operator name
 name: Your Name
 debug: True
+# see machine_config/notes_config for adding currencies
+currency: EUR
 # Validator Settings
 mock_validator: False
 zmq_url_mock_validator: tcp://localhost:5555

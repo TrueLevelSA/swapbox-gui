@@ -39,12 +39,18 @@ def noise_this_number(number, amplitude):
 obeuhjeuh = {
         'eth_reserve': 20,
         'token_reserve': 100,
+        'buy_fee': 120,
+        'sell_fee': 120,
+        'synth_rate': 12
 }
 
 try:  # Command Interpreter
     while True:
         obeuhjeuh['eth_reserve'] = noise_this_number(1e18, 0.1e18)
         obeuhjeuh['token_reserve'] = noise_this_number(200e18, -10e18)
+        obeuhjeuh['buy_fee'] = 120
+        obeuhjeuh['sell_fee'] = 120
+        obeuhjeuh['synth_rate'] = noise_this_number(200e18, -10e18)
         print(" Sending {}".format(obeuhjeuh))
         socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
         sleep(1)
