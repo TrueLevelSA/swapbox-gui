@@ -61,11 +61,11 @@ sudo apt install uv4l uv4l-raspicam uv4l-raspicam-extras
 ### Process
 #### Python packages install and config
 - Clone the repo  
-  `git clone git@gitlab.com:atola/swap-box.git`  
+  `git clone git@gitlab.com:TrueLevelSA/swap-box.git`  
   `cd swap-box`
 - Install the python dependencies
   - `pipenv install` (go get a coffee)
-  - `pipenv run python -m pip install git+https://github.com/ymaktepi/eSSP@upgrades`
+  - `pipenv run python -m pip install git+https://github.com/TrueLevelSA/eSSP`
   - In `~/.kivy/config.ini` (you might have to run kivy once for it to create the file):
     - add `,param=invert_y=0` to the `%(name)s = probesysfs,provider=hidinput` line under `[input]` 
 

@@ -18,6 +18,8 @@ import zmq
 import math
 from time import time, sleep
 import json
+import argument
+
 port = '5556'
 
 context = zmq.Context()
@@ -30,28 +32,39 @@ index = 0.1
 increment = 0.1/4
 
 
+f = argument.Arguments()
+#add a switch, a flag with no argument
+f.switch("verbose",
+    help="Verbose output",
+    abbr="v"
+)
+arguments, errors = f.parse()
+
 def noise_this_number(number, amplitude):
     global index
     global increment
     index += increment
     return number + amplitude * math.sin(index)
 
+def noise_this_number_hex(number, amplitude):
+    return hex(round(noise_this_number(number, amplitude)))[2:]
+
+
 obeuhjeuh = {
         'eth_reserve': 20,
         'token_reserve': 100,
         'buy_fee': 120,
-        'sell_fee': 120,
-        'synth_rate': 12
+        'sell_fee': 120
 }
 
 try:  # Command Interpreter
     while True:
-        obeuhjeuh['eth_reserve'] = noise_this_number(1e18, 0.1e18)
-        obeuhjeuh['token_reserve'] = noise_this_number(200e18, -10e18)
+        obeuhjeuh['eth_reserve'] = noise_this_number_hex(1e18, 0.1e18)
+        obeuhjeuh['token_reserve'] = noise_this_number_hex(200e18, -10e18)
         obeuhjeuh['buy_fee'] = 120
         obeuhjeuh['sell_fee'] = 120
-        obeuhjeuh['synth_rate'] = noise_this_number(200e18, -10e18)
-        print(" Sending {}".format(obeuhjeuh))
+        if arguments["verbose"]:
+            print(" Sending {}".format(obeuhjeuh))
         socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
         sleep(1)
 

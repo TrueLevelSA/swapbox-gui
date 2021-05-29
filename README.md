@@ -6,6 +6,7 @@ README
 This is ALPHA software.  Here be dragons!  Use at your own risk.
 
 Contributions very! welcome!  0x64C9988A6C6EF250074D9A2d5df73a59d0292dd8
+or @ [Gitcoin](https://gitcoin.co/grants/403/swap-box)
 
 Dependencies (Linux/mac)
 ------------
@@ -55,12 +56,12 @@ pipenv run python mock_services/mock_validator.py
 
 ### Simulating swap-box-web3 status with develop config
 ```
-pipenv run python mock_services/mock_status.py
+pipenv run python mock_services/mock_status.py [--verbose]
 ```
 
 ### Simulating swap-box-web3 price feed with develop config
 ```
-pipenv run python mock_services/mock_pricefeed.py
+pipenv run python mock_services/mock_pricefeed.py [--verbose]
 ```
 
 ### Simulating swap-box-web3 transactions with develop config
@@ -99,6 +100,11 @@ Running
 DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 pipenv run python template.py develop_pi
 ```
 
+Similar Projects
+----------------
+
+- [LightningATM](https://github.com/21isenough/LightningATM)
+
 TO-DO
 -----
 - Helper function for price calculations (using Decimal+Quantize more accurate and cleaner in .kv)
@@ -106,3 +112,21 @@ TO-DO
 - Admin interface??
 - Multi token support
 - Multi fiat currency support ?
+
+Licence
+-------
+
+[License: AGPL v3](/LICENCE.md)
+Copyright &copy; TrueLevel SA
+
+
+Contributors
+------------
+
+@tshabs
+@samouraid3
+@Minege
+@megaturbo
+@ymaktepi
+@0xjac
+@roflolilolmao

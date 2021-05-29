@@ -24,6 +24,7 @@ from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseInTransition, FallOutTransition
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty
+from kivy.logger import Logger
 import strictyaml
 from path import Path
 from threading import Thread, Lock
@@ -32,7 +33,7 @@ import os
 
 from src_backends.config_tools import parse_args as parse_args
 from src_backends.config_tools import Config as ConfigApp
-import src_backends.price_tools
+import src_backends.price_tools as price_tools
 from src_backends.qr_scanner.util import parse_ethereum_address
 
 
@@ -225,7 +226,7 @@ class ScreenBuyInsert(Screen):
         if self._cash_in == 0:
             return 0
         amount_stablecoin = self._cash_in * 1e18
-        eth_amount = price_tools.get_buy_price(amount_stablecoin, app._stablecoin_reserve, app._eth_reserve, app._synth_rate)
+        eth_amount = price_tools.get_buy_price(amount_stablecoin, app._stablecoin_reserve, app._eth_reserve)
         self._estimated_eth = eth_amount
         self._minimum_wei = eth_amount * 0.98
         return eth_amount/1e18
@@ -393,11 +394,11 @@ class TemplateApp(App):
 
         self._buy_fee = msg_json['buy_fee']
         self._sell_fee = msg_json['sell_fee']
-        self._synth_rate = msg_json['synth_rate']
         # we use 20CHF as the standard amount people will buy
         sample_amount = 20e18
         # received values are in weis
-        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve, self._eth_reserve, self._synth_rate) / sample_amount
+        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve, self._eth_reserve) / sample_amount
+        Logger.debug('price_update: one_stablecoin_buys = %s' % one_stablecoin_buys)
         self._fiat_to_eth = 1/one_stablecoin_buys
         sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
         self._eth_to_fiat = sample_amount / sample_fiat_buys
@@ -479,6 +480,9 @@ if __name__ == '__main__':
     Config.set('kivy', 'exit_on_escape', 1)
     if config.DEBUG:
         Config.set('kivy', 'log_level', 'debug')
+    else:
+        Config.set('kivy', 'log_level', 'warning')
+
     Config.write()
     Window.size = (1280, 720)
     #Window.borderless = True

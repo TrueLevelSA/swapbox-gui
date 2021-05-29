@@ -17,6 +17,8 @@
 import zmq
 import json
 from time import time, sleep
+import argument
+
 port = '5557'
 
 context = zmq.Context()
@@ -25,7 +27,16 @@ socket.bind('tcp://*:{}'.format(port))
 
 print("Mock web3")
 
-success = False # auto success, use an arg parser to add this as cli option
+
+f = argument.Arguments()
+#add a switch, a flag with no argument
+f.switch("success",
+    help="Auto success",
+    abbr="s"
+)
+arguments, errors = f.parse()
+
+success = arguments["success"] # auto success, use an arg parser to add this as cli option
 
 
 try:

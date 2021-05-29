@@ -18,6 +18,8 @@ import zmq
 import math
 from time import time, sleep
 import json
+import argument
+
 port = '5558'
 
 context = zmq.Context()
@@ -31,6 +33,14 @@ is_in_sync = False
 
 # change this to false if you want to emulate syncing issues
 status_is_sync = True
+
+f = argument.Arguments()
+#add a switch, a flag with no argument
+f.switch("verbose",
+    help="Verbose output",
+    abbr="v"
+)
+arguments, errors = f.parse()
 
 def get_next_status(current_block, sync_block):
     current_block += 1
@@ -58,7 +68,8 @@ try:  # Command Interpreter
         obeuhjeuh['blockchain']['current_block'] = current_block
         obeuhjeuh['blockchain']['sync_block'] = sync_block
         obeuhjeuh['blockchain']['is_in_sync'] = is_in_sync
-        print(" Sending {}".format(obeuhjeuh))
+        if arguments["verbose"]:
+            print(" Sending {}".format(obeuhjeuh))
         socket.send_multipart(["status".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
         sleep(1)
 
