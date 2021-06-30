@@ -10,14 +10,41 @@
 - [swap-box-admin](github.com/TrueLevelSA/swap-box-admin)
   Smart contract deployment
 
-## Global Structure
+## Overall Architecture
+
+### Transaction flow
+
+```mermaid
+sequenceDiagram
+    Customer->>Machine: Insert cash 
+Note over Machine, SmartContract: Single ethereum tx (tx.origin = machine address)
+    Machine->>SmartContract: Send signed message/tx
+    SmartContract->>DEX: tx (fiat amount less fee)
+    DEX->>Customer: ETH tx 
+```
+
+### Current (L2/2.5 zkSync 2.0/zkPorter)
+```mermaid
+graph LR;
+    swap-box-zksync -- zkSync JSON RPC ---zkSync[sequencer]
+    subgraph Raspberry Pi 4
+    swap-box -- ZMQ ---swap-box-zksync
+    end
+    subgraph zkSync/zkPorter
+    zkSync
+    end
+    zkSync  -.- eth[Ethereum Blockchain]
+
+```
+
+### Legacy (L1 onchain)
 ```mermaid
 graph LR;
     swap-box-web3 -- web3 WS ---parity
     subgraph Raspberry Pi 4
     swap-box -- ZMQ ---swap-box-web3
     end
-    subgraph Raspberry Pi 4
+    subgraph Raspberry Pi 4 / NanoPC-T4
     parity[Parity Light Client]
     end
     parity  -.- eth[Ethereum Blockchain]
