@@ -63,8 +63,8 @@ class ButtonLanguage(Button):
 
     def __init__(self, language, callback=None, **kwargs):
         self._language = language
-        self._callback =  callback
-        #self.text = language
+        self._callback = callback
+        # self.text = language
         self.background_down = 'assets/img/flags/medium/' + language + '.png'
         self.background_normal = self.background_down
         super().__init__(**kwargs)
@@ -74,8 +74,10 @@ class ButtonLanguage(Button):
         if self._callback is not None:
             self._callback()
 
+
 class LanguageBar(BoxLayout):
     spacing = 10
+
     def __init__(self, **kwargs):
         super(LanguageBar, self).__init__(**kwargs)
         self.add_widgets()
@@ -87,11 +89,14 @@ class LanguageBar(BoxLayout):
             self.add_widget(ButtonLanguage(l))
         # self.add_widget(wid)
 
+
 class LayoutPopup(BoxLayout):
     pass
 
+
 class FullScreenPopup(ModalView):
     pass
+
 
 class LanguagePopup(FullScreenPopup):
     def __init__(self):
@@ -107,8 +112,10 @@ class LanguagePopup(FullScreenPopup):
         self.dismiss()
         App.get_running_app().after_popup()
 
+
 class SyncPopup(FullScreenPopup):
     pass
+
 
 class ScreenWelcome(Screen):
     def on_leave(self):
@@ -117,6 +124,7 @@ class ScreenWelcome(Screen):
         app = App.get_running_app()
         if not app._first_status_message_received:
             App.get_running_app()._create_popup()
+
 
 class ScreenMain(Screen):
 
@@ -147,8 +155,10 @@ class ScreenMain(Screen):
         _loading_screen = ScreenLoading(name='loading_screen')
         wid.add_widget(_loading_screen)
 
+
 class ScreenMenu(Screen):
     pass
+
 
 class ScreenBuyScan(Screen):
     _qr_scanner = ObjectProperty(None)
@@ -180,6 +190,7 @@ class ScreenBuyScan(Screen):
             self.manager.transition.direction = 'right'
             self.manager.current = 'menu'
 
+
 class ScreenBuyInsert(Screen):
     _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _cash_in = NumericProperty(0)
@@ -194,7 +205,7 @@ class ScreenBuyInsert(Screen):
         self._buy_limit = config.BUY_LIMIT
 
     def on_pre_enter(self):
-        t = Thread(target = self._CASHIN.start_cashin(), daemon=True)
+        t = Thread(target=self._CASHIN.start_cashin(), daemon=True)
         t.start()
 
     def on_pre_leave(self):
@@ -208,8 +219,8 @@ class ScreenBuyInsert(Screen):
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._cash_in >= self._buy_limit:
                 self._CASHIN.stop_cashin()
-                self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["limitreached"]
-
+                self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
+                    "limitreached"]
 
     def set_address(self, address):
         self._address_ether = address
@@ -229,25 +240,26 @@ class ScreenBuyInsert(Screen):
         eth_amount = price_tools.get_buy_price(amount_stablecoin, app._stablecoin_reserve, app._eth_reserve)
         self._estimated_eth = eth_amount
         self._minimum_wei = eth_amount * 0.98
-        return eth_amount/1e18
-
+        return eth_amount / 1e18
 
     def _buy(self):
-        self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["pleasewait"]
+        self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
+            "pleasewait"]
         self.ids.buy_confirm.disabled = True
         self._CASHIN.stop_cashin()
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
-        min_eth = self._minimum_wei/1e18
+        min_eth = self._minimum_wei / 1e18
         print("exact min wei", self._minimum_wei)
         print("min eth", min_eth)
-        success, value = self._node_rpc.buy(str(int(1e18*self._cash_in)), self._address_ether, self._minimum_wei)
+        success, value = self._node_rpc.buy(str(int(1e18 * self._cash_in)), self._address_ether, self._minimum_wei)
         if success:
             self.manager.get_screen("final_buy_screen")._fiat_sold = self._cash_in
             self.manager.get_screen("final_buy_screen")._eth_bought = min_eth
             self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
-            self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language]["confirm"]
+            self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
+                "confirm"]
             self.ids.buy_confirm.disabled = False
             self.ids.buy_limit.text = ""
             self._cash_in = 0
@@ -260,6 +272,7 @@ class ScreenBuyInsert(Screen):
             self.manager.transition.direction = 'right'
             self.manager.current = "insert_screen"
 
+
 class ScreenBuyFinal(Screen):
     _address_ether = StringProperty('')
     _fiat_sold = NumericProperty(0)
@@ -270,14 +283,16 @@ class ScreenBuyFinal(Screen):
         self._eth_bought = 0
         self.address = ''
 
+
 class ScreenSettings(Screen):
     pass
+
 
 class ScreenRedeem(Screen):
     pass
 
-class ScreenSell1(Screen):
 
+class ScreenSell1(Screen):
     _sell_choice = NumericProperty(0)
 
     def __init__(self, config, **kwargs):
@@ -307,8 +322,8 @@ class ScreenSell1(Screen):
             print("dosomething")
         # Thread(target=self._threaded_buy, daemon=True).start()
 
-class ScreenSell2(Screen):
 
+class ScreenSell2(Screen):
     _payment_address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
     _qr_image = ObjectProperty()
 
@@ -324,14 +339,18 @@ class ScreenSell2(Screen):
         self._QR_GENERATOR.generate_qr_image("some address", os.path.join('tmp', 'qr.png'))
         self._qr_image = os.path.join('tmp', 'qr.png')
 
+
 class ScreenSell3(Screen):
     pass
+
 
 class ScreenLoading(Screen):
     pass
 
+
 class ScreenConfirmation(Screen):
     pass
+
 
 class Manager(ScreenManager):
 
@@ -351,15 +370,16 @@ class TemplateApp(App):
     _fiat_to_eth = NumericProperty(0)
     _eth_to_fiat = NumericProperty(0)
     _selected_language = StringProperty('English')
-    #_current_block = NumericProperty(-1)
-    #_sync_block = NumericProperty(-1)
+    # _current_block = NumericProperty(-1)
+    # _sync_block = NumericProperty(-1)
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
     _base_currency = StringProperty('CHF')
 
     def __init__(self, config):
         super().__init__()
-        ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed, self._update_message_status)
+        ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed,
+                                      self._update_message_status)
         self._config = config
         self._m = None
         self._fiat_to_eth = -1
@@ -372,7 +392,7 @@ class TemplateApp(App):
     def build(self):
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
-        self._selected_language = next(iter(self._languages)) # get a language
+        self._selected_language = next(iter(self._languages))  # get a language
         self._base_currency = self._config.BASE_CURRENCY
 
         self._m = Manager(self._config, transition=RiseInTransition())
@@ -397,9 +417,10 @@ class TemplateApp(App):
         # we use 20CHF as the standard amount people will buy
         sample_amount = 20e18
         # received values are in weis
-        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve, self._eth_reserve) / sample_amount
+        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve,
+                                                        self._eth_reserve) / sample_amount
         Logger.debug('price_update: one_stablecoin_buys = %s' % one_stablecoin_buys)
-        self._fiat_to_eth = 1/one_stablecoin_buys
+        self._fiat_to_eth = 1 / one_stablecoin_buys
         sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
         self._eth_to_fiat = sample_amount / sample_fiat_buys
 
@@ -412,8 +433,8 @@ class TemplateApp(App):
         self._first_status_message_received = True
         msg_json = json.loads(message)
         is_in_sync = msg_json["blockchain"]["is_in_sync"]
-        #self._current_block = int(msg_json["blockchain"]["current_block"])
-        #self._sync_block = int(msg_json["blockchain"]["sync_block"])
+        # self._current_block = int(msg_json["blockchain"]["current_block"])
+        # self._sync_block = int(msg_json["blockchain"]["sync_block"])
 
         self._show_sync_popup(is_in_sync)
 
@@ -473,10 +494,12 @@ class TemplateApp(App):
             if driver._overlay_auto_on and self._popup_count == 0:
                 driver._show_overlay()
 
+
 if __name__ == '__main__':
     config = parse_args()
 
     from kivy.config import Config
+
     Config.set('kivy', 'exit_on_escape', 1)
     if config.DEBUG:
         Config.set('kivy', 'log_level', 'debug')
@@ -485,7 +508,7 @@ if __name__ == '__main__':
 
     Config.write()
     Window.size = (1280, 720)
-    #Window.borderless = True
+    # Window.borderless = True
     if config.IS_FULLSCREEN:
         Window.fullscreen = True
         Window.show_cursor = False

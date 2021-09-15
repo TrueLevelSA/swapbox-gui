@@ -34,10 +34,12 @@ def _get_output_price(output_amount: int, input_reserve: int, output_reserve: in
     denominator = (output_reserve - output_amount) * 997
     return numerator // denominator + 1
 
+
 def get_buy_price(tokens_sold: int, token_reserve: int, eth_reserve: int) -> int:
-    ''' returns the amount of eth in weis that can be bought for tokens_sold'''
+    """ returns the amount of eth in weis that can be bought for tokens_sold"""
     return _get_input_price(tokens_sold, token_reserve, eth_reserve)
 
+
 def get_sell_price(tokens_bought: int, eth_reserve: int, token_reserve: int) -> int:
-    ''' returns the amount of eth in weis needed to buy tokens_bought '''
+    """ returns the amount of eth in weis needed to buy tokens_bought """
     return _get_output_price(tokens_bought, eth_reserve, token_reserve)

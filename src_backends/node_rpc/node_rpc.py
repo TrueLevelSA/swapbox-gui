@@ -17,6 +17,7 @@
 import zmq
 import json
 
+
 class NodeRPC():
     def __init__(self, zmq_url):
         self.zmq_context = zmq.Context()
@@ -24,14 +25,14 @@ class NodeRPC():
         self.zmq_socket.connect(zmq_url)
 
     def stop(self):
-        ''' closes socket and stuff'''
+        """ closes socket and stuff"""
         self.zmq_socket.close()
         self.zmq_context.destroy()
 
     def buy(self, fiat_amount, client_address, minimum_eth):
-        ''' tries to buy some eth using fiat
+        """ tries to buy some eth using fiat
         returns true when the node could buy and send eth to the client
-        and false when an error occured '''
+        and false when an error occured """
         data = {'method': 'buy', 'amount': fiat_amount, 'address': client_address, 'min_eth': str(int(minimum_eth))}
         self.zmq_socket.send_json(data)
         message = self.zmq_socket.recv()

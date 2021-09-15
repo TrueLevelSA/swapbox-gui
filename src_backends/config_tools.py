@@ -27,6 +27,7 @@ class CameraMethod(Enum):
     OPENCV = auto()
     KIVY = auto()
 
+
 class RelayMethod(Enum):
     PIFACE = auto()
     GPIO = auto()
@@ -37,7 +38,7 @@ class Config(object):
 
     def __init__(self):
         self.DEBUG = None
-        self.CAMERA_METHOD= None
+        self.CAMERA_METHOD = None
         self.ZBAR_VIDEO_DEVICE = None
         self.RELAY_METHOD = None
         self.MOCK_VALIDATOR = None
@@ -87,7 +88,6 @@ class Config(object):
             from .cashout_driver.essp_cashout_driver import EsspCashoutDriver
             return EsspCashoutDriver(config.VALIDATOR_PORT)
 
-
     @staticmethod
     def _select_qr_scanner(config):
         if CameraMethod[config.CAMERA_METHOD] is CameraMethod.ZBARCAM:
@@ -127,6 +127,7 @@ class Config(object):
         config.NODE_RPC = Config._select_node_rpc(config)
         config.STATUS = Config._select_status(config, callback_status)
 
+
 def print_debug(*args, **kwargs):
     print("PLEASE USE Logger.debug/Logger.info/...")
     print(*args, **kwargs)
@@ -139,11 +140,14 @@ def parse_args():
     arguments, errors = f.parse()
 
     if arguments.get("config") is not None:
-        machine_config = strictyaml.load(Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
+        machine_config = strictyaml.load(
+            Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
         if machine_config.get("currency"):
 
             schema = Map({"denominations": Seq(Str())})
-            notes_config = strictyaml.load(Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'), schema).data
+            notes_config = strictyaml.load(
+                Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'),
+                schema).data
 
         else:
             print("Currency must be specified")
