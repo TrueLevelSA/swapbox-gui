@@ -16,32 +16,35 @@
 
 from threading import Thread, Event
 import zmq
-import json
 
-class ZMQStatus(Thread):
 
-    def __init__(self, callback_message, zmq_url):
+class ZMQSubscriber(Thread):
+    TOPIC_PRICEFEED = 'priceticker'
+    TOPIC_STATUS = 'status'
+
+    def __init__(self, callback_message, zmq_url, topic):
         super().__init__()
         self.daemon = True
         self._stop_listening = Event()
         self._callback_message = callback_message
         self._zmq_url = zmq_url
+        self._topic = topic
 
     def run(self):
         """Run Worker Thread."""
-        zctx = zmq.Context()
-        zsock = zctx.socket(zmq.SUB)
-        zsock.connect(self._zmq_url)
-        zsock.setsockopt_string(zmq.SUBSCRIBE,'status')
+        z_ctx = zmq.Context.instance()
+        z_sock = z_ctx.socket(zmq.SUB)
+        z_sock.connect(self._zmq_url)
+        z_sock.setsockopt_string(zmq.SUBSCRIBE, self._topic)
 
         self._stop_listening.clear()
 
         while not self._stop_listening.is_set():
-            msg = zsock.recv_multipart()
+            msg = z_sock.recv_multipart()
             self._callback_message(msg[1].decode('utf-8'))
 
-        zsock.close()
-        zctx.destroy()
+        z_sock.close()
+        z_ctx.destroy()
 
     def stop_listening(self):
         self._stop_listening.set()

@@ -102,13 +102,13 @@ class Config(object):
 
     @staticmethod
     def _select_pricefeed(config, callback_pricefeed):
-        from .custom_threads.zmq_pricefeed import ZMQPriceFeed
-        return ZMQPriceFeed(callback_pricefeed, config.ZMQ_URL_PRICEFEED)
+        from .custom_threads.zmq_subscriber import ZMQSubscriber
+        return ZMQSubscriber(callback_pricefeed, config.ZMQ_URL_PRICEFEED, ZMQSubscriber.TOPIC_PRICEFEED)
 
     @staticmethod
     def _select_status(config, callback_status):
-        from .custom_threads.zmq_status import ZMQStatus
-        return ZMQStatus(callback_status, config.ZMQ_URL_STATUS)
+        from .custom_threads.zmq_subscriber import ZMQSubscriber
+        return ZMQSubscriber(callback_status, config.ZMQ_URL_STATUS, ZMQSubscriber.TOPIC_STATUS)
 
     @staticmethod
     def _select_node_rpc(config):
