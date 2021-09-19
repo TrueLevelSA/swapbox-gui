@@ -1,14 +1,30 @@
 # Swap Box Documentation
 
-## Repositories
-- [swap-box](github.com/TrueLevelSA/swap-box)
+## Software Repositories
+- [gui](gitlab.com/TrueLevel/swapbox/gui)
   Swap box Kivy frontend
-- [swap-box-web3](github.com/TrueLevelSA/swap-box-web3)
-  Web3x bridge, accessible through ZMQ
-- [swap-box-contract](github.com/TrueLevelSA/swap-box-contract)
-  Smart contract implementation and tests
+- ~~[swap-box-web3](github.com/TrueLevelSA/swap-box-web3)
+  Web3x bridge, accessible through ZMQ~~ (deprecated)
+- ~~[swap-box-contract](github.com/TrueLevelSA/swap-box-contract)
+  Smart contract implementation and tests~~ (deprecated)
 - [swap-box-admin](github.com/TrueLevelSA/swap-box-admin)
   Smart contract deployment
+- [swap-box-zinc](gitlab.com/TrueLevel/swapbox/backend-zinc)
+  Zinc (zkSync) smart contract implementation and tests
+- [zksync-connector](gitlab.com/TrueLevel/swapbox/zksync-connector) (awaitng zksync-rs new release)
+  zkSync/zkPorter bridge, accessible through ZMQ
+
+
+## Hardware Repositories
+
+- [swap-box-enclosure](https://github.com/TrueLevelSA/swap-box-enclosure)
+ Prototype enclosure by TrueLevel SA
+- [tola](https://gitlab.com/atola/swapboxenclosure/tola)
+ First metal box by Atola
+- [mini-swap](https://gitlab.com/atola/swapboxenclosure/mini-swap)
+ Mini cash in design by Atola
+-  [kumara](https://gitlab.com/atola/swapboxenclosure/kurmara)
+ Latest design by Atola
 
 ## Overall Architecture
 
@@ -17,7 +33,7 @@
 ```mermaid
 sequenceDiagram
     Customer->>Machine: Insert cash 
-Note over Machine, SmartContract: Single ethereum tx (tx.origin = machine address)
+Note over Machine, SmartContract: Single tx (tx.origin = machine address)
     Machine->>SmartContract: Send signed message/tx
     SmartContract->>DEX: tx (fiat amount less fee)
     DEX->>Customer: ETH tx 
@@ -26,9 +42,9 @@ Note over Machine, SmartContract: Single ethereum tx (tx.origin = machine addres
 ### Current (L2/2.5 zkSync 2.0/zkPorter)
 ```mermaid
 graph LR;
-    swap-box-zksync -- zkSync JSON RPC ---zkSync[sequencer]
+    swap-box-connector-zksync -- zkSync JSON RPC ---zkSync[swap-box-contract-zinc]
     subgraph Raspberry Pi 4
-    swap-box -- ZMQ ---swap-box-zksync
+    swap-box-gui -- ZMQ ---swap-box-connector-zksync
     end
     subgraph zkSync/zkPorter
     zkSync
@@ -51,7 +67,7 @@ graph LR;
 
 ```
 
-### Swap-box  Structure
+### Swap-box frontend structure
 ```mermaid
 graph TD;
     kivy[Kivy GUI] --> led{LED Driver}
