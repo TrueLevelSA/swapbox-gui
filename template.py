@@ -15,11 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from kivy.app import App
-from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.popup import Popup
 from kivy.uix.modalview import ModalView
-from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseInTransition, FallOutTransition
@@ -388,10 +385,10 @@ class TemplateApp(App):
         self._overlay_lock = Lock()
         self._popup_count = 0
         self._first_status_message_received = False
-
-    def build(self):
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
+
+    def build(self):
         self._selected_language = next(iter(self._languages))  # get a language
         self._base_currency = self._config.BASE_CURRENCY
 
@@ -404,8 +401,8 @@ class TemplateApp(App):
         self._selected_language = selected_language
 
     def _update_message_pricefeed(self, message):
-        ''' only updates the _fiat_to_eth attribute '''
-        ''' only dispatching the message to the right screen'''
+        """ only updates the _fiat_to_eth attribute """
+        """ only dispatching the message to the right screen"""
         msg_json = json.loads(message)
         eth_reserve = msg_json['eth_reserve']
         self._eth_reserve = int("0x" + eth_reserve, 16)
@@ -425,7 +422,7 @@ class TemplateApp(App):
         self._eth_to_fiat = sample_amount / sample_fiat_buys
 
     def _update_message_cashin(self, message):
-        ''' only dispatching the message to the right screen'''
+        """ only dispatching the message to the right screen"""
         screen = self._m._main_screen.ids['sm1'].get_screen('insert_screen')
         screen._update_message_cashin(message)
 
@@ -433,8 +430,6 @@ class TemplateApp(App):
         self._first_status_message_received = True
         msg_json = json.loads(message)
         is_in_sync = msg_json["blockchain"]["is_in_sync"]
-        # self._current_block = int(msg_json["blockchain"]["current_block"])
-        # self._sync_block = int(msg_json["blockchain"]["sync_block"])
 
         self._show_sync_popup(is_in_sync)
 
@@ -463,8 +458,8 @@ class TemplateApp(App):
 
     # this method is ugly but we play with the raspicam overlay and have no choice
     def before_popup(self):
-        ''' used to cleanup the overlay in case a popup is opened while in scanning mode
-        this method must be called before a popup is opened'''
+        """ used to cleanup the overlay in case a popup is opened while in scanning mode
+        this method must be called before a popup is opened"""
         driver = self._config.QR_SCANNER
         # this will raise an error when the driver has no _overlay_auto_on attribute
         # aka we're not on raspberry pi + raspicam
@@ -479,8 +474,8 @@ class TemplateApp(App):
 
     # this method is ugly but we play with the raspicam overlay and have no choice
     def after_popup(self):
-        ''' used to show the overlay in case a popup is closed while in scanning mode
-        this method must be called after a popup is closed'''
+        """ used to show the overlay in case a popup is closed while in scanning mode
+        this method must be called after a popup is closed"""
         driver = self._config.QR_SCANNER
         # this will raise an error when the driver has no _overlay_auto_on attribute
         # aka we're not on raspberry pi + raspicam
@@ -508,7 +503,6 @@ if __name__ == '__main__':
 
     Config.write()
     Window.size = (1280, 720)
-    # Window.borderless = True
     if config.IS_FULLSCREEN:
         Window.fullscreen = True
         Window.show_cursor = False

@@ -26,7 +26,6 @@ context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.bind('tcp://*:{}'.format(port))
 
-
 current_block = 1000
 sync_block = 1000
 is_in_sync = False
@@ -35,12 +34,13 @@ is_in_sync = False
 status_is_sync = True
 
 f = argument.Arguments()
-#add a switch, a flag with no argument
+# add a switch, a flag with no argument
 f.switch("verbose",
-    help="Verbose output",
-    abbr="v"
-)
+         help="Verbose output",
+         abbr="v"
+         )
 arguments, errors = f.parse()
+
 
 def get_next_status(current_block, sync_block):
     current_block += 1
@@ -50,16 +50,17 @@ def get_next_status(current_block, sync_block):
     else:
         return current_block, sync_block, False
 
+
 obeuhjeuh = {
-        'blockchain': {
-            'current_block': current_block,
-            'sync_block': sync_block,
-            'is_in_sync': is_in_sync,
-        },
-        'system': {
-            'temp': 100,
-            'cpu': 50,
-        }
+    'blockchain': {
+        'current_block': current_block,
+        'sync_block': sync_block,
+        'is_in_sync': is_in_sync,
+    },
+    'system': {
+        'temp': 100,
+        'cpu': 50,
+    }
 }
 
 try:  # Command Interpreter
