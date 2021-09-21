@@ -11,7 +11,7 @@
   Smart contract deployment
 - [swap-box-zinc](gitlab.com/TrueLevel/swapbox/backend-zinc)
   Zinc (zkSync) smart contract implementation and tests
-- [zksync-connector](gitlab.com/TrueLevel/swapbox/zksync-connector) (awaitng zksync-rs new release)
+- [zksync-connector](gitlab.com/TrueLevel/swapbox/zksync-connector) (awaiting zksync-rs new release)
   zkSync/zkPorter bridge, accessible through ZMQ
 
 
@@ -23,7 +23,7 @@
  First metal box by Atola
 - [mini-swap](https://gitlab.com/atola/swapboxenclosure/mini-swap)
  Mini cash in design by Atola
--  [kumara](https://gitlab.com/atola/swapboxenclosure/kurmara)
+- [kumara](https://gitlab.com/atola/swapboxenclosure/kurmara)
  Latest design by Atola
 
 ## Overall Architecture
