@@ -128,33 +128,75 @@ class ScreenMain(Screen):
     def __init__(self, config, **kwargs):
         self.config = config
         super().__init__(**kwargs)
-        wid = self.ids.sm1
-        _menu_screen = ScreenMenu(name='menu')
-        wid.add_widget(_menu_screen)
-        _settings_screen = ScreenSettings(name='settings')
-        wid.add_widget(_settings_screen)
-        _redeem_screen = ScreenRedeem(name='redeem')
-        wid.add_widget(_redeem_screen)
-        _scan_screen = ScreenBuyScan(config, name='scan_screen')
-        wid.add_widget(_scan_screen)
-        _insert_screen = ScreenBuyInsert(config, name='insert_screen')
-        wid.add_widget(_insert_screen)
-        _buy_screen3 = ScreenBuyFinal(name='final_buy_screen')
-        wid.add_widget(_buy_screen3)
-        _sell_screen1 = ScreenSell1(config, name='sell1')
-        wid.add_widget(_sell_screen1)
-        _sell_screen2 = ScreenSell2(config, name='sell2')
-        wid.add_widget(_sell_screen2)
-        _sell_screen3 = ScreenSell3(name='sell3')
-        wid.add_widget(_sell_screen3)
-        _confirmation_screen = ScreenConfirmation(name='confirmation')
-        wid.add_widget(_confirmation_screen)
-        _loading_screen = ScreenLoading(name='loading_screen')
-        wid.add_widget(_loading_screen)
+        sm = self.ids.sm_content
+        sm.add_widget(ScreenMenu(name='menu'))
+        sm.add_widget(ScreenSettings(name='settings'))
+        sm.add_widget(ScreenRedeem(name='redeem'))
+        sm.add_widget(ScreenBuyScan(config, name='scan_screen'))
+        sm.add_widget(ScreenBuyInsert(config, name='insert_screen'))
+        sm.add_widget(ScreenBuyFinal(name='final_buy_screen'))
+        sm.add_widget(ScreenSell1(config, name='sell1'))
+        sm.add_widget(ScreenSell2(config, name='sell2'))
+        sm.add_widget(ScreenSell3(name='sell3'))
+        sm.add_widget(ScreenConfirmation(name='confirmation'))
+        sm.add_widget(ScreenLoading(name='loading_screen'))
+        sm.add_widget(ScreenSetup1(name='setup_1'))
+        sm.add_widget(ScreenSetup2(name='setup_2'))
+        sm.add_widget(ScreenSetup3(name='setup_3'))
+
+        self._sm = sm
+
+    def set_current_screen(self, screen_id):
+        self._sm.transition.direction = "down"
+        self._sm.current = screen_id
 
 
 class ScreenMenu(Screen):
     pass
+
+
+class ScreenSetup(Screen):
+    def cancel(self):
+        self.manager.transition.direction = "up"
+        self.manager.current = "menu"
+
+
+class ScreenSetup1(ScreenSetup):
+    def next(self):
+        self.manager.transition.direction = "left"
+        self.manager.current = "setup_2"
+
+    @staticmethod
+    def generate_key():
+        print("NotImplemented: GENERATE KEY")
+
+    @staticmethod
+    def import_key():
+        print("NotImplemented: IMPORT KEY")
+
+
+class ScreenSetup2(ScreenSetup):
+    def back(self):
+        self.manager.transition.direction = "right"
+        self.manager.current = "setup_1"
+
+    def next(self):
+        self.manager.transition.direction = "left"
+        self.manager.current = "setup_3"
+
+    @staticmethod
+    def scan_address():
+        print("NotImplemented: SCAN ADDRESS QR")
+
+
+class ScreenSetup3(ScreenSetup):
+    def back(self):
+        self.manager.transition.direction = "right"
+        self.manager.current = "setup_2"
+
+    def finish(self):
+        print("NotImplemented: Finish setup")
+        super().cancel()
 
 
 class ScreenBuyScan(Screen):
@@ -350,15 +392,15 @@ class ScreenConfirmation(Screen):
 
 
 class Manager(ScreenManager):
-
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        _welcome_screen = ScreenWelcome(name='welcome')
-        self.add_widget(_welcome_screen)
-        _main_screen = ScreenMain(config, name='main')
-        self.add_widget(_main_screen)
-        self._main_screen = _main_screen
-        self._welcome_screen = _welcome_screen
+        self._welcome_screen = ScreenWelcome(name='welcome')
+        self._main_screen = ScreenMain(config, name='main')
+        self.add_widget(self._welcome_screen)
+        self.add_widget(self._main_screen)
+
+    def set_content_screen(self, screen_id):
+        self._main_screen.set_current_screen(screen_id)
 
 
 class TemplateApp(App):
@@ -378,7 +420,7 @@ class TemplateApp(App):
         ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed,
                                       self._update_message_status)
         self._config = config
-        self._m = None
+        self._manager = None
         self._fiat_to_eth = -1
         self._eth_to_fiat = -1
         self._popup_sync = None
@@ -392,10 +434,10 @@ class TemplateApp(App):
         self._selected_language = next(iter(self._languages))  # get a language
         self._base_currency = self._config.BASE_CURRENCY
 
-        self._m = Manager(self._config, transition=RiseInTransition())
+        self._manager = Manager(self._config, transition=RiseInTransition())
         self._config.PRICEFEED.start()
         self._config.STATUS.start()
-        return self._m
+        return self._manager
 
     def change_language(self, selected_language):
         self._selected_language = selected_language
@@ -423,7 +465,7 @@ class TemplateApp(App):
 
     def _update_message_cashin(self, message):
         """ only dispatching the message to the right screen"""
-        screen = self._m._main_screen.ids['sm1'].get_screen('insert_screen')
+        screen = self._manager._main_screen.ids['sm_content'].get_screen('insert_screen')
         screen._update_message_cashin(message)
 
     def _update_message_status(self, message):

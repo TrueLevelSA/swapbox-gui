@@ -15,26 +15,22 @@
 # Label with black font
 <BlackLabel@Label>:
     color: [0,0,0,1]
+    font: 'MyriadPro-Bold.otf'
+    markup: True
 
 # Label with black font, small font size
 # used for content
 <BlackLabelSmall@BlackLabel>:
     font_size: 22
-    font: 'MyriadPro-Bold.otf'
-    markup: True
 
 # Label with black font, medium font size
 # used for subtitles
 <BlackLabelMedium@BlackLabel>:
     font_size: 24
-    font: 'MyriadPro-Bold.otf'
-    markup: True
 
 # Label with black font, large font size
 <BlackLabelLarge@BlackLabel>:
     font_size: 28
-    font: 'MyriadPro-Bold.otf'
-    markup: True
 
 # Label with white font, large font size
 # used for titles
@@ -42,8 +38,10 @@
     font_size: 60
     bold: True
     color: 1,1,1,1
-    font: 'MyriadPro-Bold.otf'
-    markup: True
+
+<WhiteLabelMedium@BlackLabel>:
+    font_size: 28
+    color: 1,1,1,1
 
 <MediumButton@ColorDownButton>:
     # size_hint_x: 0.1
@@ -101,6 +99,10 @@
                 size_hint_x: .3
                 Image:
                     source: "assets/img/poweredbyuniswap2.png"
+                Button:
+                    id: "setup"
+                    text: "setup"
+                    on_press: root.manager.set_content_screen("setup_1")
                 BlackLabel:
                     font_size:30
                     bold: True
@@ -115,7 +117,7 @@
                 LanguageBar:
 
         ScreenManager:
-            id: sm1
+            id: sm_content
             size_hint_y: 2
 
 
@@ -489,3 +491,114 @@
 <ScreenConfirmation>:
     MainBox:
         orientation: "horizontal"
+
+
+<ScreenSetup1>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 1/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Generate or import a key"
+                halign: "left"
+                text_size: root.width, None
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Generate a key"
+                on_press: root.generate_key()
+            MediumButton:
+                text: "Import a key"
+                on_press: root.import_key()
+
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Cancel"
+                on_press: root.cancel()
+            MediumButton:
+                text: "Next"
+                on_press: root.next()
+
+
+<ScreenSetup2>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 2/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Import Smart Contract address"
+                halign: "left"
+                text_size: root.width, None
+
+
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 20
+            MediumButton:
+                text: "Scan QR"
+                on_press: root.scan_address()
+            BoxLayout:
+                orientation: "vertical"
+                WhiteLabelMedium:
+                    id: scanned_address
+                    halign: "left"
+                    text_size: root.width/2, None
+                    text: "Contract address: ..."
+                WhiteLabelMedium:
+                    id: scanned_network
+                    text_size: root.width/2, None
+                    text: "Network: ..."
+
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Back"
+                on_press: root.back()
+            MediumButton:
+                text: "Next"
+                on_press: root.next()
+
+<ScreenSetup3>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 3/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Scan Code to setup admin app"
+                halign: "left"
+                text_size: root.width, None
+        Image:
+            source: 'assets/img/Qrcode.png'
+            allow_stretch: True
+            keep_ratio: True
+
+        BoxLayout:
+            spacing: 20
+            MediumButton:
+                text: "Back"
+                on_press: root.back()
+            MediumButton:
+                text: "Finish"
+                on_press: root.finish()
