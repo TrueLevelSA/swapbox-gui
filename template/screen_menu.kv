@@ -1,0 +1,50 @@
+<ScreenMenu>:
+    id: menu_screen
+    BoxLayout:
+        orientation: "vertical"
+        MainBox:
+            orientation: "horizontal"
+            BoxLayout:
+                orientation: "vertical"
+                WhiteLabelLarge:
+                    size_hint_y: .15
+                    text: app._languages[app._selected_language]["select_crypto"]
+                BoxLayout:
+                    orientation: "horizontal"
+                    BoxLayout:
+                        orientation: "vertical"
+                        BlackLabelSmall:
+                            text: 'ETHEREUM (ETH)'
+                            size_hint_y: .2
+                        Image:
+                            source: 'assets/img/ETH-logo.png'
+                            allow_stretch: True
+                            size_hint_y: .5
+                            keep_ratio: True
+                        BlackLabelLarge:
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['buy'], app._fiat_to_eth, app._base_currency)
+                            size_hint_y: .1
+                        BlackLabelLarge:
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['sell'], app._eth_to_fiat, app._base_currency)
+                            size_hint_y: .1
+                Label:
+                    size_hint_y: .1
+
+        ButtonBox:
+            MediumButton:
+                text: app._languages[app._selected_language]["buy"]
+                on_release:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "scan_screen"
+            MediumButton:
+                text: app._languages[app._selected_language]["sell"]
+                on_release:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "sell1"
+                disabled: True
+            MediumButton:
+                text: app._languages[app._selected_language]["redeem"]
+                on_release:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = "redeem"
+                disabled: True

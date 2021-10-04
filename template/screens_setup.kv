@@ -1,0 +1,110 @@
+
+<ScreenSetup1>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 1/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Generate or import a key"
+                halign: "left"
+                text_size: root.width, None
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Generate a key"
+                on_press: root.generate_key()
+            MediumButton:
+                text: "Import a key"
+                on_press: root.import_key()
+
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Cancel"
+                on_press: root.cancel()
+            MediumButton:
+                text: "Next"
+                on_press: root.next()
+
+
+<ScreenSetup2>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 2/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Import Smart Contract address"
+                halign: "left"
+                text_size: root.width, None
+
+
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 20
+            MediumButton:
+                text: "Scan QR"
+                on_press: root.scan_address()
+            BoxLayout:
+                orientation: "vertical"
+                WhiteLabelMedium:
+                    id: scanned_address
+                    halign: "left"
+                    text_size: root.width/2, None
+                    text: "Contract address: ..."
+                WhiteLabelMedium:
+                    id: scanned_network
+                    text_size: root.width/2, None
+                    text: "Network: ..."
+
+        BoxLayout:
+            spacing: 20
+            orientation: "horizontal"
+            MediumButton:
+                text: "Back"
+                on_press: root.back()
+            MediumButton:
+                text: "Next"
+                on_press: root.next()
+
+<ScreenSetup3>:
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 200
+
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Setup 3/3"
+                halign: "left"
+                text_size: root.width, None
+            WhiteLabelMedium:
+                text: "Scan Code to setup admin app"
+                halign: "left"
+                text_size: root.width, None
+        Image:
+            source: 'assets/img/Qrcode.png'
+            allow_stretch: True
+            keep_ratio: True
+
+        BoxLayout:
+            spacing: 20
+            MediumButton:
+                text: "Back"
+                on_press: root.back()
+            MediumButton:
+                text: "Finish"
+                on_press: root.finish()
