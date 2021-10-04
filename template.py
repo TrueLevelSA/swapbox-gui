@@ -414,6 +414,8 @@ class TemplateApp(App):
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
     _base_currency = StringProperty('CHF')
+    kv_directory = 'template'
+
 
     def __init__(self, config):
         super().__init__()
