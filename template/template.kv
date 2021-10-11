@@ -1,6 +1,7 @@
 #:import Factory kivy.factory.Factory
 #:import TripleTapImage src.components.image_triple_tap
 #:import ColorDownButton src.components.button_color_down
+#:import MediumButton src.components.button_color_down
 #:import LanguageBar src.components.language_bar
 
 #:include template/screen_menu.kv
@@ -50,16 +51,6 @@
 <WhiteLabelMedium@BlackLabel>:
     font_size: 28
     color: 1,1,1,1
-
-<MediumButton@ColorDownButton>:
-    # size_hint_x: 0.1
-    size_hint_y: .8
-    font_size: 30
-    background_color: [0,0,0,.4]
-    color: 1,1,1,1
-    background_color_normal: 0,0,0,0.4
-    background_color_down: 0,0,0,0.6
-    font_size: 30
 
 <FullScreenPopup@ModalView>:
     size_hint_y: 1

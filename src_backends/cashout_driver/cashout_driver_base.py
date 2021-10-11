@@ -17,6 +17,7 @@
 from abc import ABC, abstractmethod
 from threading import Event, Thread
 
+
 class CashoutDriver(ABC):
     _MAP_CHANNEL_NOTES = {
         1: 10,
@@ -42,7 +43,9 @@ class CashoutDriver(ABC):
     def do_cashout(self):
         pass
 
-    def check_available_notes(self, balance, amount):
+    @staticmethod
+    def check_available_notes(balance, amount):
+        return True
         notes = CashoutDriver._MAP_CHANNEL_NOTES.values()
         note_counter = [0, 0, 0, 0, 0]
         for note, distribute in zip(notes, note_counter):

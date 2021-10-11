@@ -21,3 +21,15 @@ class ColorDownButton(Button):
 
     def on_release(self):
         self.background_color = self.background_color_normal
+
+
+class MediumButton(ColorDownButton):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.size_hint_y = .8
+        self.font_size = 30
+        self.background_color = [0, 0, 0, 0.4]
+        self.color = [1, 1, 1, 1]
+        self.background_color_normal = [0, 0, 0, 0.4]
+        self.background_color_down = [0, 0, 0, 0.6]
+

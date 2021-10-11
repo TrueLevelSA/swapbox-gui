@@ -1,5 +1,25 @@
+import os
+
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
+
+from src.components.button_color_down import MediumButton
+
+
+class NoteButton(MediumButton):
+    def __init__(self, value, currency, callback, **kwargs):
+        super(NoteButton, self).__init__(**kwargs)
+        self.value = int(value)
+        self.callback = callback
+        self.text = NoteButton._format_currency(value, currency)
+
+    def on_release(self):
+        super(NoteButton, self).on_release()
+        self.callback(self.value)
+
+    @staticmethod
+    def _format_currency(value, currency):
+        return "{} {}".format(value, currency)
 
 
 class ScreenSell1(Screen):
@@ -10,6 +30,11 @@ class ScreenSell1(Screen):
         self._CASHOUT = config.CASHOUT_DRIVER
         self._NOTE_BALANCE = {}
         self._valid_notes = config.notes_values
+        self._currency = config.base_currency
+
+        for note in self._valid_notes:
+            note_button = NoteButton(note, self._currency, self._sell_select)
+            self.ids.grid_notes.add_widget(note_button)
 
     def on_enter(self):
         self._CASHOUT.start_cashout()
@@ -17,7 +42,7 @@ class ScreenSell1(Screen):
         # success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
 
     def _leave_without_sell_select(self):
-        # reseting cash out process
+        # resetting cash out process
         # might use on_pre_leave or on_leave
         self._sell_choice = 0
 
@@ -28,9 +53,9 @@ class ScreenSell1(Screen):
             self.manager.current = "sell2"
 
         else:
-            # requested amount not available
-            print("dosomething")
-        # Thread(target=self._threaded_buy, daemon=True).start()
+            # TODO: tell user cash machine doesn't have a bill
+            # Thread(target=self._threaded_buy, daemon=True).start()
+            print("NotImplemented: Note not available")
 
 
 class ScreenSell2(Screen):
