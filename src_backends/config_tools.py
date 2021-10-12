@@ -13,9 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import argparse
 from enum import auto, Enum
-import argument
 import strictyaml
 from strictyaml import Seq, Str, Map
 from path import Path
@@ -134,27 +133,28 @@ def print_debug(*args, **kwargs):
 
 
 def parse_args():
-    # Get config file as required arguemnt and load
-    f = argument.Arguments()
-    f.always("config", help="Machine Config file name")
-    arguments, errors = f.parse()
+    """
+    Parse CLI arguments.
+    :return:
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config', help="configuration file name (located in machine_config/ folder)")
+    args = parser.parse_args()
 
-    if arguments.get("config") is not None:
-        machine_config = strictyaml.load(
-            Path("machine_config/%s.yaml" % arguments.get("config")).bytes().decode('utf8')).data
-        if machine_config.get("currency"):
+    machine_config = strictyaml.load(
+        Path("machine_config/%s.yaml" % args.config).bytes().decode('utf8')
+    ).data
 
-            schema = Map({"denominations": Seq(Str())})
-            notes_config = strictyaml.load(
-                Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'),
-                schema).data
+    if machine_config.get("currency"):
+        schema = Map({"denominations": Seq(Str())})
+        notes_config = strictyaml.load(
+            Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'),
+            schema).data
 
-        else:
-            print("Currency must be specified")
-            exit(0)
     else:
-        print("Config file must be specified")
+        print("Currency must be specified")
         exit(0)
+
     valid_true_values = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly']
     config = Config()
     config.NAME = machine_config.get("name")
