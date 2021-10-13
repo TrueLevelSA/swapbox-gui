@@ -90,7 +90,7 @@
     BoxLayout:
         Button:
             id: "welcome_Button"
-            text: app._languages[app._selected_language]["welcome"].format(app._config.NAME)
+            text: app._languages[app._selected_language]["welcome"].format(app._config.operator_name)
             font_size: 20
             on_press: root.manager.current = "main"
 
@@ -111,7 +111,7 @@
                 BlackLabel:
                     font_size:30
                     bold: True
-                    text: app._languages[app._selected_language]["main_title"].format(app._config.NAME)
+                    text: app._languages[app._selected_language]["main_title"].format(app._config.operator_name)
             BoxLayout:
                 orientation: "horizontal"
                 size_hint_x: 0.7

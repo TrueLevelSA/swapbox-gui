@@ -17,7 +17,6 @@ import argparse
 from enum import auto, Enum
 import strictyaml
 from strictyaml import Seq, Str, Map, Bool, Int, Float
-from path import Path
 import os
 
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
@@ -30,11 +29,45 @@ class CameraMethod(Enum):
     OPENCV = auto()
     KIVY = auto()
 
+    @staticmethod
+    def elems() -> [str]:
+        return [elem.name for elem in CameraMethod]
+
 
 class RelayMethod(Enum):
     PIFACE = auto()
     GPIO = auto()
     NONE = auto()
+
+    @staticmethod
+    def elems() -> [str]:
+        return [elem.name for elem in RelayMethod]
+
+
+class Mock:
+    def __init__(self, cfg):
+        self.enabled: bool = cfg["enabled"]
+        self.zmq_url: str = cfg["zmq_url"]
+
+
+class Validator:
+    def __init__(self, cfg):
+        self.mock = Mock(cfg["mock"])
+        self.port: str = cfg["port"]
+        self.nv11: bool = cfg["nv11"]
+
+
+class Camera:
+    def __init__(self, cfg):
+        self.method: CameraMethod = CameraMethod[cfg["method"]]
+        self.device = cfg["device"]
+
+
+class Zmq:
+    def __init__(self, cfg):
+        self.pricefeed = cfg["pricefeed"]
+        self.rpc = cfg["rpc"]
+        self.status = cfg["status"]
 
 
 class Config(object):
@@ -42,16 +75,25 @@ class Config(object):
         "name": Str(),
         "debug": Bool(),
         "currency": Str(),
-        "mock_validator": Bool(),
-        "zmq_url_mock_validator": Str(),
-        "validator_port": Str(),
-        "validator_nv11": Bool(),
-        "camera_method": Str(),
-        "camera_device": Str(),
-        "zmq_url_pricefeed": Str(),
-        "zmq_url_rpc": Str(),
-        "zmq_url_status": Str(),
-        "relay_method": Str(),
+
+        "validator": Map({
+            "mock": Map({
+                "enabled": Bool(),
+                "zmq_url": Str(),
+            }),
+            "port": Str(),
+            "nv11": Bool(),
+        }),
+        "camera": Map({
+            "method": strictyaml.Enum(CameraMethod.elems()),
+            "device": Str()
+        }),
+        "zmq": Map({
+            "pricefeed": Str(),
+            "rpc": Str(),
+            "status": Str(),
+        }),
+        "relay_method": strictyaml.Enum(RelayMethod.elems()),
         "admin_pin": Int(),
         "is_fullscreen": Bool(),
         "default_slippage": Float(),
@@ -67,60 +109,50 @@ class Config(object):
         with open("{}/{}.yaml".format(Config._folder_config, config_name)) as c:
             machine_config = strictyaml.load(c.read(), Config._schema).data
 
+        # build self with parsed config
+        self.operator_name = machine_config["name"]
+        self.debug: bool = machine_config["debug"]
+        self.base_currency = machine_config["currency"]
+        self.validator = Validator(machine_config["validator"])
+        self.camera = Camera(machine_config["camera"])
+        self.zmq = Zmq(machine_config["zmq"])
+        self.relay_method: RelayMethod = RelayMethod[machine_config["relay_method"]]
+        self.is_fullscreen: bool = machine_config["is_fullscreen"]
+        self.default_slippage: float = machine_config["default_slippage"]
+        self.buy_limit: int = machine_config["buy_limit"]
+
         # validate and parse note config file
         with open("{}/{}.yaml".format(Config._folder_notes_config, machine_config["currency"])) as c:
             notes_config = strictyaml.load(c.read(), Config._notes_schema).data
-
-        self.NAME = machine_config["name"]
-        self.BASE_CURRENCY = machine_config["currency"]
-        self.DEBUG = bool(machine_config["debug"])
-        self.CAMERA_METHOD = machine_config["camera_method"]
-        self.CAMERA_DEVICE = machine_config["camera_device"]
-        self.RELAY_METHOD = machine_config["relay_method"]
-        self.MOCK_VALIDATOR = machine_config["mock_validator"]
-        self.ZMQ_URL_MOCK_VALIDATOR = machine_config["zmq_url_mock_validator"]
-        self.NOTE_VALIDATOR_NV11 = machine_config["validator_nv11"]
-        self.VALIDATOR_PORT = machine_config["validator_port"]
-        self.ZMQ_URL_PRICEFEED = machine_config["zmq_url_pricefeed"]
-        self.NOTES_VALUES = notes_config["denominations"]
-        self.ZMQ_URL_RPC = machine_config["zmq_url_rpc"]
-        self.ZMQ_URL_STATUS = machine_config["zmq_url_status"]
-        self.IS_FULLSCREEN = machine_config["is_fullscreen"]
-        self.DEFAULT_SLIPPAGE = machine_config["default_slippage"]
-        self.BUY_LIMIT = machine_config["buy_limit"]
+        self.notes_values = notes_config["denominations"]
 
         if not os.uname()[4].startswith("arm"):
             self.RELAY_METHOD = RelayMethod.NONE
 
+        # TODO: maybe drivers shouldn't live in the Config
         # setup drivers
         self.LED_DRIVER = Config._select_led_driver(self.RELAY_METHOD)
-        self.QR_SCANNER = Config._select_qr_scanner(self.CAMERA_METHOD, self.CAMERA_DEVICE)
+        self.QR_SCANNER = Config._select_qr_scanner(self.camera)
         self.QR_GENERATOR = QRGenerator()
         self.CASHOUT_DRIVER = Config._select_cashout_driver(self)
-        self.NODE_RPC = NodeRPC(self.ZMQ_URL_RPC)
+        self.NODE_RPC = NodeRPC(self.zmq.rpc)
 
         self.CASHIN_THREAD = None
         self.PRICEFEED = None
         self.STATUS = None
 
     def start_all_threads(self, callback_cashin, callback_pricefeed, callback_status):
-        self.CASHIN_THREAD = self._select_cashin_thread(
-            self.MOCK_VALIDATOR,
-            self.ZMQ_URL_MOCK_VALIDATOR,
-            self.VALIDATOR_PORT,
-            callback_cashin
-        )
-        self.PRICEFEED = ZMQSubscriber(callback_pricefeed, self.ZMQ_URL_PRICEFEED, ZMQSubscriber.TOPIC_PRICEFEED)
-        self.STATUS = ZMQSubscriber(callback_status, self.ZMQ_URL_STATUS, ZMQSubscriber.TOPIC_STATUS)
+        self._select_cashin_thread(callback_cashin)
+        self.PRICEFEED = ZMQSubscriber(callback_pricefeed, self.zmq.pricefeed, ZMQSubscriber.TOPIC_PRICEFEED)
+        self.STATUS = ZMQSubscriber(callback_status, self.zmq.status, ZMQSubscriber.TOPIC_STATUS)
 
-    @staticmethod
-    def _select_cashin_thread(mock_validator, mock_validator_url, validator_port, callback):
-        if mock_validator is True:
+    def _select_cashin_thread(self, callback):
+        if self.validator.mock.enabled is True:
             from .cashin_driver.mock_cashin_driver import MockCashinDriver
-            return MockCashinDriver(callback, mock_validator_url)
+            self.CASHIN_THREAD = MockCashinDriver(callback, self.validator.mock.zmq_url)
         else:
             from .cashin_driver.essp_cashin_driver import EsspCashinDriver
-            return EsspCashinDriver(callback, validator_port)
+            self.CASHIN_THREAD = EsspCashinDriver(callback, self.validator.port)
 
     @staticmethod
     def _select_led_driver(relay_method):
@@ -136,7 +168,7 @@ class Config(object):
 
     @staticmethod
     def _select_cashout_driver(config):
-        if config.MOCK_VALIDATOR is True:
+        if config.validator.mock.enabled:
             from .cashout_driver.mock_cashout_driver import MockCashoutDriver
             return MockCashoutDriver()
         else:
@@ -144,11 +176,11 @@ class Config(object):
             return EsspCashoutDriver(config.VALIDATOR_PORT)
 
     @staticmethod
-    def _select_qr_scanner(camera_method, camera_device):
-        if CameraMethod[camera_method] is CameraMethod.ZBARCAM:
+    def _select_qr_scanner(camera: Camera):
+        if camera.method is CameraMethod.ZBARCAM:
             from .qr_scanner.zbar_qr_scanner import QrScannerZbar
-            return QrScannerZbar(camera_device)
-        elif CameraMethod[camera_method] is CameraMethod.OPENCV:
+            return QrScannerZbar(camera.device)
+        elif camera.method is CameraMethod.OPENCV:
             from .qr_scanner.opencv_qr_scanner import QrScannerOpenCV
             return QrScannerOpenCV()
         else:

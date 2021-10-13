@@ -80,7 +80,7 @@ class TemplateApp(App):
 
     def build(self):
         self._selected_language = next(iter(self._languages))  # get a language
-        self._base_currency = self._config.BASE_CURRENCY
+        self._base_currency = self._config.base_currency
 
         self._manager = Manager(self._config, transition=RiseInTransition())
         self._config.PRICEFEED.start()
@@ -184,8 +184,8 @@ if __name__ == '__main__':
     args = parse_args()
     config = Config(args.config)
 
-    set_kivy_log_level(config.DEBUG)
-    set_window(config.IS_FULLSCREEN)
+    set_kivy_log_level(config.debug)
+    set_window(config.is_fullscreen)
 
     app = TemplateApp(config)
     app.run()

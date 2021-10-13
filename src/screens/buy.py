@@ -48,9 +48,9 @@ class ScreenBuyInsert(Screen):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
         self._CASHIN = config.CASHIN_THREAD
-        self._valid_notes = config.NOTES_VALUES
+        self._valid_notes = config.notes_values
         self._node_rpc = config.NODE_RPC
-        self._buy_limit = config.BUY_LIMIT
+        self._buy_limit = config.buy_limit
 
     def on_pre_enter(self):
         t = Thread(target=self._CASHIN.start_cashin(), daemon=True)

@@ -9,7 +9,7 @@ class ScreenSell1(Screen):
         super().__init__(**kwargs)
         self._CASHOUT = config.CASHOUT_DRIVER
         self._NOTE_BALANCE = {}
-        self._valid_notes = config.NOTES_VALUES
+        self._valid_notes = config.notes_values
 
     def on_enter(self):
         self._CASHOUT.start_cashout()
@@ -42,7 +42,7 @@ class ScreenSell2(Screen):
         self._CASHOUT = config.CASHOUT_DRIVER
         self._QR_GENERATOR = config.QR_GENERATOR
         self._NOTE_BALANCE = {}
-        self._valid_notes = config.NOTES_VALUES
+        self._valid_notes = config.notes_values
         self._node_rpc = config.NODE_RPC
 
     def on_enter(self):

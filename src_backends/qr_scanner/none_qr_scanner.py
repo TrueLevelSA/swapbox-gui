@@ -19,7 +19,7 @@ from src_backends.qr_scanner.qr_scanner_base import QrScanner
 
 class QrScannerNone(QrScanner):
 
-    def __init__(self, video_port):
+    def __init__(self):
         super().__init__('echo nope')
 
     def _is_qr_found(self, line):
