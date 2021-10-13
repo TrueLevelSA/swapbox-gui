@@ -19,6 +19,7 @@ from threading import Lock
 
 import strictyaml
 from kivy.app import App
+from kivy.config import Config as KivyConfig
 from kivy.core.window import Window
 from kivy.logger import Logger
 from kivy.properties import StringProperty, NumericProperty
@@ -26,9 +27,24 @@ from kivy.uix.screenmanager import RiseInTransition
 from path import Path
 
 import src_backends.price_tools as price_tools
-from src.screens.main import Manager
-from src_backends.config_tools import Config as ConfigApp
+from src.screens.main import Manager, SyncPopup
+from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
+
+
+def set_kivy_log_level(debug: bool):
+    if debug:
+        KivyConfig.set('kivy', 'log_level', 'debug')
+    else:
+        KivyConfig.set('kivy', 'log_level', 'warning')
+    KivyConfig.write()
+
+
+def set_window(fullscreen: bool):
+    Window.size = (1280, 720)
+    if fullscreen:
+        Window.fullscreen = True
+        Window.show_cursor = False
 
 
 class TemplateApp(App):
@@ -44,10 +60,13 @@ class TemplateApp(App):
     _base_currency = StringProperty('CHF')
     kv_directory = 'template'
 
-    def __init__(self, config):
+    def __init__(self, config: Config):
         super().__init__()
-        ConfigApp._select_all_drivers(config, self._update_message_cashin, self._update_message_pricefeed,
-                                      self._update_message_status)
+        config.start_all_threads(
+            self._update_message_cashin,
+            self._update_message_pricefeed,
+            self._update_message_status
+        )
         self._config = config
         self._manager = None
         self._fiat_to_eth = -1
@@ -162,19 +181,11 @@ class TemplateApp(App):
 
 
 if __name__ == '__main__':
-    config = parse_args()
+    args = parse_args()
+    config = Config(args.config)
 
-    from kivy.config import Config
+    set_kivy_log_level(config.DEBUG)
+    set_window(config.IS_FULLSCREEN)
 
-    Config.set('kivy', 'exit_on_escape', 1)
-    if config.DEBUG:
-        Config.set('kivy', 'log_level', 'debug')
-    else:
-        Config.set('kivy', 'log_level', 'warning')
-
-    Config.write()
-    Window.size = (1280, 720)
-    if config.IS_FULLSCREEN:
-        Window.fullscreen = True
-        Window.show_cursor = False
-    TemplateApp(config).run()
+    app = TemplateApp(config)
+    app.run()

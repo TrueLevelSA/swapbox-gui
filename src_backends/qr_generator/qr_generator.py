@@ -16,6 +16,7 @@
 
 import qrcode
 
+
 class QRGenerator:
 
     @staticmethod
