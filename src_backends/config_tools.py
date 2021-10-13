@@ -57,22 +57,19 @@ class Config(object):
         "default_slippage": Float(),
         "buy_limit": Int()
     })
+    _notes_schema = Map({"denominations": Seq(Str())})
+
+    _folder_config = "machine_config"
+    _folder_notes_config = "{}/{}".format(_folder_config, "notes_config")
 
     def __init__(self, config_name):
         # validate and parse config file
-        machine_config = strictyaml.load(
-            Path("machine_config/%s.yaml" % config_name).bytes().decode('utf8'),
-            Config._schema
-        ).data
+        with open("{}/{}.yaml".format(Config._folder_config, config_name)) as c:
+            machine_config = strictyaml.load(c.read(), Config._schema).data
 
-        if machine_config.get("currency"):
-            schema = Map({"denominations": Seq(Str())})
-            notes_config = strictyaml.load(
-                Path("machine_config/notes_config/%s.yaml" % machine_config.get("currency")).bytes().decode('utf8'),
-                schema).data
-        else:
-            print("Currency must be specified")
-            exit(0)
+        # validate and parse note config file
+        with open("{}/{}.yaml".format(Config._folder_notes_config, machine_config["currency"])) as c:
+            notes_config = strictyaml.load(c.read(), Config._notes_schema).data
 
         self.NAME = machine_config["name"]
         self.BASE_CURRENCY = machine_config["currency"]
