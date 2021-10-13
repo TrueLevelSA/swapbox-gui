@@ -13,9 +13,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import time
 
 from kivy.app import App
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
 from kivy.uix.button import Button
 from kivy.core.window import Window
@@ -23,6 +26,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition, RiseI
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, ListProperty
 from kivy.logger import Logger
 import strictyaml
+from kivy.uix.textinput import TextInput
 from path import Path
 from threading import Thread, Lock
 import json
@@ -32,6 +36,27 @@ from src_backends.config_tools import parse_args as parse_args
 from src_backends.config_tools import Config as ConfigApp
 import src_backends.price_tools as price_tools
 from src_backends.qr_scanner.util import parse_ethereum_address
+
+
+class TripleTapImage(ButtonBehavior, Image):
+    __events__ = ('on_triple_tap', )
+
+    def __init__(self, **kwargs):
+        super(TripleTapImage, self).__init__(**kwargs)
+        self.taps = [0.0, 0.0]
+
+    def on_press(self):
+        now = time.time()
+        if (now - self.taps[0]) < 1.0:
+            self.dispatch('on_triple_tap')
+        else:
+            self.taps[0], self.taps[1] = self.taps[1], time.time()
+
+    def on_double_tap(self):
+        pass
+
+    def on_triple_tap(self):
+        pass
 
 
 class ColorDownButton(Button):
@@ -415,7 +440,6 @@ class TemplateApp(App):
     _eth_reserve = NumericProperty(-1e18)
     _base_currency = StringProperty('CHF')
     kv_directory = 'template'
-
 
     def __init__(self, config):
         super().__init__()
