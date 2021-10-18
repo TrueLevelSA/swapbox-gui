@@ -21,6 +21,8 @@ from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 
 from src_backends import price_tools
+from src_backends.cashin_driver.cashin_driver_base import CashinDriver
+from src_backends.config_tools import Config
 from src_backends.qr_scanner.util import parse_ethereum_address
 
 
@@ -63,17 +65,19 @@ class ScreenBuyInsert(Screen):
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
-        self._CASHIN = config.CASHIN_THREAD
+        self._thread_cashin = ScreenBuyInsert._create_thread_cashin(
+            config,
+            self._update_message_cashin
+        )
         self._valid_notes = config.notes_values
         self._node_rpc = config.NODE_RPC
         self._buy_limit = config.buy_limit
 
     def on_pre_enter(self):
-        t = Thread(target=self._CASHIN.start_cashin(), daemon=True)
-        t.start()
+        self._thread_cashin.start_cashin()
 
     def on_pre_leave(self):
-        self._CASHIN.stop_cashin()
+        self._thread_cashin.stop_cashin()
 
     def _update_message_cashin(self, message):
         amount_received = message.split(':')[1]
@@ -82,7 +86,7 @@ class ScreenBuyInsert(Screen):
             self._get_eth_price(App.get_running_app())
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._cash_in >= self._buy_limit:
-                self._CASHIN.stop_cashin()
+                self._thread_cashin.stop_cashin()
                 self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
                     "limitreached"]
 
@@ -92,7 +96,7 @@ class ScreenBuyInsert(Screen):
     def _leave_without_buy(self):
         # reseting cash in, might want to give money back
         # might use on_pre_leave or on_leave
-        self._CASHIN.stop_cashin()
+        self._thread_cashin.stop_cashin()
         self._cash_in = 0
         self._minimum_wei = 0
         self._address_ether = '0x0'
@@ -110,7 +114,7 @@ class ScreenBuyInsert(Screen):
         self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
             "pleasewait"]
         self.ids.buy_confirm.disabled = True
-        self._CASHIN.stop_cashin()
+        self._thread_cashin.stop_cashin()
         Thread(target=self._threaded_buy, daemon=True).start()
 
     def _threaded_buy(self):
@@ -135,6 +139,15 @@ class ScreenBuyInsert(Screen):
         else:
             self.manager.transition.direction = 'right'
             self.manager.current = "insert_screen"
+
+    @staticmethod
+    def _create_thread_cashin(c: Config, callback: ()) -> CashinDriver:
+        if c.validator.mock.enabled:
+            from src_backends.cashin_driver.mock_cashin_driver import MockCashinDriver
+            return MockCashinDriver(callback, c.validator.mock.zmq_url)
+        else:
+            from src_backends.cashin_driver.essp_cashin_driver import EsspCashinDriver
+            return EsspCashinDriver(callback, c.validator.port)
 
 
 class ScreenBuyFinal(Screen):

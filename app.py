@@ -30,6 +30,7 @@ import src_backends.price_tools as price_tools
 from src.screens.main import Manager, SyncPopup
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
+from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
 
 
 def set_kivy_log_level(debug: bool):
@@ -62,12 +63,19 @@ class TemplateApp(App):
 
     def __init__(self, config: Config):
         super().__init__()
-        config.start_all_threads(
-            self._update_message_cashin,
-            self._update_message_pricefeed,
-            self._update_message_status
-        )
         self._config = config
+
+        self.thread_pricefeed = ZMQSubscriber(
+            self._update_message_pricefeed,
+            config.zmq.pricefeed,
+            ZMQSubscriber.TOPIC_PRICEFEED
+        )
+        self.thread_status = ZMQSubscriber(
+            self._update_message_status,
+            config.zmq.status,
+            ZMQSubscriber.TOPIC_STATUS
+        )
+
         self._manager = None
         self._fiat_to_eth = -1
         self._eth_to_fiat = -1
@@ -83,8 +91,8 @@ class TemplateApp(App):
         self._base_currency = self._config.base_currency
 
         self._manager = Manager(self._config, transition=RiseInTransition())
-        self._config.PRICEFEED.start()
-        self._config.STATUS.start()
+        self.thread_pricefeed.start()
+        self.thread_status.start()
         return self._manager
 
     def change_language(self, selected_language):
@@ -110,11 +118,6 @@ class TemplateApp(App):
         self._fiat_to_eth = 1 / one_stablecoin_buys
         sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
         self._eth_to_fiat = sample_amount / sample_fiat_buys
-
-    def _update_message_cashin(self, message):
-        """ only dispatching the message to the right screen"""
-        screen = self._manager._main_screen.ids['sm_content'].get_screen('insert_screen')
-        screen._update_message_cashin(message)
 
     def _update_message_status(self, message):
         self._first_status_message_received = True
@@ -142,8 +145,7 @@ class TemplateApp(App):
             self.after_popup()
 
     def on_stop(self):
-        self._config.CASHIN_THREAD.stop_cashin()
-        self._config.PRICEFEED.stop_listening()
+        self.thread_pricefeed.stop_listening()
         self._config.NODE_RPC.stop()
 
     # this method is ugly but we play with the raspicam overlay and have no choice

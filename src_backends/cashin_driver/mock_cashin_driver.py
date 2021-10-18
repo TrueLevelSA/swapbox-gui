@@ -17,6 +17,7 @@
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 import zmq
 
+
 class MockCashinDriver(CashinDriver):
 
     def __init__(self, callback_message, zmq_mock_url):

@@ -20,6 +20,7 @@ import strictyaml
 from strictyaml import Seq, Str, Map, Bool, Int, Float
 import os
 
+from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
 from src_backends.node_rpc.node_rpc import NodeRPC
 from src_backends.qr_generator.qr_generator import QRGenerator
@@ -137,23 +138,6 @@ class Config(object):
         self.QR_GENERATOR = QRGenerator()
         self.CASHOUT_DRIVER = Config._select_cashout_driver(self)
         self.NODE_RPC = NodeRPC(self.zmq.rpc)
-
-        self.CASHIN_THREAD = None
-        self.PRICEFEED = None
-        self.STATUS = None
-
-    def start_all_threads(self, callback_cashin, callback_pricefeed, callback_status):
-        self._select_cashin_thread(callback_cashin)
-        self.PRICEFEED = ZMQSubscriber(callback_pricefeed, self.zmq.pricefeed, ZMQSubscriber.TOPIC_PRICEFEED)
-        self.STATUS = ZMQSubscriber(callback_status, self.zmq.status, ZMQSubscriber.TOPIC_STATUS)
-
-    def _select_cashin_thread(self, callback):
-        if self.validator.mock.enabled is True:
-            from .cashin_driver.mock_cashin_driver import MockCashinDriver
-            self.CASHIN_THREAD = MockCashinDriver(callback, self.validator.mock.zmq_url)
-        else:
-            from .cashin_driver.essp_cashin_driver import EsspCashinDriver
-            self.CASHIN_THREAD = EsspCashinDriver(callback, self.validator.port)
 
     @staticmethod
     def _select_led_driver(relay_method):
