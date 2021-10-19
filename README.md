@@ -46,7 +46,7 @@ pipenv run pip3 install git+https://github.com/Minege/eSSP
 Running
 -------
 ```
-pipenv run python template.py develop
+pipenv run python app.py develop
 ```
 
 ### Simulating Note validator with develop config
@@ -97,7 +97,7 @@ in /boot/config.txt to rotate screen 180 deg:
 Running
 -------
 ```
-DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 pipenv run python template.py develop_pi
+DISPLAY=:0 KIVY_GL_BACKEND=sdl2 KIVY_WINDOW=sdl2 pipenv run python app.py develop_pi
 ```
 
 Similar Projects
@@ -113,10 +113,10 @@ TO-DO
 - Multi token support
 - Multi fiat currency support ?
 
-Licence
+License
 -------
 
-[License: AGPL v3](/LICENCE.md)
+[License: AGPL v3](/LICENSE.md)
 Copyright &copy; TrueLevel SA
 
 
