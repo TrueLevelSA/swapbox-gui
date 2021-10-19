@@ -1,24 +1,45 @@
 # Operator name
 name: WW
+
+# Enable debug mode
 debug: True
+
 # see machine_config/notes_config for adding currencies
 currency: EUR
-# Validator Settings
-mock_validator: nope
-zmq_url_mock_validator: tcp://localhost:5555
-validator_port: /dev/ttyUSB0
-validator_nv11: False
-# Camera Settings (camera_device only for ZBARCAM method)
-camera_method: OPENCV
-camera_device: /dev/video0
-#ZMQ settings
-zmq_url_pricefeed: tcp://localhost:5556
-zmq_url_rpc: tcp://localhost:5557
-zmq_url_status: tcp://localhost:5558
+
+# Banknote validator settings
+validator:
+  mock:
+    # Enable validator mocking.
+    enabled: False
+    # ZMQ URL (only when mocking is enabled)
+    zmq_url: tcp://localhost:5555
+  port: /dev/ttyUSB0
+  nv11: False
+
+# Camera settings for qrcode scanning
+camera:
+  method: OPENCV
+  # Camera device (only for ZBARCAM method)
+  device: /dev/video0
+
+# ZMQ settings
+zmq:
+  pricefeed: tcp://localhost:5556
+  rpc: tcp://localhost:5557
+  status: tcp://localhost:5558
+
 # LED Relay (set to NONE if unused)
 relay_method: NONE
+
 # set to false to use camera (signed) auth
 admin_pin: 1234
+
+# Set app to fullscreen
 is_fullscreen: True
+
+# Allowed slippage
 default_slippage: 0.02
+
+# Buy limit
 buy_limit: 100
