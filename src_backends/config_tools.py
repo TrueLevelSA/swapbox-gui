@@ -101,7 +101,7 @@ class Config(object):
         "default_slippage": Float(),
         "buy_limit": Int()
     })
-    _notes_schema = Map({"denominations": Seq(Str())})
+    _notes_schema = Map({"denominations": Seq(Int())})
 
     _folder_config = "machine_config"
     _folder_notes_config = "{}/{}".format(_folder_config, "notes_config")

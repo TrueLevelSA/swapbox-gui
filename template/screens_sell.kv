@@ -20,7 +20,6 @@
             MediumButton:
                 text: app._languages[app._selected_language]["menu"]
                 on_press:
-                    root._leave_without_sell_select()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:
@@ -28,17 +27,15 @@
                 text: app._languages[app._selected_language]["confirm"]
                 on_press:
                     root._buy()
-            # BoxLayout:
-            #     orientation: "horizontal"
-            #     size_hint_x : .1
 
 <ScreenSell2>:
+    id: sell2
     BoxLayout:
         orientation: "vertical"
         MainBox:
             orientation: "horizontal"
             BlackLabelSmall:
-                text: "Please pay"
+                text: "Please pay {}".format(root._sell_amount)
             Image:
                 id: 'generate_qr'
                 source: root._qr_image

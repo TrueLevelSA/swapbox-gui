@@ -114,7 +114,6 @@ class TemplateApp(App):
         # received values are in weis
         one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve,
                                                         self._eth_reserve) / sample_amount
-        Logger.debug('price_update: one_stablecoin_buys = %s' % one_stablecoin_buys)
         self._fiat_to_eth = 1 / one_stablecoin_buys
         sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
         self._eth_to_fiat = sample_amount / sample_fiat_buys

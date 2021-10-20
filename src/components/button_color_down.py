@@ -33,9 +33,15 @@ class ColorDownButton(Button):
         self.background_color = self.background_color_normal
 
     def on_press(self):
-        self.background_color = self.background_color_down
+        self.focus()
 
     def on_release(self):
+        self.unfocus()
+
+    def focus(self):
+        self.background_color = self.background_color_down
+
+    def unfocus(self):
         self.background_color = self.background_color_normal
 
 
@@ -48,4 +54,3 @@ class MediumButton(ColorDownButton):
         self.color = [1, 1, 1, 1]
         self.background_color_normal = [0, 0, 0, 0.4]
         self.background_color_down = [0, 0, 0, 0.6]
-

@@ -80,9 +80,9 @@ class ScreenBuyInsert(Screen):
         self._thread_cashin.stop_cashin()
 
     def _update_message_cashin(self, message):
-        amount_received = message.split(':')[1]
+        amount_received = int(message.split(':')[1])
         if amount_received in self._valid_notes:
-            self._cash_in += int(amount_received)
+            self._cash_in += amount_received
             self._get_eth_price(App.get_running_app())
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._cash_in >= self._buy_limit:
