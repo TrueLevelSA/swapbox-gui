@@ -1,50 +1,94 @@
+<ButtonSB@Button>:
+    background_normal: ""
+    background_color: "white"
+    color: "black"
+    font_size: "60sp"
+    font: 'MyriadPro-Bold.otf'
+    canvas.before:
+        Color:
+            rgba: root.color
+        Line:
+            width: 10
+            rectangle: self.x+5, self.y-5, self.width, self.height
+
+
 <ScreenMenu>:
     id: menu_screen
+
+    AnchorLayout:
+        size: self.parent.size
+        anchor_x: 'center'
+        anchor_y: 'center'
+        BoxLayout:
+            size: self.parent.size
+            pos: self.parent.pos
+            orientation: "vertical"
+            size_hint: 0.5, 0.7
+            spacing: 50
+            ButtonSB:
+                color: "#66f068"
+                text: u'Buy crypto ->'
+                on_release:
+                    root.buy_crypto()
+            ButtonSB:
+                color: "#f0676f"
+                text: "<- Sell crypto (not yet)"
+                on_release:
+                    root.sell_crypto()
+
+<TokenListItem>:
+    orientation: "horizontal"
+    canvas.before:
+        Color:
+            rgba: (0.7, 0.7, 0.7, 1.0) if self.selected else (1.0, 1.0, 1.0, 1.0)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    value: ''
+    Image:
+        size_hint_x: 0.2
+        canvas.before:
+            Color:
+                rgba: (1.0, 0.0, 0.0, 1.0)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        size_hint_y: 0.8
+        valign: 'center'
+        height: root.height
+        source: root.value
+    Label:
+        size_hint_x: 1
+        id: name
+        font_size: 30
+        color: "black"
+    Label:
+        size_hint_x: 1
+        id: price
+        font_size: 30
+        color: "black"
+    Label:
+        size_hint_x: 1
+        id: network
+        font_size: 30
+        color: "grey"
+
+<TokensRecycleView@RecycleView>:
+    viewclass: 'TokenListItem'
+    SelectableRecycleBoxLayout:
+        default_size: None, dp(112)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+
+<ScreenSelectCrypto>:
+    id: select_crypto_screen
     BoxLayout:
         orientation: "vertical"
-        MainBox:
-            orientation: "horizontal"
-            BoxLayout:
-                orientation: "vertical"
-                WhiteLabelLarge:
-                    size_hint_y: .15
-                    text: app._languages[app._selected_language]["select_crypto"]
-                BoxLayout:
-                    orientation: "horizontal"
-                    BoxLayout:
-                        orientation: "vertical"
-                        BlackLabelSmall:
-                            text: 'ETHEREUM (ETH)'
-                            size_hint_y: .2
-                        Image:
-                            source: 'assets/img/ETH-logo.png'
-                            allow_stretch: True
-                            size_hint_y: .5
-                            keep_ratio: True
-                        BlackLabelLarge:
-                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['buy'], app._fiat_to_eth, app._machine_currency)
-                            size_hint_y: .1
-                        BlackLabelLarge:
-                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['sell'], app._eth_to_fiat, app._machine_currency)
-                            size_hint_y: .1
-                Label:
-                    size_hint_y: .1
-
-        ButtonBox:
-            MediumButton:
-                text: app._languages[app._selected_language]["buy"]
-                on_release:
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = "scan_screen"
-            MediumButton:
-                text: app._languages[app._selected_language]["sell"]
-                on_release:
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = "sell1"
-#                disabled: True
-            MediumButton:
-                text: app._languages[app._selected_language]["redeem"]
-                on_release:
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = "redeem"
-                disabled: True
+        size_hint_x: 0.8
+        halign: "center"
+        padding: 200
+        TokensRecycleView:
+            id: rv_tokens

@@ -22,6 +22,8 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
+from src.components.recycle_view_crypto import TokensRecycleView
+from src_backends.config_tools import Backend
 
 
 class Manager(ScreenManager):
@@ -52,6 +54,7 @@ class ScreenMain(Screen):
         super().__init__(**kwargs)
         sm = self.ids.sm_content
         sm.add_widget(ScreenMenu(name='menu'))
+        sm.add_widget(ScreenSelectCrypto(config.backends, name='select_crypto'))
         sm.add_widget(ScreenSettings(name='settings'))
         sm.add_widget(ScreenRedeem(name='redeem'))
         sm.add_widget(ScreenBuyScan(config, name='scan_screen'))
@@ -78,7 +81,15 @@ class LayoutPopup(BoxLayout):
 
 
 class ScreenMenu(Screen):
-    pass
+    def buy_crypto(self):
+        self.manager.transition.direction = "left"
+        self.manager.current = "select_crypto"
+
+
+class ScreenSelectCrypto(Screen):
+    def __init__(self, backends: [Backend], **kw):
+        super().__init__(**kw)
+        self.ids.rv_tokens.populate(backends)
 
 
 class FullScreenPopup(ModalView):
