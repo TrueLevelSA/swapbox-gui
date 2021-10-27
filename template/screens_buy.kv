@@ -72,7 +72,7 @@
                             pos: self.pos
                             size: self.size
                     BlackLabelLarge:
-                        text: "{}  [b]{} {}[/b]".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in, app._base_currency)
+                        text: "{}  [b]{} {}[/b]".format(app._languages[app._selected_language]["fiatvalue"], root._cash_in, app._machine_currency)
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
@@ -130,7 +130,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "[b]{}[/b] {:.2f} {}".format(app._languages[app._selected_language]["fiatvalue"], root._fiat_sold, app._base_currency)
+                        text: "[b]{}[/b] {:.2f} {}".format(app._languages[app._selected_language]["fiatvalue"], root._fiat_sold, app._machine_currency)
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:

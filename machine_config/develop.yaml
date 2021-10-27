@@ -4,11 +4,20 @@ name: Web3Summit
 # Enable debug mode
 debug: True
 
-# see machine_config/notes_config for adding currencies
-currency: EUR
+# Crypto backends. Can only be one of: [zksync] for now lol.
+backends:
+  - type: zksync
+    base_currency: CHF
+    address: 0xaaaaaaaaaaaaaaaaa
+    ticker: 0xfffffffffffffffff
+    tokens:
+      - name: DAI
+        address: 0xbbbbbbbbbbbbbbbbb
+      - name: WETH
+        address: 0xccccccccccccccccc
 
 # Banknote validator settings
-validator:
+note_machine:
   mock:
     # Enable validator mocking.
     enabled: True
@@ -16,6 +25,12 @@ validator:
     zmq_url: tcp://localhost:5555
   port: /dev/notes_validator
   nv11: False
+  currency: EUR
+  # see machine_config/notes_config for adding currencies
+  notes:
+    - 10
+    - 20
+    - 50
 
 # Camera settings for qrcode scanning
 camera:

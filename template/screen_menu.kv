@@ -22,10 +22,10 @@
                             size_hint_y: .5
                             keep_ratio: True
                         BlackLabelLarge:
-                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['buy'], app._fiat_to_eth, app._base_currency)
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['buy'], app._fiat_to_eth, app._machine_currency)
                             size_hint_y: .1
                         BlackLabelLarge:
-                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['sell'], app._eth_to_fiat, app._base_currency)
+                            text: '{} = {:.2f} {}'.format(app._languages[app._selected_language]['sell'], app._eth_to_fiat, app._machine_currency)
                             size_hint_y: .1
                 Label:
                     size_hint_y: .1

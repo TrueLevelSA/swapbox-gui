@@ -49,7 +49,7 @@ class ScreenSell1(Screen):
         self._CASHOUT = config.CASHOUT_DRIVER
         self._NOTE_BALANCE = {}
         self._valid_notes = config.notes_values
-        self._currency = config.base_currency
+        self._currency = config.note_machine.currency
         self._sell_choice = None
 
         # keep ref of buttons in order to unselect them

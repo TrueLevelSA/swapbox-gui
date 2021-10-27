@@ -58,7 +58,6 @@ class TemplateApp(App):
     # _sync_block = NumericProperty(-1)
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
-    _base_currency = StringProperty('CHF')
     kv_directory = 'template'
 
     def __init__(self, config: Config):
@@ -76,6 +75,8 @@ class TemplateApp(App):
             ZMQSubscriber.TOPIC_STATUS
         )
 
+        self._machine_currency = config.note_machine.currency
+        self._config = config
         self._manager = None
         self._fiat_to_eth = -1
         self._eth_to_fiat = -1
@@ -88,7 +89,6 @@ class TemplateApp(App):
 
     def build(self):
         self._selected_language = next(iter(self._languages))  # get a language
-        self._base_currency = self._config.base_currency
 
         self._manager = Manager(self._config, transition=RiseInTransition())
         self.thread_pricefeed.start()

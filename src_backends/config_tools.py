@@ -52,11 +52,13 @@ class Mock:
         self.zmq_url: str = cfg["zmq_url"]
 
 
-class Validator:
+class NoteMachine:
     def __init__(self, cfg):
         self.mock = Mock(cfg["mock"])
         self.port: str = cfg["port"]
         self.nv11: bool = cfg["nv11"]
+        self.currency: str = cfg["currency"]
+        self.notes: [str] = cfg["notes"]
 
 
 class Camera:
@@ -72,19 +74,44 @@ class Zmq:
         self.status = cfg["status"]
 
 
+class Token:
+    def __init__(self, cfg):
+        self.name = cfg["name"]
+        self.address = cfg["address"]
+
+
+class Backend:
+    def __init__(self, cfg):
+        self.type = cfg["type"]
+        self.base_currency = cfg["base_currency"]
+        self.address = cfg["address"]
+        self.ticker = cfg["ticker"]
+        self.tokens = [Token(t) for t in cfg["tokens"]]
+
+
 class Config(object):
     _schema = Map({
         "name": Str(),
         "debug": Bool(),
-        "currency": Str(),
-
-        "validator": Map({
+        "backends": Seq(Map({
+            "type": Str(),
+            "base_currency": Str(),
+            "address": Str(),
+            "ticker": Str(),
+            "tokens": Seq(Map({
+                "name": Str(),
+                "address": Str()
+            }))
+        })),
+        "note_machine": Map({
             "mock": Map({
                 "enabled": Bool(),
                 "zmq_url": Str(),
             }),
             "port": Str(),
             "nv11": Bool(),
+            "currency": Str(),
+            "notes": Seq(Int())
         }),
         "camera": Map({
             "method": strictyaml.Enum(CameraMethod.elems()),
@@ -114,8 +141,8 @@ class Config(object):
         # build self with parsed config
         self.operator_name = machine_config["name"]
         self.debug: bool = machine_config["debug"]
-        self.base_currency = machine_config["currency"]
-        self.validator = Validator(machine_config["validator"])
+        self.backends = [Backend(b) for b in machine_config["backends"]]
+        self.note_machine = NoteMachine(machine_config["note_machine"])
         self.camera = Camera(machine_config["camera"])
         self.zmq = Zmq(machine_config["zmq"])
         self.relay_method: RelayMethod = RelayMethod[machine_config["relay_method"]]
@@ -124,7 +151,7 @@ class Config(object):
         self.buy_limit: int = machine_config["buy_limit"]
 
         # validate and parse note config file
-        with open("{}/{}.yaml".format(Config._folder_notes_config, machine_config["currency"])) as c:
+        with open("{}/{}.yaml".format(Config._folder_notes_config, self.note_machine.currency)) as c:
             notes_config = strictyaml.load(c.read(), Config._notes_schema).data
         self.notes_values = notes_config["denominations"]
 
@@ -153,7 +180,7 @@ class Config(object):
 
     @staticmethod
     def _select_cashout_driver(config):
-        if config.validator.mock.enabled:
+        if config.note_machine.mock.enabled:
             from .cashout_driver.mock_cashout_driver import MockCashoutDriver
             return MockCashoutDriver()
         else:

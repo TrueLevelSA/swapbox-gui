@@ -142,12 +142,12 @@ class ScreenBuyInsert(Screen):
 
     @staticmethod
     def _create_thread_cashin(c: Config, callback: ()) -> CashinDriver:
-        if c.validator.mock.enabled:
+        if c.note_machine.mock.enabled:
             from src_backends.cashin_driver.mock_cashin_driver import MockCashinDriver
-            return MockCashinDriver(callback, c.validator.mock.zmq_url)
+            return MockCashinDriver(callback, c.note_machine.mock.zmq_url)
         else:
             from src_backends.cashin_driver.essp_cashin_driver import EsspCashinDriver
-            return EsspCashinDriver(callback, c.validator.port)
+            return EsspCashinDriver(callback, c.note_machine.port)
 
 
 class ScreenBuyFinal(Screen):
