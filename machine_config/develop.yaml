@@ -13,7 +13,7 @@ backends:
     tokens:
       - name: DAI
         address: 0xbbbbbbbbbbbbbbbbb
-      - name: WETH
+      - name: ETH
         address: 0xccccccccccccccccc
 
 # Banknote validator settings
