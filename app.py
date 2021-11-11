@@ -21,12 +21,12 @@ import strictyaml
 from kivy.app import App
 from kivy.config import Config as KivyConfig
 from kivy.core.window import Window
-from kivy.logger import Logger
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import RiseInTransition
 from path import Path
 
-import src_backends.price_tools as price_tools
+# stays here because kivy global scope yolo
+from src.components.recycle_view_crypto import TokensRecycleView
 from src.screens.main import Manager, SyncPopup
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
@@ -64,11 +64,6 @@ class TemplateApp(App):
         super().__init__()
         self._config = config
 
-        self.thread_pricefeed = ZMQSubscriber(
-            self._update_message_pricefeed,
-            config.zmq.pricefeed,
-            ZMQSubscriber.TOPIC_PRICEFEED
-        )
         self.thread_status = ZMQSubscriber(
             self._update_message_status,
             config.zmq.status,
@@ -91,7 +86,6 @@ class TemplateApp(App):
         self._selected_language = next(iter(self._languages))  # get a language
 
         self._manager = Manager(self._config, transition=RiseInTransition())
-        self.thread_pricefeed.start()
         self.thread_status.start()
         return self._manager
 
@@ -101,22 +95,23 @@ class TemplateApp(App):
     def _update_message_pricefeed(self, message):
         """ only updates the _fiat_to_eth attribute """
         """ only dispatching the message to the right screen"""
-        msg_json = json.loads(message)
-        eth_reserve = msg_json['eth_reserve']
-        self._eth_reserve = int("0x" + eth_reserve, 16)
-        stablecoin_reserve = msg_json['token_reserve']
-        self._stablecoin_reserve = int("0x" + stablecoin_reserve, 16)
 
-        self._buy_fee = msg_json['buy_fee']
-        self._sell_fee = msg_json['sell_fee']
-        # we use 20CHF as the standard amount people will buy
-        sample_amount = 20e18
-        # received values are in weis
-        one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve,
-                                                        self._eth_reserve) / sample_amount
-        self._fiat_to_eth = 1 / one_stablecoin_buys
-        sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
-        self._eth_to_fiat = sample_amount / sample_fiat_buys
+        #
+        # eth_reserve = msg_json['eth_reserve']
+        # self._eth_reserve = int("0x" + eth_reserve, 16)
+        # stablecoin_reserve = msg_json['token_reserve']
+        # self._stablecoin_reserve = int("0x" + stablecoin_reserve, 16)
+        #
+        # self._buy_fee = msg_json['buy_fee']
+        # self._sell_fee = msg_json['sell_fee']
+        # # we use 20CHF as the standard amount people will buy
+        # sample_amount = 20e18
+        # # received values are in weis
+        # one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve,
+        #                                                 self._eth_reserve) / sample_amount
+        # self._fiat_to_eth = 1 / one_stablecoin_buys
+        # sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
+        # self._eth_to_fiat = sample_amount / sample_fiat_buys
 
     def _update_message_status(self, message):
         self._first_status_message_received = True
@@ -144,7 +139,6 @@ class TemplateApp(App):
             self.after_popup()
 
     def on_stop(self):
-        self.thread_pricefeed.stop_listening()
         self._config.NODE_RPC.stop()
 
     # this method is ugly but we play with the raspicam overlay and have no choice

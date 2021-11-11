@@ -45,32 +45,24 @@
             size: self.size
             pos: self.pos
     value: ''
+    padding: 10
     Image:
         size_hint_x: 0.2
-        canvas.before:
-            Color:
-                rgba: (1.0, 0.0, 0.0, 1.0)
-            Rectangle:
-                size: self.size
-                pos: self.pos
-        size_hint_y: 0.8
-        valign: 'center'
-        height: root.height
         source: root.value
     Label:
         size_hint_x: 1
         id: name
-        font_size: 30
+        font_size: 40
         color: "black"
     Label:
         size_hint_x: 1
         id: price
-        font_size: 30
+        font_size: 40
         color: "black"
     Label:
         size_hint_x: 1
         id: network
-        font_size: 30
+        font_size: 40
         color: "grey"
 
 <TokensRecycleView@RecycleView>:
@@ -86,9 +78,22 @@
 <ScreenSelectCrypto>:
     id: select_crypto_screen
     BoxLayout:
-        orientation: "vertical"
-        size_hint_x: 0.8
-        halign: "center"
-        padding: 200
-        TokensRecycleView:
-            id: rv_tokens
+        BoxLayout:
+            orientation: "vertical"
+            WhiteLabelLarge:
+                text: "Select a currency"
+                size_hint_y: 0.2
+                text_size: root.width, None
+            TokensRecycleView:
+                id: rv_tokens
+                halign: "center"
+
+    ButtonBox:
+        MediumButton:
+            text: "Cancel"
+            on_press:
+                root._cancel()
+        MediumButton:
+            text: "Confirm"
+            on_press:
+                root._confirm()

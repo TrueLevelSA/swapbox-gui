@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import json
+from typing import Mapping, TypedDict
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -22,8 +24,8 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
-from src.components.recycle_view_crypto import TokensRecycleView
-from src_backends.config_tools import Backend
+from src_backends.config_tools import Config
+from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
 
 
 class Manager(ScreenManager):
@@ -54,7 +56,7 @@ class ScreenMain(Screen):
         super().__init__(**kwargs)
         sm = self.ids.sm_content
         sm.add_widget(ScreenMenu(name='menu'))
-        sm.add_widget(ScreenSelectCrypto(config.backends, name='select_crypto'))
+        sm.add_widget(ScreenSelectCrypto(config, name='select_crypto'))
         sm.add_widget(ScreenSettings(name='settings'))
         sm.add_widget(ScreenRedeem(name='redeem'))
         sm.add_widget(ScreenBuyScan(config, name='scan_screen'))
@@ -87,9 +89,28 @@ class ScreenMenu(Screen):
 
 
 class ScreenSelectCrypto(Screen):
-    def __init__(self, backends: [Backend], **kw):
+    def __init__(self, config: Config, **kw):
         super().__init__(**kw)
-        self.ids.rv_tokens.populate(backends)
+        self.ids.rv_tokens.populate(config.backends)
+
+        self._thread_pricefeed = ZMQSubscriber(
+            self._update_prices,
+            config.zmq.pricefeed,
+            ZMQSubscriber.TOPIC_PRICEFEED
+        )
+        self._thread_pricefeed.start()
+
+    def _confirm(self):
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'insert_screen'
+
+    def _update_prices(self, message):
+        pricefeed_msg = json.loads(message)
+        self.ids.rv_tokens.update_prices(pricefeed_msg['prices'])
+
+    def _cancel(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = "menu"
 
 
 class FullScreenPopup(ModalView):

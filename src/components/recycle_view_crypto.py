@@ -1,13 +1,14 @@
+from typing import Mapping
+
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.uix.recycleboxlayout import RecycleBoxLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
-from kivy.uix.recycleview.views import RecycleDataViewBehavior, RecycleKVIDsDataViewBehavior
+from kivy.uix.recycleview.views import RecycleKVIDsDataViewBehavior
 
-from src_backends.config_tools import Token
+from src_backends.config_tools import Backend
 
 
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
@@ -37,9 +38,7 @@ class TokenListItem(RecycleKVIDsDataViewBehavior, BoxLayout):
         """ Respond to the selection of items in the view. """
         self.selected = is_selected
         if is_selected:
-            print("selection changed to {0}".format(rv.data[index]))
-        else:
-            print("selection removed for {0}".format(rv.data[index]))
+            rv.set_selected(index)
 
 
 class TokensRecycleView(RecycleView):
@@ -47,8 +46,11 @@ class TokensRecycleView(RecycleView):
 
     def __init__(self, **kwargs):
         super(TokensRecycleView, self).__init__(**kwargs)
+        self.selected = -1
+        self._backends = [Backend]
 
-    def populate(self, backends):
+    def populate(self, backends: [Backend]):
+        self._backends = backends
         self.data = []
 
         for backend in backends:
@@ -60,3 +62,12 @@ class TokensRecycleView(RecycleView):
                     'value': TokensRecycleView.ICONS_FOLDER.format(token.name.lower())
                 })
 
+    def update_prices(self, prices):
+        for i, data in enumerate(self.data):
+            token: str = data['name.text']
+            if token in prices:
+                self.data[i]["price.text"] = "{:4f} CHF".format(prices[token]['price'])
+        self.refresh_from_data()
+
+    def set_selected(self, index):
+        self.selected = index
