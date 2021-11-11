@@ -13,8 +13,8 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 from threading import Thread
+from typing import Optional
 
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
@@ -26,8 +26,29 @@ from src_backends.config_tools import Config
 from src_backends.qr_scanner.util import parse_ethereum_address
 
 
+class TransactionOrder:
+    """A transaction order representing what the user want to do.
+
+    It is gradually built screen after screen, until when it's ready and will be sent to the connector.
+
+    Attributes:
+        token           The token the user want to buy.
+        backend         The backend of the token.
+        to              To whom the token will be forwarded while/after the tx.
+        amount_fiat_wei The amount of fiat the user cashed in.
+
+    """
+
+    def __init__(self, token: str, backend: str):
+        self.token = token
+        self.backend = backend
+        self.to: str
+        self.amount_wei: int
+
+
 class ScreenBuyScan(Screen):
     _qr_scanner = ObjectProperty(None)
+    _tx_order: TransactionOrder
 
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
@@ -42,13 +63,17 @@ class ScreenBuyScan(Screen):
     def on_pre_leave(self):
         self._qr_scanner.stop_scan()
 
+    def set_tx_order(self, tx_order):
+        self._tx_order = tx_order
+
     def _start_scan(self):
         self._led_driver.led_on()
         qr = self._qr_scanner.scan()
         self._led_driver.led_off()
         address = parse_ethereum_address(qr, quiet=True)
         if address is not None:
-            self.manager.get_screen('insert_screen').set_address(address)
+            self._tx_order.to = address
+            self.manager.get_screen('insert_screen').set_tx_order(self._tx_order)
             self.manager.transition.direction = 'left'
             self.manager.current = 'insert_screen'
         else:
@@ -63,6 +88,8 @@ class ScreenBuyInsert(Screen):
     _estimated_eth = NumericProperty(0)
     _minimum_wei = NumericProperty(0)
 
+    _tx_order_to = StringProperty('')
+
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
         self._thread_cashin = ScreenBuyInsert._create_thread_cashin(
@@ -73,11 +100,17 @@ class ScreenBuyInsert(Screen):
         self._node_rpc = config.NODE_RPC
         self._buy_limit = config.buy_limit
 
+        self._tx_order: Optional[TransactionOrder] = None
+
     def on_pre_enter(self):
         self._thread_cashin.start_cashin()
 
     def on_pre_leave(self):
         self._thread_cashin.stop_cashin()
+
+    def set_tx_order(self, tx_order):
+        self._tx_order = tx_order
+        self._tx_order_to = tx_order.to
 
     def _update_message_cashin(self, message):
         amount_received = int(message.split(':')[1])
@@ -89,9 +122,6 @@ class ScreenBuyInsert(Screen):
                 self._thread_cashin.stop_cashin()
                 self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
                     "limitreached"]
-
-    def set_address(self, address):
-        self._address_ether = address
 
     def _leave_without_buy(self):
         # reseting cash in, might want to give money back

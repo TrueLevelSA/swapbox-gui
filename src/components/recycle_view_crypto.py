@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Mapping, Tuple
 
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
@@ -71,3 +71,9 @@ class TokensRecycleView(RecycleView):
 
     def set_selected(self, index):
         self.selected = index
+
+    def get_selected_token(self) -> Tuple[str, str]:
+        selected_item = self.data[self.selected]
+        token_name = selected_item['name.text']
+        token_backend = selected_item['network.text']
+        return token_name, token_backend

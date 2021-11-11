@@ -14,14 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
-from typing import Mapping, TypedDict
-
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen, ScreenManager
 
-from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal
+from src.components.recycle_view_crypto import TokensRecycleView
+from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, TransactionOrder
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
 from src_backends.config_tools import Config
@@ -91,7 +90,10 @@ class ScreenMenu(Screen):
 class ScreenSelectCrypto(Screen):
     def __init__(self, config: Config, **kw):
         super().__init__(**kw)
-        self.ids.rv_tokens.populate(config.backends)
+
+        # init recycle view
+        self._list_view: TokensRecycleView = self.ids.rv_tokens
+        self._list_view.populate(config.backends)
 
         self._thread_pricefeed = ZMQSubscriber(
             self._update_prices,
@@ -101,8 +103,14 @@ class ScreenSelectCrypto(Screen):
         self._thread_pricefeed.start()
 
     def _confirm(self):
+        token, backend = self._list_view.get_selected_token()
+        tx_order: TransactionOrder = TransactionOrder(token, backend)
+
+        screen_buy_scan: ScreenBuyScan = self.manager.get_screen('scan_screen')
+        screen_buy_scan.set_tx_order(tx_order)
+
         self.manager.transition.direction = 'left'
-        self.manager.current = 'insert_screen'
+        self.manager.current = 'scan_screen'
 
     def _update_prices(self, message):
         pricefeed_msg = json.loads(message)
