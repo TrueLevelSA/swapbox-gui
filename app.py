@@ -64,7 +64,6 @@ class Manager(ScreenManager):
         self._main_screen.set_current_screen(screen_id)
 
 
-
 class TemplateApp(App):
     _selected_language = StringProperty('English')
     _stablecoin_reserve = NumericProperty(-1e18)
@@ -125,9 +124,19 @@ class TemplateApp(App):
         Subscribe to prices update
 
         :param callback: called each time a price update happens.
-        :return: None
         """
         self._subscribers_prices.append(callback)
+
+    def unsubscribe_prices(self, callback: PriceFeedSubscriber):
+        """
+        Unsubscribe from prices update
+
+        :param callback: the one callback who should stop being called.
+        """
+        try:
+            self._subscribers_prices.remove(callback)
+        except ValueError as e:
+            print("already unsubscribed price", e)
 
     def _update_prices(self, message: str):
         """

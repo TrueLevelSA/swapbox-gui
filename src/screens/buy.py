@@ -61,6 +61,10 @@ class ScreenSelectCrypto(Screen):
         app = App.get_running_app()
         app.subscribe_prices(self._update_prices)
 
+    def on_leave(self, *args):
+        app = App.get_running_app()
+        app.unsubscribe_prices(self._update_prices)
+
     def _confirm(self):
         token, backend = self._list_view.get_selected_token()
         tx_order: TransactionOrder = TransactionOrder(token, backend)
