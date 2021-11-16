@@ -57,7 +57,7 @@ class TokensRecycleView(RecycleView):
             for token in backend.tokens:
                 self.data.append({
                     'name.text': token.name,
-                    'price.text': "CHF " + str(0.01),
+                    'price.text': "loading...",
                     'network.text': backend.type,
                     'value': TokensRecycleView.ICONS_FOLDER.format(token.name.lower())
                 })
