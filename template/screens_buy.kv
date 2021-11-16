@@ -104,7 +104,6 @@
                 text: app._languages[app._selected_language]["menu"]
                 disabled: root._cash_in > 0
                 on_release:
-                    root._leave_without_buy()
                     root.manager.transition.direction = 'right'
                     root.manager.current = "menu"
             MediumButton:

@@ -142,8 +142,11 @@ class ScreenBuyInsert(Screen):
     def on_pre_enter(self):
         self._thread_cashin.start_cashin()
 
-    def on_pre_leave(self):
+    def on_leave(self):
         self._thread_cashin.stop_cashin()
+        self._cash_in = 0
+        self._minimum_wei = 0
+        self._address_ether = '0x0'
 
     def set_tx_order(self, tx_order):
         self._tx_order = tx_order
@@ -163,14 +166,6 @@ class ScreenBuyInsert(Screen):
                 self._thread_cashin.stop_cashin()
                 self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
                     "limitreached"]
-
-    def _leave_without_buy(self):
-        # reseting cash in, might want to give money back
-        # might use on_pre_leave or on_leave
-        self._thread_cashin.stop_cashin()
-        self._cash_in = 0
-        self._minimum_wei = 0
-        self._address_ether = '0x0'
 
     def _get_eth_price(self, app):
         if self._cash_in == 0:

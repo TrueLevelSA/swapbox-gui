@@ -24,12 +24,15 @@ class CashinDriver(ABC):
         super().__init__()
         self._stop_cashin = Event()
         self._callback_message = callback_message
+        self._thread = Thread(target=self._start_cashin, daemon=True)
 
     def start_cashin(self):
         """ async method, is stopped by calling stop_cashin """
         self._stop_cashin.clear()
-        thread = Thread(target=self._start_cashin, daemon=True)
-        thread.start()
+
+        # first time start
+        if not self._thread.is_alive():
+            self._thread.start()
 
     @abstractmethod
     def _start_cashin(self):
