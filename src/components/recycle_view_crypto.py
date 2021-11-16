@@ -1,4 +1,4 @@
-from typing import Mapping, Tuple
+from typing import Mapping, Tuple, Dict
 
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
@@ -62,11 +62,17 @@ class TokensRecycleView(RecycleView):
                     'value': TokensRecycleView.ICONS_FOLDER.format(token.name.lower())
                 })
 
-    def update_prices(self, prices):
+    def update_prices(self, prices: Dict[str, float]):
+        """
+        Update token prices inside list view.
+
+        :param prices: key is the token name, value is the price. It will try to match token name
+        with existing rows, if it exists in the list, then the price is updated.
+        """
         for i, data in enumerate(self.data):
             token: str = data['name.text']
             if token in prices:
-                self.data[i]["price.text"] = "{:4f} CHF".format(prices[token]['price'])
+                self.data[i]["price.text"] = "{:4f} CHF".format(prices[token])
         self.refresh_from_data()
 
     def set_selected(self, index):

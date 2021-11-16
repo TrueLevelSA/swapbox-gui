@@ -16,18 +16,22 @@
 
 import json
 from threading import Lock
+from typing import Callable, List, Dict
 
 import strictyaml
 from kivy.app import App
 from kivy.config import Config as KivyConfig
 from kivy.core.window import Window
 from kivy.properties import StringProperty, NumericProperty
-from kivy.uix.screenmanager import RiseInTransition
+from kivy.uix.screenmanager import RiseInTransition, ScreenManager
 from path import Path
+
+from pydantic import ValidationError
 
 # stays here because kivy global scope yolo
 from src.components.recycle_view_crypto import TokensRecycleView
-from src.screens.main import Manager, SyncPopup
+from src.screens.main import SyncPopup, ScreenWelcome, ScreenMain
+from src.types.pricefeed import PricefeedMessage, Price, PriceFeedSubscriber
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
@@ -48,33 +52,51 @@ def set_window(fullscreen: bool):
         Window.show_cursor = False
 
 
+class Manager(ScreenManager):
+    def __init__(self, config, **kwargs):
+        super().__init__(**kwargs)
+        self._welcome_screen = ScreenWelcome(name='welcome')
+        self._main_screen = ScreenMain(config, name='main')
+        self.add_widget(self._welcome_screen)
+        self.add_widget(self._main_screen)
+
+    def set_content_screen(self, screen_id):
+        self._main_screen.set_current_screen(screen_id)
+
+
+
 class TemplateApp(App):
-    # with only eth/fiat, that's ok but might have to
-    # try to share a variable in another way
-    _fiat_to_eth = NumericProperty(0)
-    _eth_to_fiat = NumericProperty(0)
     _selected_language = StringProperty('English')
-    # _current_block = NumericProperty(-1)
-    # _sync_block = NumericProperty(-1)
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
     kv_directory = 'template'
 
     def __init__(self, config: Config):
         super().__init__()
+
         self._config = config
 
-        self.thread_status = ZMQSubscriber(
+        # Thread for node(s) status updates
+        self._thread_status = ZMQSubscriber(
             self._update_message_status,
             config.zmq.status,
             ZMQSubscriber.TOPIC_STATUS
         )
 
+        # Thread for currency prices updates
+        self._thread_pricefeed = ZMQSubscriber(
+            self._update_prices,
+            config.zmq.pricefeed,
+            ZMQSubscriber.TOPIC_PRICEFEED
+        )
+
+        # Subscribers of pricefeed price updates
+        self._subscribers_prices: List[PriceFeedSubscriber] = []
+
+        # Physical fiat currency supported by the banknote validator
         self._machine_currency = config.note_machine.currency
-        self._config = config
+
         self._manager = None
-        self._fiat_to_eth = -1
-        self._eth_to_fiat = -1
         self._popup_sync = None
         self._overlay_lock = Lock()
         self._popup_count = 0
@@ -83,35 +105,45 @@ class TemplateApp(App):
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
 
     def build(self):
-        self._selected_language = next(iter(self._languages))  # get a language
+        # Get a language
+        self._selected_language = next(iter(self._languages))
 
+        # Must be called after setting _selected_language
         self._manager = Manager(self._config, transition=RiseInTransition())
-        self.thread_status.start()
+
+        # Start threads
+        self._thread_status.start()
+        self._thread_pricefeed.start()
+
         return self._manager
 
     def change_language(self, selected_language):
         self._selected_language = selected_language
 
-    def _update_message_pricefeed(self, message):
-        """ only updates the _fiat_to_eth attribute """
-        """ only dispatching the message to the right screen"""
+    def subscribe_prices(self, callback: PriceFeedSubscriber):
+        """
+        Subscribe to prices update
 
-        #
-        # eth_reserve = msg_json['eth_reserve']
-        # self._eth_reserve = int("0x" + eth_reserve, 16)
-        # stablecoin_reserve = msg_json['token_reserve']
-        # self._stablecoin_reserve = int("0x" + stablecoin_reserve, 16)
-        #
-        # self._buy_fee = msg_json['buy_fee']
-        # self._sell_fee = msg_json['sell_fee']
-        # # we use 20CHF as the standard amount people will buy
-        # sample_amount = 20e18
-        # # received values are in weis
-        # one_stablecoin_buys = price_tools.get_buy_price(sample_amount, self._stablecoin_reserve,
-        #                                                 self._eth_reserve) / sample_amount
-        # self._fiat_to_eth = 1 / one_stablecoin_buys
-        # sample_fiat_buys = price_tools.get_sell_price(sample_amount, self._eth_reserve, self._stablecoin_reserve)
-        # self._eth_to_fiat = sample_amount / sample_fiat_buys
+        :param callback: called each time a price update happens.
+        :return: None
+        """
+        self._subscribers_prices.append(callback)
+
+    def _update_prices(self, message: str):
+        """
+        Parses message back from pricefeed raw message and update internal self._prices.
+
+        You can subscribe to it via the subscribe_prices method.
+
+        :argument message raw message from pricefeed
+        """
+        try:
+            self._prices = PricefeedMessage(**json.loads(message)).prices
+        except ValidationError as e:
+            print(e.json())
+
+        for callback in self._subscribers_prices:
+            callback(self._prices)
 
     def _update_message_status(self, message):
         self._first_status_message_received = True

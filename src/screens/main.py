@@ -20,23 +20,9 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen, ScreenManager
 
 from src.components.recycle_view_crypto import TokensRecycleView
-from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, TransactionOrder
+from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
-from src_backends.config_tools import Config
-from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
-
-
-class Manager(ScreenManager):
-    def __init__(self, config, **kwargs):
-        super().__init__(**kwargs)
-        self._welcome_screen = ScreenWelcome(name='welcome')
-        self._main_screen = ScreenMain(config, name='main')
-        self.add_widget(self._welcome_screen)
-        self.add_widget(self._main_screen)
-
-    def set_content_screen(self, screen_id):
-        self._main_screen.set_current_screen(screen_id)
 
 
 class ScreenWelcome(Screen):
@@ -85,40 +71,6 @@ class ScreenMenu(Screen):
     def buy_crypto(self):
         self.manager.transition.direction = "left"
         self.manager.current = "select_crypto"
-
-
-class ScreenSelectCrypto(Screen):
-    def __init__(self, config: Config, **kw):
-        super().__init__(**kw)
-
-        # init recycle view
-        self._list_view: TokensRecycleView = self.ids.rv_tokens
-        self._list_view.populate(config.backends)
-
-        self._thread_pricefeed = ZMQSubscriber(
-            self._update_prices,
-            config.zmq.pricefeed,
-            ZMQSubscriber.TOPIC_PRICEFEED
-        )
-        self._thread_pricefeed.start()
-
-    def _confirm(self):
-        token, backend = self._list_view.get_selected_token()
-        tx_order: TransactionOrder = TransactionOrder(token, backend)
-
-        screen_buy_scan: ScreenBuyScan = self.manager.get_screen('scan_screen')
-        screen_buy_scan.set_tx_order(tx_order)
-
-        self.manager.transition.direction = 'left'
-        self.manager.current = 'scan_screen'
-
-    def _update_prices(self, message):
-        pricefeed_msg = json.loads(message)
-        self.ids.rv_tokens.update_prices(pricefeed_msg['prices'])
-
-    def _cancel(self):
-        self.manager.transition.direction = 'right'
-        self.manager.current = "menu"
 
 
 class FullScreenPopup(ModalView):

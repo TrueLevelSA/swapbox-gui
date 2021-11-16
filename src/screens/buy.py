@@ -13,13 +13,16 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from threading import Thread
-from typing import Optional
+from typing import Optional, Dict
 
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
 
+from src.components.recycle_view_crypto import TokensRecycleView
+from src.types.pricefeed import Price
 from src_backends import price_tools
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.config_tools import Config
@@ -44,6 +47,36 @@ class TransactionOrder:
         self.backend = backend
         self.to: str
         self.amount_wei: int
+
+
+class ScreenSelectCrypto(Screen):
+    def __init__(self, config: Config, **kw):
+        super().__init__(**kw)
+
+        # init recycle view
+        self._list_view: TokensRecycleView = self.ids.rv_tokens
+        self._list_view.populate(config.backends)
+
+    def on_pre_enter(self, *args):
+        app = App.get_running_app()
+        app.subscribe_prices(self._update_prices)
+
+    def _confirm(self):
+        token, backend = self._list_view.get_selected_token()
+        tx_order: TransactionOrder = TransactionOrder(token, backend)
+
+        screen_buy_scan: ScreenBuyScan = self.manager.get_screen('scan_screen')
+        screen_buy_scan.set_tx_order(tx_order)
+
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'scan_screen'
+
+    def _update_prices(self, prices: Dict[str, Price]):
+        self.ids.rv_tokens.update_prices({k: v.price for (k, v) in prices.items()})
+
+    def _cancel(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = "menu"
 
 
 class ScreenBuyScan(Screen):
@@ -94,7 +127,7 @@ class ScreenBuyInsert(Screen):
         super().__init__(**kwargs)
         self._thread_cashin = ScreenBuyInsert._create_thread_cashin(
             config,
-            self._update_message_cashin
+            self._update_cashin
         )
         self._valid_notes = config.notes_values
         self._node_rpc = config.NODE_RPC
@@ -112,7 +145,11 @@ class ScreenBuyInsert(Screen):
         self._tx_order = tx_order
         self._tx_order_to = tx_order.to
 
-    def _update_message_cashin(self, message):
+    def _update_cashin(self, message):
+        """
+        Callback when the cashin thread sends an update.
+        :param message: The cashin thread raw message. Format: <currency>:<amount>
+        """
         amount_received = int(message.split(':')[1])
         if amount_received in self._valid_notes:
             self._cash_in += amount_received
