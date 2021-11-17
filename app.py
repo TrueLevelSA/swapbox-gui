@@ -16,7 +16,7 @@
 
 import json
 from threading import Lock
-from typing import Callable, List, Dict
+from typing import List
 
 import strictyaml
 from kivy.app import App
@@ -216,7 +216,7 @@ class TemplateApp(App):
                 driver._show_overlay()
 
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     config = Config(args.config)
 
@@ -225,3 +225,7 @@ if __name__ == '__main__':
 
     app = TemplateApp(config)
     app.run()
+
+
+if __name__ == '__main__':
+    main()
