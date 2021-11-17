@@ -117,7 +117,20 @@ class TemplateApp(App):
         return self._manager
 
     def change_language(self, selected_language):
+        """
+        Change the current language.
+
+        :param selected_language: Which language to select
+        """
         self._selected_language = selected_language
+
+    def get_string(self, str_id: str):
+        """
+        Get a specific string by ID, using the current language.
+
+        :param str_id: id of the requested string
+        """
+        return self._languages[self._selected_language][str_id]
 
     def subscribe_prices(self, callback: PriceFeedSubscriber):
         """

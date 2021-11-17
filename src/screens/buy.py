@@ -159,13 +159,13 @@ class ScreenBuyInsert(Screen):
         """
         amount_received = int(message.split(':')[1])
         if amount_received in self._valid_notes:
+            app = App.get_running_app()
             self._cash_in += amount_received
-            self._get_eth_price(App.get_running_app())
+            self._get_eth_price(app)
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._cash_in >= self._buy_limit:
                 self._thread_cashin.stop_cashin()
-                self.ids.buy_limit.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
-                    "limitreached"]
+                self.ids.buy_limit.text = app.get_string("limitreached")
 
     def _get_eth_price(self, app):
         if self._cash_in == 0:
@@ -177,8 +177,8 @@ class ScreenBuyInsert(Screen):
         return eth_amount / 1e18
 
     def _buy(self):
-        self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
-            "pleasewait"]
+        app = App.get_running_app()
+        self.ids.buy_confirm.text = app.get_string("pleasewait")
         self.ids.buy_confirm.disabled = True
         self._thread_cashin.stop_cashin()
         Thread(target=self._threaded_buy, daemon=True).start()
@@ -189,11 +189,11 @@ class ScreenBuyInsert(Screen):
         print("min eth", min_eth)
         success, value = self._node_rpc.buy(str(int(1e18 * self._cash_in)), self._address_ether, self._minimum_wei)
         if success:
+            app = App.get_running_app()
             self.manager.get_screen("final_buy_screen")._fiat_sold = self._cash_in
             self.manager.get_screen("final_buy_screen")._eth_bought = min_eth
             self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
-            self.ids.buy_confirm.text = App.get_running_app()._languages[App.get_running_app()._selected_language][
-                "confirm"]
+            self.ids.buy_confirm.text = app.get_string("confirm")
             self.ids.buy_confirm.disabled = False
             self.ids.buy_limit.text = ""
             self._cash_in = 0
