@@ -120,7 +120,8 @@ class ScreenBuyScan(Screen):
 
 
 class ScreenBuyInsert(Screen):
-    _address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
+    _address_ether = StringProperty("")
+
     _cash_in = NumericProperty(0)
     _estimated_eth = NumericProperty(0)
     _minimum_wei = NumericProperty(0)
@@ -138,19 +139,38 @@ class ScreenBuyInsert(Screen):
         self._buy_limit = config.buy_limit
 
         self._tx_order: Optional[TransactionOrder] = None
+        self._token_price = 1.0
 
     def on_pre_enter(self):
         self._thread_cashin.start_cashin()
+        app = App.get_running_app()
+        app.subscribe_prices(self._update_prices)
 
     def on_leave(self):
+        app = App.get_running_app()
+        app.unsubscribe_prices(self._update_prices)
+
         self._thread_cashin.stop_cashin()
         self._cash_in = 0
         self._minimum_wei = 0
         self._address_ether = '0x0'
 
     def set_tx_order(self, tx_order):
+        """
+        Set transaction order parameters.
+
+        That must be set by the previous screen before transitioning to this one.
+        :param tx_order: The TransactionOrder object with the tx info we are building through the screens.
+        """
         self._tx_order = tx_order
         self._tx_order_to = tx_order.to
+
+    def _update_prices(self, prices: Dict[str, Price]):
+        if self._tx_order.token not in prices:
+            print("token price not received")
+            return
+        self._token_price = prices[self._tx_order.token].price
+        self._update_price_labels()
 
     def _update_cashin(self, message):
         """
@@ -161,24 +181,20 @@ class ScreenBuyInsert(Screen):
         if amount_received in self._valid_notes:
             app = App.get_running_app()
             self._cash_in += amount_received
-            self._get_eth_price(app)
+
+            self._update_price_labels()
+
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._cash_in >= self._buy_limit:
                 self._thread_cashin.stop_cashin()
                 self.ids.buy_limit.text = app.get_string("limitreached")
 
-    def _get_eth_price(self, app):
-        if self._cash_in == 0:
-            return 0
-        amount_stablecoin = self._cash_in * 1e18
-        eth_amount = price_tools.get_buy_price(amount_stablecoin, app._stablecoin_reserve, app._eth_reserve)
-        self._estimated_eth = eth_amount
-        self._minimum_wei = eth_amount * 0.98
-        return eth_amount / 1e18
+    def _update_price_labels(self):
+        self._estimated_eth = self._cash_in / self._token_price
 
     def _buy(self):
         app = App.get_running_app()
-        self.ids.buy_confirm.text = app.get_string("pleasewait")
+        self.ids.buy_confirm.text = app._languages[app._selected_language]["pleasewait"]
         self.ids.buy_confirm.disabled = True
         self._thread_cashin.stop_cashin()
         Thread(target=self._threaded_buy, daemon=True).start()

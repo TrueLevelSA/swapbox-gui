@@ -27,12 +27,12 @@
             spacing: 50
             ButtonSB:
                 color: "#66f068"
-                text: u'Buy crypto ->'
+                text: app._languages[app._selected_language]['buy']
                 on_release:
                     root.buy_crypto()
             ButtonSB:
                 color: "#f0676f"
-                text: "<- Sell crypto (not yet)"
+                text: app._languages[app._selected_language]['sell']
                 on_release:
                     root.sell_crypto()
 
@@ -81,7 +81,7 @@
         BoxLayout:
             orientation: "vertical"
             WhiteLabelLarge:
-                text: "Select a currency"
+                text: app._languages[app._selected_language]['select_currency']
                 size_hint_y: 0.2
                 text_size: root.width, None
             TokensRecycleView:

@@ -3,10 +3,10 @@ EN:
   menu: BACK
   validate: Validate
   confirm: CONFIRM
-  buy: BUY
-  sell: SELL
+  buy: Buy crypto
+  sell: Sell crypto
   redeem: REDEEM CODE
-  select_crypto: SELECT CRYPTO
+  select_currency: Select currency
   welcome: 'Welcome to {} Swap-Box. Press on the screen to continue'
   admin_menu: Admin Menu
   main_title: '{} Swap-Box'
@@ -34,7 +34,7 @@ DE:
   buy: Kaufen
   sell: Verkaufen
   redeem: Code einlösen
-  select_crypto: Kryptowährung wählen
+  select_currency: Kryptowährung wählen
   welcome: 'Willkommen bei {} Swap-Box. Bildschirm berühren um Vorgang fortzusetzen'
   admin_menu: Menü Admin
   main_title: '{} Swap-Box'
@@ -62,7 +62,7 @@ ES:
   buy: Comprar
   sell: Vender
   redeem: Usar un código
-  select_crypto: Seleccione su Crypto
+  select_currency: Seleccione su Crypto
   welcome: Bienvenido a {} Swap-Box. Pulse en la pantalla para continuar.
   admin_menu: Menú de Administración
   main_title: 'Swap-Box {}'
@@ -90,7 +90,7 @@ FR:
   buy: Acheter
   sell: Vendre
   redeem: Utiliser un code
-  select_crypto: Choisissez une Crypto
+  select_currency: Choisissez une Crypto
   welcome: "Bienvenue sur le Swap-Box {}. Appuyez sur l'écran pour continuer"
   admin_menu: Menu Administrateur
   main_title: 'Swap-Box {}'
@@ -118,7 +118,7 @@ IT:
   buy: Comprare
   sell: Vendere
   redeem: Usa un codice
-  select_crypto: Scegliere un Crypto
+  select_currency: Scegliere un Crypto
   welcome: Benvenuti alla Swap-Box {}. Toccare lo schermo per continuare
   admin_menu: Menu Amministratore
   main_title: 'Swap-Box de {}'
@@ -146,7 +146,7 @@ PT:
   buy: Comprar
   sell: Vender
   redeem: Utilisar um código
-  select_crypto: Escolher uma crypto
+  select_currency: Escolher uma crypto
   welcome: 'Bem-vindo ao Swap-Box de {}. Toque no ecrã para continuar'
   admin_menu: Menu Administrador
   main_title: 'Swap-Box de {}'

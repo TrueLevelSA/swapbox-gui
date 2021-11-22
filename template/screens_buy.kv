@@ -76,7 +76,7 @@
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], root._estimated_eth / 1e18)
+                        text: "{}  [b]{:.6f} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], root._estimated_eth)
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
