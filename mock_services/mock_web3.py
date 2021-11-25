@@ -48,6 +48,8 @@ try:
         if msg_json['method'] == "buy":
             print("Buy order")
             if success == True:
+                sleep(0.5)
+
                 response = {'status': "success", 'result': msg_json['min_eth']}
                 socket.send_multipart([json.dumps(response).encode('utf-8')])
             else:
