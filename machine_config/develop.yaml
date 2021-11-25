@@ -51,7 +51,7 @@ relay_method: NONE
 admin_pin: 1234
 
 # Set app to fullscreen
-is_fullscreen: False
+is_fullscreen: True
 
 # Allowed slippage
 default_slippage: 0.02

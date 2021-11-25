@@ -1,10 +1,10 @@
 EN:
   # Sam input
-  menu: BACK
+  menu: Back
   validate: Validate
-  confirm: CONFIRM
-  buy: Buy crypto
-  sell: Sell crypto
+  confirm: Confirm
+  buy: Buy Crypto
+  sell: Withdraw Cash
   redeem: REDEEM CODE
   select_currency: Select currency
   welcome: 'Welcome to {} Swap-Box. Press on the screen to continue'
@@ -15,7 +15,7 @@ EN:
   language: Language
   inputkey: Scan your address
   inputwallet: Please, place your destination wallet in front of the camera
-  inputfiat: INSERT CASH
+  inputfiat: Insert cash
   customeraddress: Funds will be sent to
   pleasewait: .. please wait ..
   limitreached: LIMIT REACHED

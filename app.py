@@ -132,6 +132,26 @@ class TemplateApp(App):
         """
         return self._languages[self._selected_language][str_id]
 
+    def format_fiat_price(self, value: int) -> str:
+        """
+        Return a formatted price with given value and swapbox currency.
+        :param value: The price as a human-readable value
+        :return: The formatted price
+        """
+        # TODO: handle prefixed AND suffixed price format ($ 10 and 10 EUR).
+        return "{} {}".format(value, self._machine_currency)
+
+    @staticmethod
+    def format_crypto_price(value: int, token_name: str) -> str:
+        """
+        Return a formatted price with given value and a curre
+        :param value: The price as a human-readable value
+        :param token_name: The token name
+        :return: The formatted price
+        """
+        # TODO: handle prefixed AND suffixed price format ($ 10 and 10 EUR).
+        return "{} {}".format(value, token_name)
+
     def subscribe_prices(self, callback: PriceFeedSubscriber):
         """
         Subscribe to prices update

@@ -1,4 +1,4 @@
-from typing import Mapping, Tuple, Dict
+from typing import Mapping, Tuple, Dict, List, Optional
 
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
@@ -47,9 +47,10 @@ class TokensRecycleView(RecycleView):
     def __init__(self, **kwargs):
         super(TokensRecycleView, self).__init__(**kwargs)
         self.selected = -1
-        self._backends = [Backend]
+        self._backends: List[Backend] = []
+        self._callback_update_focus: Optional[()] = None
 
-    def populate(self, backends: [Backend]):
+    def populate(self, backends: List[Backend]):
         self._backends = backends
         self.data = []
 
@@ -75,6 +76,13 @@ class TokensRecycleView(RecycleView):
                 self.data[i]["price.text"] = "{:4f} CHF".format(prices[token])
         self.refresh_from_data()
 
+    def set_callback_update_focus(self, callback: ()):
+        self._callback_update_focus = callback
+
+    def on_touch_down(self, touch):
+        self._callback_update_focus()
+        return super(TokensRecycleView, self).on_touch_down(touch)
+
     def set_selected(self, index):
         self.selected = index
 
@@ -83,3 +91,7 @@ class TokensRecycleView(RecycleView):
         token_name = selected_item['name.text']
         token_backend = selected_item['network.text']
         return token_name, token_backend
+
+    def deselect(self):
+        self.layout_manager.deselect_node(self.selected)
+

@@ -1,3 +1,102 @@
+<GreyLabelLarge@BlackLabelLarge>
+    color: "#ababab"
+
+<LabelStepTitle@Label>
+    halign: "left"
+    valign: "center"
+    text_size: self.size
+    font_size: 20
+
+<LabelStepText@LabelStepTitle>
+    bold: True
+
+<LabelInfoTitle@BlackLabelLarge>
+    valign: "center"
+    halign: "left"
+    text_size: self.size
+
+<LabelInfoText@LabelInfoTitle>
+    bold: True
+
+<LightBoxLayout@BoxLayout>
+    canvas.before:
+        Color:
+            rgba: 5,5,5,.5
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ScreenBuy>:
+    BoxLayout:
+        orientation: "vertical"
+
+        Label:
+            id: buy_title
+            text: root._title
+            size_hint_y: 0.2
+            font_size: 50
+            bold: True
+
+        BoxLayout:
+            orientation: "horizontal"
+
+            BoxLayout:
+                orientation: "horizontal"
+                id: steps
+                padding: 20
+                size_hint_x: 0.3
+
+                BoxLayout:
+                    orientation: "vertical"
+
+                    LabelStepTitle:
+                        text: "Action:"
+                    LabelStepTitle:
+                        text: "Network:"
+                    LabelStepTitle:
+                        text: "Currency:"
+                    LabelStepTitle:
+                        text: "Wallet:"
+                    LabelStepTitle:
+                        text: "Cash amount:"
+
+                BoxLayout:
+                    orientation: "vertical"
+
+                    LabelStepText:
+                        id: action_name
+                        text: root._step_action
+                    LabelStepText:
+                        id: network
+                        text: root._step_network
+                    LabelStepText:
+                        id: currency
+                        text: root._step_currency
+                    LabelStepText:
+                        id: wallet
+                        text: root._step_wallet
+                    LabelStepText:
+                        id: cash_amount
+                        text: root._step_amount
+
+
+            ScreenManager:
+                id: sm_buy
+
+        BoxLayout:
+            size_hint_y: .3
+            spacing: 20
+            MediumButton:
+                id: button_back
+                text: app._languages[app._selected_language]["menu"]
+                size_hint_x: .3
+                on_press: root.button_back()
+            MediumButton:
+                id: button_confirm
+                text: app._languages[app._selected_language]["confirm"]
+                on_press: root.button_confirm()
+
+
 <ScreenBuyScan>:
     BoxLayout:
         orientation: "vertical"
@@ -11,16 +110,6 @@
                     source: 'assets/img/phoneqr.png'
                     allow_stretch: True
                     keep_ratio: True
-                BoxLayout:
-                #    orientation: 'vertical'
-                #    Label:
-                #        font_size: '20'
-                #        color: [0,0,0,1]
-                #        size_hint_y : .1
-                #        allow_stretch: True
-                #        text: app._languages[app._selected_language]["inputwallet"]
-                #    BoxLayout:
-                #        size_hint_y : .2
             BoxLayout:
                 size_hint_x : .1
             BoxLayout:
@@ -29,24 +118,9 @@
                     size_hint_y : .2
                 BlackLabelSmall:
                     text: app._languages[app._selected_language]['camera_loading']
-                    #on_press:
-                    #    print(self.pos)
-                    #    print(self.size)
-                    #    root.manager.transition.direction = 'left'
-                    #    root.manager.current = "insert_screen"
                     size_hint_x : .9
                 BoxLayout:
                     size_hint_y : .2
-        ButtonBox:
-            MediumButton:
-
-                text: app._languages[app._selected_language]["menu"]
-                on_release:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .2
 
 
 <ScreenBuyInsert>:
@@ -55,14 +129,7 @@
         MainBox:
             orientation: "vertical"
             BoxLayout:
-                size_hint_y: 0.05
-            WhiteLabelLarge:
-                text: app._languages[app._selected_language]["inputfiat"]
-                size_hint_y: 0.1
-            BoxLayout:
                 orientation: "vertical"
-                BoxLayout:
-                    size_hint_y : .1
                 BoxLayout:
                     size_hint_y : .2
                     canvas.before:
@@ -89,9 +156,16 @@
                         text: "{}  [b]{} ETH[/b]".format(app._languages[app._selected_language]["cryptoslippage"], root._minimum_wei / 1e18)
                 BoxLayout:
                     size_hint_y: 0.05
-                BlackLabelLarge:
-                    text: "{} [b]{}[/b]".format(app._languages[app._selected_language]["customeraddress"], root._tx_order_to)
+                BoxLayout:
                     size_hint_y: 0.1
+                    padding: (20, 0)
+                    LabelInfoTitle:
+                        text: app._languages[app._selected_language]["customeraddress"]
+                    LabelInfoText:
+                        id: label_address_to
+                        size_hint_x: 2.5
+                        text: root._address_ether
+
                 BoxLayout:
                     size_hint_y: 0.05
                     BlackLabelLarge:
@@ -99,65 +173,58 @@
                         color: 1,0,0,1
                         text: ""
 
-        ButtonBox:
-            MediumButton:
-                text: app._languages[app._selected_language]["menu"]
-                disabled: root._cash_in > 0
-                on_release:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-            MediumButton:
-                id: buy_confirm
-                disabled: root._cash_in <= 0
-                text: app._languages[app._selected_language]["confirm"]
-                on_release:
-                    root._buy()
-
 
 <ScreenBuyFinal>:
     BoxLayout:
         orientation: "vertical"
         MainBox:
             orientation: "horizontal"
-            # size_hint_x : .1
+            size_hint_x : 1.0
             BoxLayout:
                 orientation: "vertical"
                 BoxLayout:
+                    padding: 20
                     size_hint_y : .2
-                    WhiteLabelLarge:
-                        text: app._languages[app._selected_language]["thank"]
+                    GreyLabelLarge:
+                        size_hint_x: 0.1
+                        text: "Fiat"
+                    BlackLabelLarge:
+                        size_hint_x: 0.1
+                        text: root._text_cash_in
+                    BlackLabelLarge:
+                        size_hint_x: 0.4
+                        text: "----->"
+                    BlackLabelLarge:
+                        size_hint_x: 0.1
+                        text: root._crypto_bought
+                    GreyLabelLarge:
+                        size_hint_x: 0.1
+                        text: root._crypto_value_fiat
+                LightBoxLayout:
+                    size_hint_y : .2
+                    BoxLayout:
+                        orientation: "vertical"
+                        BoxLayout:
+                            orientation: "horizontal"
+                            BlackLabelLarge:
+                                text: "Operator fees"
+                            BlackLabelLarge:
+                                text: "4%"
+                            BlackLabelLarge:
+                                text: root._operator_fee_fiat
+                        BoxLayout:
+                            orientation: "horizontal"
+                            BlackLabelLarge:
+                                text: "Network + LP fees"
+                            BlackLabelLarge:
+                                text: "4%"
+                            BlackLabelLarge:
+                                text: root._operator_fee_fiat
                 BoxLayout:
                     size_hint_y : .2
                     BlackLabelLarge:
-                        text: "[b]{}[/b] {:.2f} {}".format(app._languages[app._selected_language]["fiatvalue"], root._fiat_sold, app._machine_currency)
-                BoxLayout:
-                    size_hint_y : .2
-                    canvas.before:
-                        Color:
-                            rgba: 5,5,5,.5
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
+                        text: app._languages[app._selected_language]["customeraddress"]
                     BlackLabelLarge:
-                        text: "{}  [b]{:.5f} ETH[/b]".format(app._languages[app._selected_language]["cryptovalue"], root._eth_bought)
-                BoxLayout:
-                    size_hint_y : .2
-                    BlackLabelLarge:
-                        text: "{}  [b]{}[/b]".format(app._languages[app._selected_language]["customeraddress"], root._address_ether)
-
-
-        ButtonBox:
-            # BoxLayout:
-            #     orientation: "horizontal"
-            #     size_hint_x : .2
-            Button:
-                text: ''
-                background_color: [1, 1, 1, 0]
-            MediumButton:
-                text: app._languages[app._selected_language]["thank"]
-                on_release:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-            # BoxLayout:
-            #     orientation: "horizontal"
-            #     size_hint_x : .2
+                        id: label_address_to
+                        bold: True
+                        text: root._address_ether

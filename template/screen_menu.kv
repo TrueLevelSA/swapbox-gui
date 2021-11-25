@@ -77,23 +77,6 @@
 
 <ScreenSelectCrypto>:
     id: select_crypto_screen
-    BoxLayout:
-        BoxLayout:
-            orientation: "vertical"
-            WhiteLabelLarge:
-                text: app._languages[app._selected_language]['select_currency']
-                size_hint_y: 0.2
-                text_size: root.width, None
-            TokensRecycleView:
-                id: rv_tokens
-                halign: "center"
-
-    ButtonBox:
-        MediumButton:
-            text: "Cancel"
-            on_press:
-                root._cancel()
-        MediumButton:
-            text: "Confirm"
-            on_press:
-                root._confirm()
+    TokensRecycleView:
+        id: rv_tokens
+        halign: "center"
