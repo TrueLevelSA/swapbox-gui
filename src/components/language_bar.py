@@ -52,18 +52,3 @@ class LanguageBar(BoxLayout):
         for l in languages:
             self.add_widget(ButtonLanguage(l))
         # self.add_widget(wid)
-
-
-class LanguagePopup(FullScreenPopup):
-    def __init__(self):
-        super().__init__()
-        # has to match the array in lang_template.yaml
-        languages = ['EN', 'DE', 'FR', 'PT']
-        wid = LayoutPopup()
-        for l in languages:
-            wid.add_widget(ButtonLanguage(l, self._close))
-        self.add_widget(wid)
-
-    def _close(self):
-        self.dismiss()
-        App.get_running_app().after_popup()
