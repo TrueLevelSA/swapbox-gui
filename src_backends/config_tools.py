@@ -93,6 +93,7 @@ class Config(object):
     _schema = Map({
         "name": Str(),
         "debug": Bool(),
+        "default_lang": Str(),
         "backends": Seq(Map({
             "type": Str(),
             "base_currency": Str(),
@@ -141,6 +142,7 @@ class Config(object):
         # build self with parsed config
         self.operator_name = machine_config["name"]
         self.debug: bool = machine_config["debug"]
+        self.default_lang: str = machine_config["default_lang"]
         self.backends = [Backend(b) for b in machine_config["backends"]]
         self.note_machine = NoteMachine(machine_config["note_machine"])
         self.camera = Camera(machine_config["camera"])

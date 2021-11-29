@@ -15,40 +15,56 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from kivy.app import App
+from kivy.graphics import Color, Line
 from kivy.properties import StringProperty
+from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
+from kivy.uix.image import Image
 
-from src.screens.main import FullScreenPopup, LayoutPopup
+from src_backends.config_tools import Config
 
 
-class ButtonLanguage(Button):
+class ButtonLanguage(ToggleButtonBehavior, Image):
     _language = StringProperty(None)
 
-    def __init__(self, language, callback=None, **kwargs):
-        self._language = language
-        self._callback = callback
-        # self.text = language
-        self.background_down = 'assets/img/flags/medium/' + language + '.png'
-        self.background_normal = self.background_down
+    # There's always a selected language.
+    allow_no_selection = False
+
+    def __init__(self, language: str, selected=False, **kwargs):
         super().__init__(**kwargs)
+        self.source = 'assets/img/flags/medium/' + language + '.png'
+        self._language = language
+
+        if selected:
+            # TODO: set first selected
+            pass
+
+    def on_state(self, widget, value):
+        self._draw_border(value == 'down')
+
+    def _draw_border(self, selected: bool):
+        if selected:
+            with self.canvas.before:
+                Color(1.0, 1.0, 1.0, 1.0)
+                Line(width=2, rectangle=(self.x, self.y, self.width, self.height))
+        else:
+            self.canvas.before.clear()
 
     def on_press(self):
         App.get_running_app().change_language(self._language)
-        if self._callback is not None:
-            self._callback()
 
 
 class LanguageBar(BoxLayout):
-    spacing = 10
 
     def __init__(self, **kwargs):
         super(LanguageBar, self).__init__(**kwargs)
-        self.add_widgets()
+        self.create_languages_buttons()
 
-    def add_widgets(self, *args, **kwargs):
+    def create_languages_buttons(self):
+        config: Config = App.get_running_app().get_config()
+
         # has to match the array in lang_template.yaml
         languages = ['EN', 'DE', 'FR', 'IT', 'PT', 'ES']
-        for l in languages:
-            self.add_widget(ButtonLanguage(l))
-        # self.add_widget(wid)
+        for lang in languages:
+            selected = lang == config.default_lang
+            self.add_widget(ButtonLanguage(lang, selected, group='lang'))

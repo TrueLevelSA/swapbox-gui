@@ -124,6 +124,10 @@ class TemplateApp(App):
         """
         self._selected_language = selected_language
 
+    def get_config(self) -> Config:
+        """Get app config"""
+        return self._config
+
     def get_string(self, str_id: str):
         """
         Get a specific string by ID, using the current language.

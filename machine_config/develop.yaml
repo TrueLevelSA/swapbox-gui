@@ -4,6 +4,9 @@ name: Web3Summit
 # Enable debug mode
 debug: True
 
+# Default language. Must be one of the lang_template main array
+default_lang: EN
+
 # Crypto backends. Can only be one of: [zksync] for now lol.
 backends:
   - type: zksync
