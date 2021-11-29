@@ -124,6 +124,12 @@ class TemplateApp(App):
         """
         self._selected_language = selected_language
 
+        # ugly solution for updating buy screens dynamic titles
+        try:
+            self._manager.current_screen.ids.sm_content.current_screen.change_language()
+        except AttributeError as e:
+            pass
+
     def get_config(self) -> Config:
         """Get app config"""
         return self._config

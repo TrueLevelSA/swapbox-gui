@@ -87,6 +87,11 @@ class ScreenBuy(Screen):
     _step_wallet = StringProperty("")
     _step_amount = StringProperty("")
 
+    # remembers IDs for translations
+    _id_title: str
+    _id_confirm: str
+    _id_back: str
+
     def __init__(self, config: Config, **kw):
         super(ScreenBuy, self).__init__(**kw)
 
@@ -118,8 +123,25 @@ class ScreenBuy(Screen):
         # manual firing of KV events, KV 'forgot' to call event on the sub screens ¯\_(ツ)_/¯
         self._sm_buy.current_screen.on_leave()
 
-    def set_screen_title(self, title: str):
-        self._title = title
+    def change_language(self):
+        self.set_string_title(self._id_title)
+        self.set_string_confirm(self._id_confirm)
+        self.set_string_back(self._id_back)
+
+    def set_string_title(self, string_id: str):
+        """Set main buy screen's title"""
+        self._id_title = string_id
+        self._title = self._app.get_string(string_id)
+
+    def set_string_back(self, string_id: str):
+        """Set main buy screen's back button"""
+        self._id_back = string_id
+        self.ids.button_back.text = self._app.get_string(string_id)
+
+    def set_string_confirm(self, string_id: str):
+        """Set main buy screen's confirm button"""
+        self._id_confirm = string_id
+        self.ids.button_confirm.text = self._app.get_string(string_id)
 
     def set_tx_action(self, action: Action):
         self._tx_order.action = action
@@ -188,11 +210,6 @@ class ScreenBuy(Screen):
     def disable_confirm(self, disable=True):
         self.ids.button_confirm.set_disabled(disable)
 
-    def set_back_text(self, text: str):
-        self.ids.button_back.text = text
-
-    def set_confirm_text(self, text: str):
-        self.ids.button_confirm.text = text
 
 
 class ScreenSelectCrypto(ScreenBuyI):
@@ -212,7 +229,7 @@ class ScreenSelectCrypto(ScreenBuyI):
         self._list_view.set_callback_update_focus(self._rv_focus_update)
 
     def on_pre_enter(self, *args):
-        self._screen_parent.set_screen_title(self._app.get_string('select_currency'))
+        self._screen_parent.set_string_title('select_currency')
         self._screen_parent.disable_confirm()
         self._app.subscribe_prices(self._update_prices)
 
@@ -308,7 +325,7 @@ class ScreenBuyInsert(ScreenBuyI):
         """Screen.on_pre_enter()"""
         self._thread_cashin.start_cashin()
         self._app.subscribe_prices(self._update_prices)
-        self._screen_parent.set_screen_title(self._app.get_string("inputfiat"))
+        self._screen_parent.set_string_title("inputfiat")
         self._address_ether = self._screen_parent.get_tx_order().to
 
     def on_leave(self):
@@ -386,7 +403,7 @@ class ScreenBuyInsert(ScreenBuyI):
             # self.manager.get_screen("final_buy_screen")._eth_bought = min_eth
             # self.manager.get_screen("final_buy_screen")._address_ether = self._address_ether
 
-            self._screen_parent.set_confirm_text(self._app.get_string("confirm"))
+            self._screen_parent.set_string_confirm('confirm')
             self._screen_parent.disable_confirm(False)
             self._screen_parent.set_tx_amount(self._cash_in)
             self.ids.buy_limit.text = ""
@@ -423,8 +440,8 @@ class ScreenBuyFinal(ScreenBuyI):
         self._screen_parent.go_to_menu()
 
     def on_pre_enter(self, *args):
-        self._screen_parent.set_screen_title(self._app.get_string("thank"))
-        self._screen_parent.set_confirm_text(self._app.get_string("thank"))
+        self._screen_parent.set_string_title("thank")
+        self._screen_parent.set_string_confirm("thank")
 
         tx = self._screen_parent.get_tx_order()
         self._address_ether = tx.to
@@ -434,7 +451,7 @@ class ScreenBuyFinal(ScreenBuyI):
         self._crypto_value_fiat = "..."
 
         # TODO: Print
-        self._screen_parent.set_back_text("PRINT RECEIPT")
+        self._screen_parent.set_string_back('print_receipt')
         self._screen_parent.disable_back()
 
     def on_leave(self):

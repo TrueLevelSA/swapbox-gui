@@ -26,6 +26,7 @@ EN:
   fiatvalue: Amount inserted
   camera_loading: Initializing the camera...
   not_sync: Node not synchronized.
+  print_receipt: Print receipt
 
 DE:
   menu: Menü
@@ -54,6 +55,7 @@ DE:
   fiatvalue: Fiatgeld Tauschwert
   camera_loading: Initialisierung der Kamera...
   not_sync: Node nicht synchronisiert.
+  print_receipt: Quittung drucken
 
 ES:
   menu: Menú
@@ -82,6 +84,7 @@ ES:
   fiatvalue: Valor en Fiat
   camera_loading: Inicialización de la cámara...
   not_sync: Nodo no sincronizado.
+  print_receipt: Print receipt
 
 FR:
   menu: Menu
@@ -110,6 +113,7 @@ FR:
   fiatvalue: Valeur en Fiat
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
+  print_receipt: Imprimer le reçu
 
 IT:
   menu: Menu
@@ -138,6 +142,7 @@ IT:
   fiatvalue: Valore in Fiat
   camera_loading: Inizializzazione della telecamera
   not_sync: Nodo non sincronizzato.
+  print_receipt: Print receipt
 
 PT:
   menu: Menu
@@ -166,3 +171,4 @@ PT:
   fiatvalue: Valor em Fiat
   camera_loading: Inicialização da câmera...
   not_sync: Nó não sincronizado.
+  print_receipt: Print receipt
