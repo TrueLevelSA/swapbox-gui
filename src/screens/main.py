@@ -17,10 +17,10 @@ import json
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.modalview import ModalView
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.screenmanager import Screen
 
 from src.components.recycle_view_crypto import TokensRecycleView
-from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto, ScreenBuy
+from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
 
@@ -41,7 +41,11 @@ class ScreenMain(Screen):
         super().__init__(**kwargs)
         sm = self.ids.sm_content
         sm.add_widget(ScreenMenu(name='menu'))
-        sm.add_widget(ScreenBuy(config, name='buy'))
+
+        sm.add_widget(ScreenSelectCrypto(config, name='buy_select'))
+        sm.add_widget(ScreenBuyScan(config, name='buy_scan'))
+        sm.add_widget(ScreenBuyInsert(config, name='buy_insert'))
+        sm.add_widget(ScreenBuyFinal(name='buy_final'))
 
         sm.add_widget(ScreenSettings(name='settings'))
         sm.add_widget(ScreenRedeem(name='redeem'))
@@ -68,7 +72,7 @@ class LayoutPopup(BoxLayout):
 class ScreenMenu(Screen):
     def buy_crypto(self):
         self.manager.transition.direction = "left"
-        self.manager.current = "buy"
+        self.manager.current = "buy_select"
 
     def sell_crypto(self):
         print("sell yo")

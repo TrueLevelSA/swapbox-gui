@@ -142,25 +142,31 @@ class TemplateApp(App):
         """
         return self._languages[self._selected_language][str_id]
 
-    def format_fiat_price(self, value: int) -> str:
+    def format_fiat_price(self, value: int, decimals: int = 0) -> str:
         """
         Return a formatted price with given value and swapbox currency.
         :param value: The price as a human-readable value
+        :param decimals: The amount of decimals you want to show
         :return: The formatted price
         """
         # TODO: handle prefixed AND suffixed price format ($ 10 and 10 EUR).
-        return "{} {}".format(value, self._machine_currency)
+        currency = self._machine_currency
+
+        if currency == "EUR":
+            currency = "€"
+
+        return f"{currency} {value:.{decimals}f}"
 
     @staticmethod
-    def format_crypto_price(value: int, token_name: str) -> str:
+    def format_crypto_price(value: int, token_name: str, decimals: int = 0) -> str:
         """
         Return a formatted price with given value and a curre
         :param value: The price as a human-readable value
         :param token_name: The token name
+        :param decimals: The amount of decimals you want to show
         :return: The formatted price
         """
-        # TODO: handle prefixed AND suffixed price format ($ 10 and 10 EUR).
-        return "{} {}".format(value, token_name)
+        return f"{value:.{decimals}f} {token_name}"
 
     def subscribe_prices(self, callback: PriceFeedSubscriber):
         """

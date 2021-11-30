@@ -76,6 +76,7 @@ class Zmq:
 
 class Token:
     def __init__(self, cfg):
+        self.symbol = cfg["symbol"]
         self.name = cfg["name"]
         self.address = cfg["address"]
 
@@ -100,6 +101,7 @@ class Config(object):
             "address": Str(),
             "ticker": Str(),
             "tokens": Seq(Map({
+                "symbol": Str(),
                 "name": Str(),
                 "address": Str()
             }))

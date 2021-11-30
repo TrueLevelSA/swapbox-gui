@@ -14,11 +14,6 @@
 
 #:include template/colors.kv
 
-<Background@Image>:
-    source: 'assets/img/bgreen.jpg'
-    allow_stretch: True
-    keep_ratio: False
-
 <LayoutPopup@BoxLayout>:
     canvas.before:
         Rectangle:
@@ -30,6 +25,13 @@
     size_hint_y: 1
     size_hint_x: 1
 
+<BoxLayoutBackground@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: self.background_color if self.background_color else color_transparent
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
 <MainBox@BoxLayout>:
     size_hint_y: .8
@@ -46,7 +48,6 @@
     orientation: 'horizontal'
 
 <SyncPopup@FullScreenPopup>:
-    Background
     BoxLayout:
         BlackLabelLarge:
             text: app._languages[app._selected_language]["not_sync"] # + " {}/{}".format(app._sync_block, app._current_block)
@@ -60,13 +61,8 @@
             on_press: root.manager.current = "main"
 
 <ScreenMain>:
-    BoxLayout:
-        canvas.before:
-            Color:
-                rgba: color_bg
-            Rectangle:
-                size: self.size
-                pos: self.pos
+    BoxLayoutBackground:
+        background_color: color_off_black
         orientation: "vertical"
         padding: 10
 
@@ -83,10 +79,10 @@
             LanguageBar:
                 size_hint_x: 0.8
                 padding: 5
-            ButtonBase:
+            ButtonDark:
                 size_hint_x: 0.1
                 text: "Help"
-            ButtonBase:
+            ButtonDark:
                 size_hint_x: 0.1
                 text: "Stop"
 

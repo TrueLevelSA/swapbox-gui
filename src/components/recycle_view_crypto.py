@@ -1,4 +1,4 @@
-from typing import Mapping, Tuple, Dict, List, Optional
+from typing import Dict, List
 
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
@@ -24,8 +24,7 @@ class TokenListItem(RecycleKVIDsDataViewBehavior, BoxLayout):
     def refresh_view_attrs(self, rv, index, data):
         """ Catch and handle the view changes """
         self.index = index
-        return super(TokenListItem, self).refresh_view_attrs(
-            rv, index, data)
+        return super(TokenListItem, self).refresh_view_attrs(rv, index, data)
 
     def on_touch_down(self, touch):
         """ Add selection on touch down """
@@ -48,7 +47,6 @@ class TokensRecycleView(RecycleView):
         super(TokensRecycleView, self).__init__(**kwargs)
         self.selected = -1
         self._backends: List[Backend] = []
-        self._callback_update_focus: Optional[()] = None
 
     def populate(self, backends: List[Backend]):
         self._backends = backends
@@ -57,10 +55,10 @@ class TokensRecycleView(RecycleView):
         for backend in backends:
             for token in backend.tokens:
                 self.data.append({
+                    'symbol.text': token.symbol,
                     'name.text': token.name,
                     'price.text': "loading...",
-                    'network.text': backend.type,
-                    'value': TokensRecycleView.ICONS_FOLDER.format(token.name.lower())
+                    'value': TokensRecycleView.ICONS_FOLDER.format(token.symbol.lower())
                 })
 
     def update_prices(self, prices: Dict[str, float]):
@@ -71,27 +69,19 @@ class TokensRecycleView(RecycleView):
         with existing rows, if it exists in the list, then the price is updated.
         """
         for i, data in enumerate(self.data):
-            token: str = data['name.text']
+            token: str = data['symbol.text']
             if token in prices:
                 self.data[i]["price.text"] = "{:4f} CHF".format(prices[token])
         self.refresh_from_data()
 
-    def set_callback_update_focus(self, callback: ()):
-        self._callback_update_focus = callback
-
-    def on_touch_down(self, touch):
-        self._callback_update_focus()
-        return super(TokensRecycleView, self).on_touch_down(touch)
-
     def set_selected(self, index):
         self.selected = index
 
-    def get_selected_token(self) -> Tuple[str, str]:
+    def get_selected_token(self) -> str:
+        """Return currently selected token in list view."""
         selected_item = self.data[self.selected]
-        token_name = selected_item['name.text']
-        token_backend = selected_item['network.text']
-        return token_name, token_backend
+        token_name = selected_item['symbol.text']
+        return token_name
 
     def deselect(self):
         self.layout_manager.deselect_node(self.selected)
-

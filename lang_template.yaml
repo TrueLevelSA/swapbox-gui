@@ -4,6 +4,8 @@ EN:
   investment: Investment
   coming_soon: coming soon
   menu: Back
+  go_back: Go Back
+  cancel: Cancel
   validate: Validate
   confirm: Confirm
   buy: Buy Crypto
@@ -20,7 +22,7 @@ EN:
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: Insert cash
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: SELECT CASHOUT AMOUNT
   thank: THANK YOU
@@ -30,6 +32,12 @@ EN:
   camera_loading: Initializing the camera...
   not_sync: Node not synchronized.
   print_receipt: Print receipt
+  max_amount: Max amount
+  receiving_address: Receiving address
+  inserted_cash: Inserted cash
+  minimum_received: Minimum received
+  tx_completed: Transaction completed. Thank you !
+  go_home: Go home
 
 DE:
   select_action: Select action
@@ -37,6 +45,8 @@ DE:
   investment: Investment
   coming_soon: coming soon
   menu: Menü
+  go_back: Go Back
+  cancel: Cancel
   validate: Validieren
   confirm: Bestätigen
   buy: Kaufen
@@ -53,7 +63,7 @@ DE:
   inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
   inputfiat: Geldscheine in die Swap-Box einlegen
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Danke
@@ -63,6 +73,12 @@ DE:
   camera_loading: Initialisierung der Kamera...
   not_sync: Node nicht synchronisiert.
   print_receipt: Quittung drucken
+  max_amount: Max amount
+  receiving_address: Receiving address
+  inserted_cash: Inserted cash
+  minimum_received: Minimum received
+  tx_completed: Transaction completed. Thank you !
+  go_home: Go home
 
 ES:
   select_action: Select action
@@ -70,6 +86,8 @@ ES:
   investment: Investment
   coming_soon: coming soon
   menu: Menú
+  go_back: Go Back
+  cancel: Cancel
   validate: Validar
   confirm: Confirmar
   buy: Comprar
@@ -86,7 +104,7 @@ ES:
   inputwallet: Por favor, coloque su billetera de destino frente a la cámara
   inputfiat: Introduzca sus billetes de banco en la Swap-box
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Gracias
@@ -96,6 +114,12 @@ ES:
   camera_loading: Inicialización de la cámara...
   not_sync: Nodo no sincronizado.
   print_receipt: Print receipt
+  max_amount: Max amount
+  receiving_address: Receiving address
+  inserted_cash: Inserted cash
+  minimum_received: Minimum received
+  tx_completed: Transaction completed. Thank you !
+  go_home: Go home
 
 FR:
   select_action: Selectionnez une action
@@ -103,6 +127,8 @@ FR:
   investment: Investissement
   coming_soon: arrive bientôt
   menu: Menu
+  go_back: Retour
+  cancel: Annuler
   validate: Valider
   confirm: Confirmer
   buy: Acheter
@@ -119,7 +145,7 @@ FR:
   inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Merci
@@ -129,6 +155,12 @@ FR:
   camera_loading: Initialisation de la caméra...
   not_sync: Noeud non synchronisé.
   print_receipt: Imprimer le reçu
+  max_amount: Quantité max
+  receiving_address: Adresse de destination
+  inserted_cash: Montant inséré
+  minimum_received: Minimum reçu
+  tx_completed: Transaction effectuée. Merci !
+  go_home: Terminer
 
 IT:
   select_action: Select action
@@ -136,6 +168,8 @@ IT:
   investment: Investment
   coming_soon: coming soon
   menu: Menu
+  go_back: Go Back
+  cancel: Cancel
   validate: Validare
   confirm: Confermare
   buy: Comprare
@@ -152,7 +186,7 @@ IT:
   inputwallet: Per favore, metti il portafoglio di destinazione davanti alla telecamera.
   inputfiat: Inserisci le vostre banconote nel Swap-box
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
   thank: Grazie
@@ -162,6 +196,12 @@ IT:
   camera_loading: Inizializzazione della telecamera
   not_sync: Nodo non sincronizzato.
   print_receipt: Print receipt
+  max_amount: Max amount
+  receiving_address: Receiving address
+  inserted_cash: Inserted cash
+  minimum_received: Minimum received
+  tx_completed: Transaction completed. Thank you !
+  go_home: Go home
 
 PT:
   select_action: Select action
@@ -169,6 +209,8 @@ PT:
   investment: Investment
   coming_soon: coming soon
   menu: Menu
+  go_back: Go Back
+  cancel: Cancel
   validate: Validar
   confirm: Confirmar
   buy: Comprar
@@ -185,7 +227,7 @@ PT:
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
   customeraddress: Funds will be sent to
-  pleasewait: .. please wait ..
+  please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Por favor escolha o montante a retirar
   thank: Obrigado
@@ -195,3 +237,9 @@ PT:
   camera_loading: Inicialização da câmera...
   not_sync: Nó não sincronizado.
   print_receipt: Print receipt
+  max_amount: Max amount
+  receiving_address: Receiving address
+  inserted_cash: Inserted cash
+  minimum_received: Minimum received
+  tx_completed: Transaction completed. Thank you !
+  go_home: Go home

@@ -1,15 +1,17 @@
 <ButtonBase@Button>:
+    text: self.text.upper() if self.text is not None and not self.markup else self.text
     background_normal: ''
-    background_color: color_bg_accent
     font_size: 25
     halign: 'center'
+    font: "SpaceGrotesk-Regular.ttf"
+
+<ButtonDark@ButtonBase>
+    color: color_off_white
+    background_color: color_gray_5
 
 <ButtonLight@ButtonBase>:
-    background_color: color_text
-    color: color_bg
-
-<ButtonComingSoon@ButtonBase>:
-    disabled: True
+    color: color_off_black
+    background_color: color_off_white
     background_disabled_normal: ''
-    background_color: color_bg_disabled
-    markup: True
+    disabled_color:
+#    background_disabled_co<lor: color_bg

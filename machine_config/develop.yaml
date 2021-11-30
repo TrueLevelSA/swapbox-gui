@@ -14,9 +14,11 @@ backends:
     address: 0xaaaaaaaaaaaaaaaaa
     ticker: 0xfffffffffffffffff
     tokens:
-      - name: DAI
+      - symbol: DAI
+        name: DAI Stablecoin
         address: 0xbbbbbbbbbbbbbbbbb
-      - name: ETH
+      - symbol: ETH
+        name: Ethereum
         address: 0xccccccccccccccccc
 
 # Banknote validator settings
