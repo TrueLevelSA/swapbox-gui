@@ -1,17 +1,3 @@
-<ButtonSB@Button>:
-    background_normal: ""
-    background_color: "white"
-    color: "black"
-    font_size: "60sp"
-    font: 'MyriadPro-Bold.otf'
-    canvas.before:
-        Color:
-            rgba: root.color
-        Line:
-            width: 10
-            rectangle: self.x+5, self.y-5, self.width, self.height
-
-
 <ScreenMenu>:
     id: menu_screen
 
@@ -19,22 +5,38 @@
         size: self.parent.size
         anchor_x: 'center'
         anchor_y: 'center'
+
         BoxLayout:
-            size: self.parent.size
-            pos: self.parent.pos
             orientation: "vertical"
-            size_hint: 0.5, 0.7
-            spacing: 50
-            ButtonSB:
-                color: "#66f068"
-                text: app._languages[app._selected_language]['buy']
-                on_release:
-                    root.buy_crypto()
-            ButtonSB:
-                color: "#f0676f"
-                text: app._languages[app._selected_language]['sell']
-                on_release:
-                    root.sell_crypto()
+            size_hint: 0.5, 0.8
+            spacing: 20
+
+            TitleLabel:
+                size_hint_y: 0.2
+                text: app._languages[app._selected_language]['select_action']
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 20
+                size_hint_y: 0.6
+                ButtonLight:
+                    text: app._languages[app._selected_language]['buy']
+                    on_release:
+                        root.buy_crypto()
+                ButtonBase:
+                    text: app._languages[app._selected_language]['sell']
+                    on_release:
+                        root.sell_crypto()
+
+
+            BoxLayout:
+                orientation: "horizontal"
+                spacing: 20
+                size_hint_y: 0.3
+                ButtonComingSoon:
+                    text: app._languages[app._selected_language]['phone_credit'] + "\n[size=15]" + app._languages[app._selected_language]['coming_soon'] + "[/size]"
+                ButtonComingSoon:
+                    text: app._languages[app._selected_language]['investment'] + "\n[size=15]" + app._languages[app._selected_language]['coming_soon'] + "[/size]"
 
 <TokenListItem>:
     orientation: "horizontal"

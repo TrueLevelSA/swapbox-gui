@@ -1,5 +1,8 @@
 EN:
-  # Sam input
+  select_action: Select action
+  phone_credit: Phone credit
+  investment: Investment
+  coming_soon: coming soon
   menu: Back
   validate: Validate
   confirm: Confirm
@@ -29,6 +32,10 @@ EN:
   print_receipt: Print receipt
 
 DE:
+  select_action: Select action
+  phone_credit: Phone credit
+  investment: Investment
+  coming_soon: coming soon
   menu: Menü
   validate: Validieren
   confirm: Bestätigen
@@ -58,6 +65,10 @@ DE:
   print_receipt: Quittung drucken
 
 ES:
+  select_action: Select action
+  phone_credit: Phone credit
+  investment: Investment
+  coming_soon: coming soon
   menu: Menú
   validate: Validar
   confirm: Confirmar
@@ -87,6 +98,10 @@ ES:
   print_receipt: Print receipt
 
 FR:
+  select_action: Selectionnez une action
+  phone_credit: Crédit téléphone
+  investment: Investissement
+  coming_soon: arrive bientôt
   menu: Menu
   validate: Valider
   confirm: Confirmer
@@ -116,6 +131,10 @@ FR:
   print_receipt: Imprimer le reçu
 
 IT:
+  select_action: Select action
+  phone_credit: Phone credit
+  investment: Investment
+  coming_soon: coming soon
   menu: Menu
   validate: Validare
   confirm: Confermare
@@ -145,6 +164,10 @@ IT:
   print_receipt: Print receipt
 
 PT:
+  select_action: Select action
+  phone_credit: Phone credit
+  investment: Investment
+  coming_soon: coming soon
   menu: Menu
   validate: Validar
   confirm: Confirmar

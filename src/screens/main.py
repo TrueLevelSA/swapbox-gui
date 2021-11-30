@@ -70,6 +70,9 @@ class ScreenMenu(Screen):
         self.manager.transition.direction = "left"
         self.manager.current = "buy"
 
+    def sell_crypto(self):
+        print("sell yo")
+
 
 class FullScreenPopup(ModalView):
     pass

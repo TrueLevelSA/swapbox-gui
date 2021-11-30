@@ -9,6 +9,9 @@
 #:include template/screens_sell.kv
 #:include template/screens_setup.kv
 
+#:include template/button.kv
+#:include template/label.kv
+
 #:include template/colors.kv
 
 <Background@Image>:
@@ -22,37 +25,6 @@
             pos: self.pos
             size: self.size
             source: 'assets/img/bgreen.jpg'
-
-# Label with black font
-<BlackLabel@Label>:
-    color: [0,0,0,1]
-    font: 'MyriadPro-Bold.otf'
-    markup: True
-
-# Label with black font, small font size
-# used for content
-<BlackLabelSmall@BlackLabel>:
-    font_size: 22
-
-# Label with black font, medium font size
-# used for subtitles
-<BlackLabelMedium@BlackLabel>:
-    font_size: 24
-
-# Label with black font, large font size
-<BlackLabelLarge@BlackLabel>:
-    font_size: 28
-
-# Label with white font, large font size
-# used for titles
-<WhiteLabelLarge@BlackLabel>:
-    font_size: 60
-    bold: True
-    color: 1,1,1,1
-
-<WhiteLabelMedium@BlackLabel>:
-    font_size: 28
-    color: 1,1,1,1
 
 <FullScreenPopup@ModalView>:
     size_hint_y: 1
@@ -88,32 +60,35 @@
             on_press: root.manager.current = "main"
 
 <ScreenMain>:
-    Background
     BoxLayout:
+        canvas.before:
+            Color:
+                rgba: color_bg
+            Rectangle:
+                size: self.size
+                pos: self.pos
         orientation: "vertical"
         padding: 10
+
+        # Header
         BoxLayout:
             orientation: "horizontal"
-            size_hint_y: .4
-            BoxLayout:
-                orientation: "vertical"
-                size_hint_x: .3
-                TripleTapImage:
-                    source: "assets/img/powered_by.png"
-                    on_triple_tap: root.set_current_screen('setup_1')
-                BlackLabel:
-                    font_size:30
-                    bold: True
-                    text: app._languages[app._selected_language]["main_title"].format(app._config.operator_name)
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x: 0.7
-                padding: 20
+            size_hint_y: 0.2
+            spacing: 10
+            TripleTapImage:
+                size_hint_x: 0.5
+                source: "assets/img/swapbox_bg.png"
+                on_triple_tap: root.set_current_screen('setup_1')
 
-                Label:
-                    size_hint_x: 0.2
-                LanguageBar:
-                    spacing: 10
+            LanguageBar:
+                size_hint_x: 0.8
+                padding: 5
+            ButtonBase:
+                size_hint_x: 0.1
+                text: "Help"
+            ButtonBase:
+                size_hint_x: 0.1
+                text: "Stop"
 
         ScreenManager:
             id: sm_content

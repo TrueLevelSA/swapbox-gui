@@ -1,0 +1,38 @@
+
+# Label with black font
+<BlackLabel@Label>:
+    color: [0,0,0,1]
+    font: 'MyriadPro-Bold.otf'
+    markup: True
+
+# Label with black font, small font size
+# used for content
+<BlackLabelSmall@BlackLabel>:
+    font_size: 22
+
+# Label with black font, medium font size
+# used for subtitles
+<BlackLabelMedium@BlackLabel>:
+    font_size: 24
+
+# Label with black font, large font size
+<BlackLabelLarge@BlackLabel>:
+    font_size: 28
+
+# Label with white font, large font size
+# used for titles
+<WhiteLabelLarge@BlackLabel>:
+    font_size: 60
+    bold: True
+    color: 1,1,1,1
+
+<WhiteLabelMedium@BlackLabel>:
+    font_size: 28
+    color: 1,1,1,1
+
+<BaseLabel@Label>:
+    font: 'MyriadPro-Bold.otf'
+    color: color_text
+
+<TitleLabel@BaseLabel>:
+    font_size: 40
