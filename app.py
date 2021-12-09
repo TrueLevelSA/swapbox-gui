@@ -168,6 +168,10 @@ class TemplateApp(App):
         """
         return f"{value:.{decimals}f} {token_name}"
 
+    @staticmethod
+    def format_small_address(address: str) -> str:
+        return f"{address[0:9]}...{address[-8:-1]}"
+
     def subscribe_prices(self, callback: PriceFeedSubscriber):
         """
         Subscribe to prices update

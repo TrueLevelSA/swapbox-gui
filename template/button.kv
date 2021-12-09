@@ -7,11 +7,12 @@
 
 <ButtonDark@ButtonBase>
     color: color_off_white
-    background_color: color_gray_5
+    background_color: color_gray_5 if not self.disabled else color_darker_black
+    background_disabled_normal: ''
+    disabled_color: color_gray_3
 
 <ButtonLight@ButtonBase>:
     color: color_off_black
-    background_color: color_off_white
+    background_color: color_off_white if not self.disabled else color_gray_1
     background_disabled_normal: ''
-    disabled_color:
-#    background_disabled_co<lor: color_bg
+    disabled_color: color_off_white

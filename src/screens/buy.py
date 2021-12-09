@@ -169,6 +169,8 @@ class ScreenBuyInsert(Screen):
         self._minimum_wei = 0
         self._label_address_to = '0x0'
 
+        self.ids.button_confirm.text = self._app.get_string('buy')
+
     def button_back(self):
         self.manager.transition.direction = 'right'
         self.manager.current = 'menu'
@@ -209,8 +211,12 @@ class ScreenBuyInsert(Screen):
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._inserted_cash >= self._buy_limit:
                 self._thread_cashin.stop_cashin()
-                self.ids.max_amount_title.color = "red"
-                self.ids.max_amount_text.color = "red"
+                self._highlight_max_amount()
+
+    def _highlight_max_amount(self):
+        """Highlights the max_amount label (title and value)"""
+        self.ids.max_amount_title.color = "red"
+        self.ids.max_amount_text.color = "red"
 
     def _update_price_labels(self):
         self._estimated_eth = self._inserted_cash / self._token_price
@@ -235,6 +241,7 @@ class ScreenBuyInsert(Screen):
         print(success, value)
         if success:
             self._tx_order.amount_fiat = self._inserted_cash
+            self._tx_order.amount_crypto = value
             self.manager.get_screen("buy_final").set_tx_order(self._tx_order)
             self.manager.transition.direction = 'left'
             self.manager.current = "buy_final"
@@ -287,3 +294,4 @@ class ScreenBuyFinal(Screen):
         self._label_address_to = self._tx_order.to
         self._inserted_cash = self._tx_order.amount_fiat
         self._token_symbol = self._tx_order.token
+        self._crypto_bought = self._tx_order.amount_crypto

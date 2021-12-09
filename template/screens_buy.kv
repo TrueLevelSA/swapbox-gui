@@ -160,7 +160,7 @@
         Line:
             width: 1
             rectangle: self.x, self.y, self.width, self.height
-    padding: (40, 0)
+    padding: (40, 20)
     orientation: "horizontal"
 
 <ShowBoxTitle@Label>
@@ -200,7 +200,7 @@
                             text: app._languages[app._selected_language]['receiving_address']
                         ShowBoxText:
                             size_hint_x: 1.5
-                            text: root._label_address_to
+                            text: app.format_small_address(root._label_address_to)
 
                     ShowBox:
                         ShowBoxTitle:
@@ -227,6 +227,7 @@
                             text: app._languages[app._selected_language]['max_amount']
                         ShowBoxText:
                             id: max_amount_text
+                            size_hint_x: 0.5
                             text: root._label_max_amount
                     SideBox:
                         ShowBoxTitle:
@@ -260,7 +261,6 @@
             orientation: "horizontal"
             spacing: 10
 
-
             StepsWidget:
                 id: steps
                 size_hint_x: 0.3
@@ -268,56 +268,59 @@
             BoxLayout:
                 orientation: "vertical"
                 size_hint_x: 0.6
+                spacing: 10
 
                 ShowBox:
-                    padding: 20
-                    size_hint_y : .2
                     ShowBoxTitle:
                         size_hint_x: 0.3
-                        text: app.format_fiat_price(root._inserted_cash)
+                        text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
                     LabelBase:
                         size_hint_x: 0.3
                         text: "----->"
                     ShowBoxText:
                         size_hint_x: 0.3
-                        text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
+                        text: app.format_fiat_price(root._inserted_cash)
 
                 ShowBox:
-                    size_hint_y : .2
                     BoxLayout:
                         orientation: "vertical"
                         BoxLayout:
                             orientation: "horizontal"
                             ShowBoxTitle:
-                                text: "Operator fees"
-                            BlackLabelLarge:
+#                                size_hint_x: 0.3
+                                text: "Operator fees paid"
+                            ShowBoxText:
+#                                size_hint_x: 0.1
+                                color: color_gray_3
                                 text: "{} %".format(root._operator_fee_percent)
-                            BlackLabelLarge:
+                            ShowBoxText:
+#                                size_hint_x: 0.2
                                 text: app.format_fiat_price(root._operator_fee_percent * root._inserted_cash)
                         BoxLayout:
                             orientation: "horizontal"
-                            BlackLabelLarge:
+                            ShowBoxTitle:
                                 text: "Network + LP fees"
-                            BlackLabelLarge:
+                            ShowBoxText:
                                 text: "{} %".format(root._network_fee_percent)
-                            BlackLabelLarge:
+                                color: color_gray_3
+                            ShowBoxText:
                                 text: app.format_fiat_price(root._network_fee_percent * root._inserted_cash)
                 ShowBox:
-                    size_hint_y : .2
-                    BlackLabelLarge:
+                    ShowBoxTitle:
                         text: app._languages[app._selected_language]["customeraddress"]
-                    BlackLabelLarge:
-                        text: root._label_address_to
+                    ShowBoxText:
+                        text: app.format_small_address(root._label_address_to)
 
             BoxLayoutBackground:
                 background_color: color_darker_black
                 orientation: "vertical"
                 size_hint_x: 0.3
+                padding: (40, 40)
                 LabelBase:
                     text: "View transaction order (WIP)"
                     size_hint_y: 0.1
                 Image:
-                    source: 'assets/img/phoneqr.png'
+                    source: 'assets/img/fake_tx_qr.png'
                     allow_stretch: True
                     keep_ratio: True
 
