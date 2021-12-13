@@ -65,7 +65,7 @@ class Manager(ScreenManager):
 
 
 class TemplateApp(App):
-    _selected_language = StringProperty('English')
+    _selected_language = StringProperty('en')
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
     kv_directory = 'template'

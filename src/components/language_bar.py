@@ -15,40 +15,48 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from kivy.app import App
-from kivy.graphics import Color, Line
-from kivy.properties import StringProperty
+from kivy.lang import Builder
+from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 
 from src_backends.config_tools import Config
 
+Builder.load_string('''
+<ButtonLanguage>
+    canvas.before:
+        Color:
+            rgba: color_gray_5 if self._selected else color_off_black
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: color_off_white if self._selected else color_gray_3
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
+            cap: 'square'
+            joint: 'miter'
+''')
+
 
 class ButtonLanguage(ToggleButtonBehavior, Image):
     _language = StringProperty(None)
+    _selected = BooleanProperty(False)
 
     # There's always a selected language.
     allow_no_selection = False
 
     def __init__(self, language: str, selected=False, **kwargs):
         super().__init__(**kwargs)
-        self.source = 'assets/img/flags/medium/' + language + '.png'
+        self.source = 'assets/img/flags/' + language.lower() + '.png'
         self._language = language
-
         if selected:
-            # TODO: set first selected
-            pass
+            self.state = 'down'
 
     def on_state(self, widget, value):
-        self._draw_border(value == 'down')
-
-    def _draw_border(self, selected: bool):
-        if selected:
-            with self.canvas.before:
-                Color(1.0, 1.0, 1.0, 1.0)
-                Line(width=2, rectangle=(self.x, self.y, self.width, self.height))
-        else:
-            self.canvas.before.clear()
+        self._selected = value == 'down'
 
     def on_press(self):
         App.get_running_app().change_language(self._language)
