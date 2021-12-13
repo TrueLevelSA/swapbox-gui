@@ -20,7 +20,7 @@ from src_backends.qr_scanner.qr_scanner_base import QrScanner
 class QrScannerZbar(QrScanner):
 
     def __init__(self, video_port):
-        cmd =  'zbarcam --prescale=960x720 {}'.format(video_port)
+        cmd =  'zbarcam --prescale=96x72 {}'.format(video_port)
         super().__init__(cmd)
 
     def _is_qr_found(self, line):

@@ -19,7 +19,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
-from src.components.recycle_view_crypto import TokensRecycleView
 from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto
 from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3

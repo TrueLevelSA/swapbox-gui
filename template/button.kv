@@ -3,16 +3,14 @@
     background_normal: ''
     font_size: 25
     halign: 'center'
-    font: "SpaceGrotesk-Regular.ttf"
+    font_name: "SpaceGrotesk"
+    background_disabled_normal: ''
+    disabled_color: color_gray_4
 
 <ButtonDark@ButtonBase>
     color: color_off_white
     background_color: color_gray_5 if not self.disabled else color_darker_black
-    background_disabled_normal: ''
-    disabled_color: color_gray_3
 
 <ButtonLight@ButtonBase>:
     color: color_off_black
-    background_color: color_off_white if not self.disabled else color_gray_1
-    background_disabled_normal: ''
-    disabled_color: color_off_white
+    background_color: color_off_white if not self.disabled else color_darker_black

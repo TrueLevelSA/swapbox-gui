@@ -21,6 +21,7 @@ from typing import List
 import strictyaml
 from kivy.app import App
 from kivy.config import Config as KivyConfig
+from kivy.core.text import LabelBase
 from kivy.core.window import Window
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import RiseInTransition, ScreenManager
@@ -102,6 +103,8 @@ class TemplateApp(App):
         self._first_status_message_received = False
         languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
         self._languages = {k: dict(v) for k, v in languages_yaml.items()}
+
+        LabelBase.register(name='SpaceGrotesk', fn_regular='assets/fonts/SpaceGrotesk-Regular.ttf')
 
     def build(self):
         # Get a language

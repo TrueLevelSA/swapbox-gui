@@ -29,69 +29,6 @@
     spacing: 40
     padding: (20, 20)
 
-<LabelTokenListItem@Label>:
-    text_size: (self.width, None)
-    halign: "left"
-    color: color_off_white
-    font_size: 30
-
-<TokenListItem>:
-    orientation: "horizontal"
-
-    # Background
-    canvas.before:
-        Color:
-            rgba: color_gray_5 if self.selected else color_off_black
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-    # Border
-    canvas.after:
-        Color:
-            rgba: color_off_white if self.selected else color_transparent
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
-
-    value: ''
-    padding: 10
-    spacing: 10
-    Widget:
-        size_hint_x: 0.1
-    Image:
-        size_hint_x: 0.2
-        source: root.value
-    Widget:
-        size_hint_x: 0.1
-    LabelTokenListItem:
-        id: symbol
-        size_hint_x: 0.5
-    LabelTokenListItem:
-        id: name
-    LabelTokenListItem:
-        id: price
-        halign: "right"
-    Widget:
-        size_hint_x: 0.1
-
-<TokensRecycleView@RecycleView>:
-    canvas.after:
-        Color:
-            rgba: color_gray_3
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
-
-    viewclass: 'TokenListItem'
-    SelectableRecycleBoxLayout:
-        id: controller
-        default_size: None, dp(112)
-        default_size_hint: 1, None
-        size_hint_y: None
-        height: self.minimum_height
-        orientation: 'vertical'
-
 
 <ScreenSelectCrypto>:
     MainLayout:
