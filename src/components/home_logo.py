@@ -16,15 +16,16 @@
 
 import time
 
+from kivy.graphics import Color, Rectangle
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
 
 
-class TripleTapImage(ButtonBehavior, Image):
+class HomeLogo(ButtonBehavior, Image):
     __events__ = ('on_triple_tap', )
 
     def __init__(self, **kwargs):
-        super(TripleTapImage, self).__init__(**kwargs)
+        super(HomeLogo, self).__init__(**kwargs)
         self.taps = [0.0, 0.0]
 
     def on_press(self):

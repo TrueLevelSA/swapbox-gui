@@ -19,15 +19,14 @@
             pos: self.pos
             size: self.size
 
-<ScreenTitle@Label>
+<ScreenTitle@LabelBase>
     size_hint_y: 0.2
     font_size: 50
-    bold: True
+    color: color_off_white
 
 <MainLayout@BoxLayout>
     orientation: "vertical"
     spacing: 40
-    padding: (20, 20)
 
 
 <ScreenSelectCrypto>:
@@ -37,25 +36,28 @@
 
         BoxLayout:
             orientation: "horizontal"
-            spacing: 20
+            spacing: 10
 
             StepsWidget:
                 id: steps
+                size_hint_x: 3
             TokensRecycleView:
                 id: rv_tokens
+                size_hint_x: 9
                 halign: "center"
 
         BoxLayout:
             size_hint_y: .3
-            spacing: 20
+            spacing: 10
             ButtonDark:
                 id: button_back
                 text: app._languages[app._selected_language]['go_back']
-                size_hint_x: .3
+                size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
                 text: app._languages[app._selected_language]['confirm']
+                size_hint_x: 9
                 on_release: root.button_confirm()
 
 <ScreenBuyScan>:
@@ -64,13 +66,15 @@
             text: app._languages[app._selected_language]['inputkey']
         BoxLayout:
             orientation: "horizontal"
-            spacing: 20
+            spacing: 10
 
             StepsWidget:
                 id: steps
+                size_hint_x: 3
 
             BoxLayoutBackground:
                 orientation: "horizontal"
+                size_hint_x: 9
                 background_color: color_darker_black
 
                 Label:
@@ -86,9 +90,10 @@
             ButtonDark:
                 id: button_back
                 text: app._languages[app._selected_language]['go_back']
-                size_hint_x: .3
+                size_hint_x: 3
                 on_release: root.button_back()
             Widget:
+                size_hint_x: 9
 
 <ShowBox@BoxLayout>
     canvas.before:
@@ -123,10 +128,11 @@
 
             StepsWidget:
                 id: steps
-                size_hint_x: 0.3
+                size_hint_x: 3
 
             BoxLayout:
                 orientation: "horizontal"
+                size_hint_x: 9
 
                 BoxLayout:
                     orientation: "vertical"
@@ -175,16 +181,17 @@
 
         BoxLayout:
             size_hint_y: .3
-            spacing: 20
+            spacing: 10
 
             ButtonDark:
                 id: button_back
                 text: app._languages[app._selected_language]['cancel']
-                size_hint_x: .3
+                size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
                 disabled: True
+                size_hint_x: 9
                 text: app._languages[app._selected_language]['buy']
                 on_release: root.button_confirm()
 

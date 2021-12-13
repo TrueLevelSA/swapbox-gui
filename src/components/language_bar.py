@@ -20,6 +20,7 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from kivy.uix.widget import Widget
 
 from src_backends.config_tools import Config
 
@@ -76,3 +77,8 @@ class LanguageBar(BoxLayout):
         for lang in languages:
             selected = lang == config.default_lang
             self.add_widget(ButtonLanguage(lang, selected, group='lang'))
+
+        # adds widget until there's 7 widgets in order to fit the 12col grid
+        if len(languages) < 7:
+            for i in range(7 - len(languages)):
+                self.add_widget(Widget())

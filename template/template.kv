@@ -1,5 +1,5 @@
 #:import Factory kivy.factory.Factory
-#:import TripleTapImage src.components.image_triple_tap
+#:import HomeLogo src.components.home_logo
 #:import ColorDownButton src.components.button_color_down
 #:import MediumButton src.components.button_color_down
 #:import LanguageBar src.components.language_bar
@@ -65,26 +65,31 @@
     BoxLayoutBackground:
         background_color: color_off_black
         orientation: "vertical"
-        padding: 10
+        padding: 20
 
         # Header
         BoxLayout:
             orientation: "horizontal"
             size_hint_y: 0.2
             spacing: 10
-            TripleTapImage:
-                size_hint_x: 0.5
+            HomeLogo:
+                size_hint_x: 2
+                allow_stretch: True
+                keep_ratio: True
                 source: "assets/img/swapbox_bg.png"
                 on_triple_tap: root.set_current_screen('setup_1')
 
+            Widget:
+                size_hint_x: 1
+
             LanguageBar:
-                size_hint_x: 0.8
+                size_hint_x: 7
                 spacing: 10
             ButtonDark:
-                size_hint_x: 0.1
-                text: "Help"
-            ButtonDark:
-                size_hint_x: 0.1
+                size_hint_x: 1
+                text: "?"
+            ButtonLight:
+                size_hint_x: 1
                 text: "Stop"
 
         ScreenManager:
