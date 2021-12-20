@@ -19,7 +19,7 @@
             pos: self.pos
             size: self.size
 
-<ScreenTitle@LabelBase>
+<ScreenTitle@LabelSB>
     size_hint_y: 0.2
     font_size: 50
     color: color_off_white
@@ -32,7 +32,7 @@
 <ScreenSelectCrypto>:
     MainLayout:
         ScreenTitle:
-            text: app._languages[app._selected_language]['select_currency']
+            text_id: 'select_currency'
 
         BoxLayout:
             orientation: "horizontal"
@@ -218,7 +218,7 @@
                     ShowBoxTitle:
                         size_hint_x: 0.3
                         text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
-                    LabelBase:
+                    LabelSB:
                         size_hint_x: 0.3
                         text: "----->"
                     ShowBoxText:
@@ -260,7 +260,7 @@
                 orientation: "vertical"
                 size_hint_x: 0.3
                 padding: (40, 40)
-                LabelBase:
+                LabelSB:
                     text: "View transaction order (WIP)"
                     size_hint_y: 0.1
                 Image:

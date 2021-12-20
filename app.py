@@ -26,13 +26,11 @@ from kivy.core.window import Window
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import RiseInTransition, ScreenManager
 from path import Path
-
 from pydantic import ValidationError
 
-# stays here because kivy global scope yolo
-from src.components.recycle_view_crypto import TokensRecycleView
+from src.components.label_sb import LabelSB
 from src.screens.main import SyncPopup, ScreenWelcome, ScreenMain
-from src.types.pricefeed import PricefeedMessage, Price, PriceFeedSubscriber
+from src.types.pricefeed import PricefeedMessage, PriceFeedSubscriber
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
@@ -74,6 +72,7 @@ class TemplateApp(App):
     def __init__(self, config: Config):
         super().__init__()
 
+        self._labels: List[LabelSB] = []
         self._config = config
 
         # Thread for node(s) status updates
@@ -127,11 +126,11 @@ class TemplateApp(App):
         """
         self._selected_language = selected_language
 
-        # ugly solution for updating buy screens dynamic titles
-        try:
-            self._manager.current_screen.ids.sm_content.current_screen.change_language()
-        except AttributeError as e:
-            pass
+        for label in self._labels:
+            label.update_text()
+
+    def add_label_cool(self, label: LabelSB):
+        self._labels.append(label)
 
     def get_config(self) -> Config:
         """Get app config"""

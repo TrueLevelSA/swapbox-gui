@@ -1,59 +1,72 @@
 from enum import Enum
 from typing import Optional
 
+from kivy.app import App
 from kivy.lang import Builder
-from kivy.properties import StringProperty, NumericProperty
 
 from src.components.boxlayout_bg import BoxLayoutBackground
+from src.components.label_sb import LabelSB
 
-Builder.load_string('''
-<LabelStepTitle@Label>
-    halign: "left"
-    valign: "center"
-    text_size: self.size
-    font_size: 20
+Builder.load_string('''    
+<ImageStep@Image>
+    disabled: True
+    color: color_gray_3 if self.disabled else color_off_white
 
-<LabelStepText@LabelStepTitle>
-    bold: True
+<StepLabel@LabelLeft>
+    disabled: True
+    color: color_gray_3 if self.disabled else color_off_white
 
 <StepsWidget>
-    orientation: "horizontal"
-    padding: (40, 40)
-    size_hint_x: 0.3
+    padding: (30, 30)
     background_color: color_darker_black
-
     BoxLayout:
         orientation: "vertical"
-
-        LabelStepTitle:
-            text: "Action:"
-        LabelStepTitle:
-            text: "Network:"
-        LabelStepTitle:
-            text: "Currency:"
-        LabelStepTitle:
-            text: "Wallet:"
-        LabelStepTitle:
-            text: "Cash amount:"
-
-    BoxLayout:
-        orientation: "vertical"
-
-        LabelStepText:
-            id: action_name
-            text: root._action
-        LabelStepText:
-            id: network
-            text: root._network
-        LabelStepText:
-            id: currency
-            text: root._currency
-        LabelStepText:
-            id: wallet
-            text: root._wallet
-        LabelStepText:
-            id: cash_amount
-            text: app.format_fiat_price(root._amount)
+        spacing: 10
+        
+        LabelLeft:
+            size_hint_y: 0.1
+            text_id: 'your_selection'
+        
+        BoxLayout:
+            orientation: "horizontal"
+        
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: 0.4
+        
+                ImageStep:
+                    id: img_action
+                    source: "assets/img/action.png"
+                ImageStep:
+                    id: img_network
+                    source: "assets/img/network.png"
+                ImageStep:
+                    id: img_currency
+                    source: "assets/img/currency.png"
+                ImageStep:
+                    id: img_wallet
+                    source: "assets/img/wallet.png"
+                ImageStep:
+                    id: img_amount
+                    source: "assets/img/cash.png"
+        
+            BoxLayout:
+                orientation: "vertical"
+        
+                StepLabel:
+                    id: label_action
+                StepLabel:
+                    id: label_network
+                    text_id: "step_network" if self.disabled else ""
+                StepLabel:
+                    id: label_currency
+                    text_id: "step_currency" if self.disabled else ""
+                StepLabel:
+                    id: label_wallet
+                    text_id: "step_wallet" if self.disabled else ""
+                StepLabel:
+                    id: label_amount
+                    text_id: "step_amount" if self.disabled else ""
 ''')
 
 
@@ -84,8 +97,8 @@ class TransactionOrder:
 
     def __init__(self):
         self.action: Optional[Action] = None
-        self.token: Optional[str] = ""
-        self.backend: str = ""
+        self.token: Optional[str] = None
+        self.backend: str = None
         self.to: Optional[str] = None
         self.amount_fiat: Optional[int] = None
         self.amount_crypto: Optional[int] = None
@@ -93,27 +106,43 @@ class TransactionOrder:
 
 
 class StepsWidget(BoxLayoutBackground):
-    _action = StringProperty("")
-    _network = StringProperty("")
-    _currency = StringProperty("")
-    _wallet = StringProperty("")
-    _amount = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(StepsWidget, self).__init__(**kwargs)
+        self._app = App.get_running_app()
 
     def set_tx_order(self, tx_order: TransactionOrder):
+
         if tx_order.action is not None:
-            self._action = tx_order.action.name
+            self.ids.img_action.disabled = False
+            l: LabelSB = self.ids.label_action
+            l.disabled = False
+
+            if tx_order.action == Action.BUY:
+                l.text_id = "step_action_deposit"
+            elif tx_order.action == Action.SELL:
+                l.text_id = "step_action_withdraw"
 
         if tx_order.backend is not None:
-            self._network = tx_order.backend
+            self.ids.img_network.disabled = False
+            l: LabelSB = self.ids.label_network
+            l.disabled = False
+            l.text = tx_order.backend
 
         if tx_order.token is not None:
-            self._currency = tx_order.token
+            self.ids.img_currency.disabled = False
+            l: LabelSB = self.ids.label_currency
+            l.disabled = False
+            l.text = tx_order.token
 
         if tx_order.wallet_type is not None:
-            self._wallet = tx_order.wallet_type
+            self.ids.img_wallet.disabled = False
+            l: LabelSB = self.ids.label_wallet
+            l.disabled = False
+            l.text = tx_order.wallet_type
 
-        if tx_order.amount_fiat is not None:
-            self._amount = tx_order.amount_fiat
+        if tx_order.amount_fiat is not None and tx_order.amount_fiat > 0:
+            self.ids.img_amount.disabled = False
+            l: LabelSB = self.ids.label_amount
+            l.disabled = False
+            l.text = self._app.format_fiat_price(tx_order.amount_fiat)

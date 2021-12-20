@@ -47,12 +47,9 @@ class ScreenMain(Screen):
         sm.add_widget(ScreenBuyFinal(name='buy_final'))
 
         sm.add_widget(ScreenSettings(name='settings'))
-        sm.add_widget(ScreenRedeem(name='redeem'))
         sm.add_widget(ScreenSell1(config, name='sell1'))
         sm.add_widget(ScreenSell2(config, name='sell2'))
         sm.add_widget(ScreenSell3(name='sell3'))
-        sm.add_widget(ScreenConfirmation(name='confirmation'))
-        sm.add_widget(ScreenLoading(name='loading_screen'))
         sm.add_widget(ScreenSetup1(name='setup_1'))
         sm.add_widget(ScreenSetup2(name='setup_2'))
         sm.add_widget(ScreenSetup3(name='setup_3'))
@@ -86,16 +83,4 @@ class SyncPopup(FullScreenPopup):
 
 
 class ScreenSettings(Screen):
-    pass
-
-
-class ScreenRedeem(Screen):
-    pass
-
-
-class ScreenLoading(Screen):
-    pass
-
-
-class ScreenConfirmation(Screen):
     pass

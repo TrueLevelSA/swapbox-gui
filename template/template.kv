@@ -50,7 +50,7 @@
 
 <SyncPopup@FullScreenPopup>:
     BoxLayout:
-        BlackLabelLarge:
+        LabelTitle:
             text: app._languages[app._selected_language]["not_sync"] # + " {}/{}".format(app._sync_block, app._current_block)
 
 <ScreenWelcome>:
@@ -96,44 +96,6 @@
             id: sm_content
             size_hint_y: 2
 
-<ScreenLoading>:
-    BoxLayout:
-        orientation: "vertical"
-        MainBox:
-            orientation: "horizontal"
-            BlackLabelSmall:
-                text: "Loading..."
-        ButtonBox:
-            BoxLayout:
-                size_hint_x: .2
-            MediumButton:
-                text: app._languages[app._selected_language]["menu"] + " /!\\"
-                on_release:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-            BoxLayout:
-                size_hint_x: .2
-
-<ScreenRedeem>:
-    BoxLayout:
-        orientation: "vertical"
-        MainBox:
-            orientation: "horizontal"
-            BlackLabelSmall:
-                text: "Readeem Code"
-
-        ButtonBox:
-            MediumButton:
-
-                text: app._languages[app._selected_language]["menu"]
-                on_release:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_x : .2
-
 <ScreenSettings>:
     MainBox:
         orientation: "horizontal"
@@ -152,8 +114,3 @@
                     Button:
                         text: "crypto keys config"
                         on_press: root.manager.current = 'main'
-
-
-<ScreenConfirmation>:
-    MainBox:
-        orientation: "horizontal"

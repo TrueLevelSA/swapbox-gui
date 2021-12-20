@@ -38,6 +38,13 @@ EN:
   minimum_received: Minimum received
   tx_completed: Transaction completed. Thank you !
   go_home: Go home
+  your_selection: Your selection
+  step_action_deposit: Deposit cash
+  step_action_withdraw: Withdraw cash
+  step_network: Network
+  step_currency: Currency
+  step_wallet: Wallet
+  step_amount: Cash amount
 
 DE:
   select_action: Select action
@@ -79,6 +86,13 @@ DE:
   minimum_received: Minimum received
   tx_completed: Transaction completed. Thank you !
   go_home: Go home
+  your_selection: Your selection
+  step_action_deposit: Deposit cash
+  step_action_withdraw: Withdraw cash
+  step_network: Network
+  step_currency: Currency
+  step_wallet: Wallet
+  step_amount: Cash amount
 
 ES:
   select_action: Select action
@@ -120,6 +134,13 @@ ES:
   minimum_received: Minimum received
   tx_completed: Transaction completed. Thank you !
   go_home: Go home
+  your_selection: Your selection
+  step_action_deposit: Deposit cash
+  step_action_withdraw: Withdraw cash
+  step_network: Network
+  step_currency: Currency
+  step_wallet: Wallet
+  step_amount: Cash amount
 
 FR:
   select_action: Selectionnez une action
@@ -161,6 +182,13 @@ FR:
   minimum_received: Minimum reçu
   tx_completed: Transaction effectuée. Merci !
   go_home: Terminer
+  your_selection: Votre sélection
+  step_action_deposit: Déposer
+  step_action_withdraw: Retirer
+  step_network: Réseau
+  step_currency: Devise
+  step_wallet: Porte-monnaie
+  step_amount: Quantité
 
 IT:
   select_action: Select action
@@ -202,6 +230,13 @@ IT:
   minimum_received: Minimum received
   tx_completed: Transaction completed. Thank you !
   go_home: Go home
+  your_selection: Your selection
+  step_action_deposit: Deposit cash
+  step_action_withdraw: Withdraw cash
+  step_network: Network
+  step_currency: Currency
+  step_wallet: Wallet
+  step_amount: Cash amount
 
 PT:
   select_action: Select action
@@ -243,3 +278,10 @@ PT:
   minimum_received: Minimum received
   tx_completed: Transaction completed. Thank you !
   go_home: Go home
+  your_selection: Your selection
+  step_action_deposit: Deposit cash
+  step_action_withdraw: Withdraw cash
+  step_network: Network
+  step_currency: Currency
+  step_wallet: Wallet
+  step_amount: Cash amount

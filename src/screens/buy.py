@@ -93,6 +93,7 @@ class ScreenBuyScan(Screen):
         self._tx_order: Optional[TransactionOrder] = None
 
     def on_pre_enter(self, *args):
+        # self.ids.steps.clear()
         self.ids.steps.set_tx_order(self._tx_order)
 
     def on_enter(self):

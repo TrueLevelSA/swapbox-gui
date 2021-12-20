@@ -11,16 +11,17 @@
             size_hint: 0.5, 0.8
             spacing: 20
 
-            TitleLabel:
+            LabelSB:
                 size_hint_y: 0.2
-                text: app._languages[app._selected_language]['select_action']
+                font_size: 40
+                text_id: 'select_action'
 
             BoxLayout:
                 orientation: "horizontal"
                 spacing: 20
                 size_hint_y: 0.6
                 ButtonLight:
-                    text: app._languages[app._selected_language]['buy']
+                    text_id: 'buy'
                     on_release:
                         root.buy_crypto()
                 ButtonDark:
