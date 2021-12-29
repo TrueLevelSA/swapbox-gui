@@ -1,24 +1,5 @@
 #:import StepsWidget src.components.steps
 
-<GreyLabelLarge@BlackLabelLarge>
-    color: "#ababab"
-
-<LabelInfoTitle@BlackLabelLarge>
-    valign: "center"
-    halign: "left"
-    text_size: self.size
-
-<LabelInfoText@LabelInfoTitle>
-    bold: True
-
-<LightBoxLayout@BoxLayout>
-    canvas.before:
-        Color:
-            rgba: 5,5,5,.5
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
 <ScreenTitle@LabelSB>
     size_hint_y: 0.2
     font_size: 50
@@ -105,15 +86,6 @@
     padding: (40, 20)
     orientation: "horizontal"
 
-<ShowBoxTitle@Label>
-    halign: "left"
-    valign: "center"
-    text_size: self.size
-    font_size: 20
-
-<ShowBoxText@ShowBoxTitle>
-    halign: "right"
-
 <SideBox@BoxLayoutBackground>
     background_color: color_darker_black
     padding: (40, 40)
@@ -139,23 +111,23 @@
                     spacing: 10
 
                     ShowBox:
-                        ShowBoxTitle:
+                        LabelLeft:
                             text: app._languages[app._selected_language]['receiving_address']
-                        ShowBoxText:
+                        LabelRight:
                             size_hint_x: 1.5
                             text: app.format_small_address(root._label_address_to)
 
                     ShowBox:
-                        ShowBoxTitle:
+                        LabelLeft:
                             text: app._languages[app._selected_language]['inserted_cash']
-                        ShowBoxText:
+                        LabelRight:
                             font_size: 40
                             text: app.format_fiat_price(root._inserted_cash)
 
                     ShowBox:
-                        ShowBoxTitle:
+                        LabelLeft:
                             text: app._languages[app._selected_language]['minimum_received']
-                        ShowBoxText:
+                        LabelRight:
                             text: app.format_crypto_price(root._inserted_cash / root._token_price, root._token_symbol, 6)
 
                 BoxLayout:
@@ -165,18 +137,18 @@
 
                     Widget:
                     SideBox:
-                        ShowBoxTitle:
+                        LabelLeft:
                             id: max_amount_title
                             text: app._languages[app._selected_language]['max_amount']
-                        ShowBoxText:
+                        LabelRight:
                             id: max_amount_text
                             size_hint_x: 0.5
                             text: root._label_max_amount
                     SideBox:
-                        ShowBoxTitle:
+                        LabelLeft:
                             size_hint_x: 0.5
                             text: "1 {} =".format(root._token_symbol)
-                        ShowBoxText:
+                        LabelRight:
                             text: app.format_fiat_price(root._token_price, 3)
 
         BoxLayout:
@@ -215,13 +187,13 @@
                 spacing: 10
 
                 ShowBox:
-                    ShowBoxTitle:
+                    LabelLeft:
                         size_hint_x: 0.3
                         text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
                     LabelSB:
                         size_hint_x: 0.3
                         text: "----->"
-                    ShowBoxText:
+                    LabelRight:
                         size_hint_x: 0.3
                         text: app.format_fiat_price(root._inserted_cash)
 
@@ -230,29 +202,29 @@
                         orientation: "vertical"
                         BoxLayout:
                             orientation: "horizontal"
-                            ShowBoxTitle:
-#                                size_hint_x: 0.3
+                            LabelLeft:
+                                size_hint_x: 0.3
                                 text: "Operator fees paid"
-                            ShowBoxText:
-#                                size_hint_x: 0.1
+                            LabelRight:
+                                size_hint_x: 0.1
                                 color: color_gray_3
                                 text: "{} %".format(root._operator_fee_percent)
-                            ShowBoxText:
-#                                size_hint_x: 0.2
+                            LabelRight:
+                                size_hint_x: 0.2
                                 text: app.format_fiat_price(root._operator_fee_percent * root._inserted_cash)
                         BoxLayout:
                             orientation: "horizontal"
-                            ShowBoxTitle:
+                            LabelLeft:
                                 text: "Network + LP fees"
-                            ShowBoxText:
+                            LabelRight:
                                 text: "{} %".format(root._network_fee_percent)
                                 color: color_gray_3
-                            ShowBoxText:
+                            LabelRight:
                                 text: app.format_fiat_price(root._network_fee_percent * root._inserted_cash)
                 ShowBox:
-                    ShowBoxTitle:
+                    LabelLeft:
                         text: app._languages[app._selected_language]["customeraddress"]
-                    ShowBoxText:
+                    LabelRight:
                         text: app.format_small_address(root._label_address_to)
 
             BoxLayoutBackground:
