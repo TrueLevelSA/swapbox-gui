@@ -32,19 +32,19 @@
             spacing: 10
             ButtonDark:
                 id: button_back
-                text: app._languages[app._selected_language]['go_back']
+                text_id: 'go_back'
                 size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
-                text: app._languages[app._selected_language]['confirm']
+                text_id: 'confirm'
                 size_hint_x: 9
                 on_release: root.button_confirm()
 
 <ScreenBuyScan>:
     MainLayout:
         ScreenTitle:
-            text: app._languages[app._selected_language]['inputkey']
+            text_id: 'inputkey'
         BoxLayout:
             orientation: "horizontal"
             spacing: 10
@@ -70,7 +70,7 @@
             spacing: 20
             ButtonDark:
                 id: button_back
-                text: app._languages[app._selected_language]['go_back']
+                text_id: 'go_back'
                 size_hint_x: 3
                 on_release: root.button_back()
             Widget:
@@ -93,7 +93,7 @@
 <ScreenBuyInsert>:
     MainLayout:
         ScreenTitle:
-            text: app._languages[app._selected_language]['inputfiat']
+            text_id: 'inputfiat'
         BoxLayout:
             orientation: "horizontal"
             spacing: 10
@@ -112,21 +112,21 @@
 
                     ShowBox:
                         LabelLeft:
-                            text: app._languages[app._selected_language]['receiving_address']
+                            text_id: 'receiving_address'
                         LabelRight:
                             size_hint_x: 1.5
                             text: app.format_small_address(root._label_address_to)
 
                     ShowBox:
                         LabelLeft:
-                            text: app._languages[app._selected_language]['inserted_cash']
+                            text_id: 'inserted_cash'
                         LabelRight:
                             font_size: 40
                             text: app.format_fiat_price(root._inserted_cash)
 
                     ShowBox:
                         LabelLeft:
-                            text: app._languages[app._selected_language]['minimum_received']
+                            text_id: 'minimum_received'
                         LabelRight:
                             text: app.format_crypto_price(root._inserted_cash / root._token_price, root._token_symbol, 6)
 
@@ -139,7 +139,7 @@
                     SideBox:
                         LabelLeft:
                             id: max_amount_title
-                            text: app._languages[app._selected_language]['max_amount']
+                            text_id: 'max_amount'
                         LabelRight:
                             id: max_amount_text
                             size_hint_x: 0.5
@@ -157,14 +157,14 @@
 
             ButtonDark:
                 id: button_back
-                text: app._languages[app._selected_language]['cancel']
+                text_id: 'cancel'
                 size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
                 disabled: True
                 size_hint_x: 9
-                text: app._languages[app._selected_language]['buy']
+                text_id: 'buy'
                 on_release: root.button_confirm()
 
 
@@ -172,7 +172,7 @@
 <ScreenBuyFinal>:
     MainLayout:
         ScreenTitle:
-            text: app._languages[app._selected_language]['tx_completed']
+            text_id: 'tx_completed'
         BoxLayout:
             orientation: "horizontal"
             spacing: 10
@@ -223,7 +223,7 @@
                                 text: app.format_fiat_price(root._network_fee_percent * root._inserted_cash)
                 ShowBox:
                     LabelLeft:
-                        text: app._languages[app._selected_language]["customeraddress"]
+                        text_id: "customeraddress"
                     LabelRight:
                         text: app.format_small_address(root._label_address_to)
 
@@ -245,5 +245,5 @@
             spacing: 20
 
             ButtonLight:
-                text: app._languages[app._selected_language]['go_home']
+                text_id: 'go_home'
                 on_release: root.button_confirm()
