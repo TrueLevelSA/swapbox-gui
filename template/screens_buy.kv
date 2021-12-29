@@ -79,7 +79,7 @@
 <ShowBox@BoxLayout>
     canvas.before:
         Color:
-            rgba: color_off_white
+            rgba: color_gray_3
         Line:
             width: 1
             rectangle: self.x, self.y, self.width, self.height
@@ -157,12 +157,13 @@
 
             ButtonDark:
                 id: button_back
+                disabled: root._inserted_cash > 0
                 text_id: 'cancel'
                 size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
-                disabled: True
+                disabled: root._inserted_cash <= 0
                 size_hint_x: 9
                 text_id: 'buy'
                 on_release: root.button_confirm()

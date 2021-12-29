@@ -205,10 +205,6 @@ class ScreenBuyInsert(Screen):
             self._inserted_cash += amount_received
             self._update_price_labels()
 
-            if self._inserted_cash > 0:
-                self.ids.button_back.disabled = True
-                self.ids.button_confirm.disabled = False
-
             # for this limit to be half effective we must only accept notes smaller than the limit
             if self._inserted_cash >= self._buy_limit:
                 self._thread_cashin.stop_cashin()

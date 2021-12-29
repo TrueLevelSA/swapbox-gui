@@ -34,11 +34,31 @@
                 orientation: "horizontal"
                 spacing: 20
                 size_hint_y: 0.3
-                ButtonDark:
-                    disabled: True
-                    markup: True
-                    text: app._languages[app._selected_language]['phone_credit'] + "\n[size=15]" + app._languages[app._selected_language]['coming_soon'] + "[/size]"
-                ButtonDark:
-                    disabled: True
-                    markup: True
-                    text: app._languages[app._selected_language]['investment'] + "\n[size=15]" + app._languages[app._selected_language]['coming_soon'] + "[/size]"
+
+                # Both 'coming_soon' buttons
+                BoxLayoutBackground:
+                    background_color: color_darker_black
+                    orientation: "vertical"
+                    padding: 30
+                    LabelBase:
+                        color: color_gray_4
+                        text_id: 'phone_credit'
+                        font_size: 25
+                        text: self.text.upper()
+                    LabelBase:
+                        color: color_gray_4
+                        font_size: 15
+                        text_id: 'coming_soon'
+                BoxLayoutBackground:
+                    background_color: color_darker_black
+                    orientation: "vertical"
+                    padding: 30
+                    LabelBase:
+                        color: color_gray_4
+                        text_id: 'investment'
+                        font_size: 25
+                        text: self.text.upper()
+                    LabelBase:
+                        color: color_gray_4
+                        font_size: 15
+                        text_id: 'coming_soon'
