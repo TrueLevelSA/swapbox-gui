@@ -15,8 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import zmq
-import math
-from time import time, sleep
+from time import sleep
 import json
 import argument
 

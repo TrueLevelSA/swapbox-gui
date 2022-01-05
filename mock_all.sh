@@ -6,11 +6,11 @@ killbg() {
 }
 trap killbg EXIT
 pids=()
-pipenv run python mock_services/mock_web3.py -s & 
+pipenv run python mock_services/mock_web3.py -s &
 pids+=($!)
-pipenv run python mock_services/mock_pricefeed.py & 
+pipenv run python mock_services/mock_pricefeed.py &
 pids+=($!)
-pipenv run python mock_services/mock_status.py & 
+pipenv run python mock_services/mock_status.py &
 pids+=($!)
 
 pipenv run python mock_services/mock_validator.py
