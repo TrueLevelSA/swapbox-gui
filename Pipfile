@@ -4,20 +4,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pytest = "*"
+pytest = {version="*"}
 
 [packages]
-pexpect = "*"
-cython = "*"
-kivy = "*"
-strictyaml = "*"
-pyzmq = "*"
-requests = "*"
-pyserial = "*"
-pifacedigitalio = "*"
-qrcode = "*"
-docutils = "==0.14rc2"
-pillow = "*"
-pysha3 = "*"
+argument = "*"
+docutils = "*"
+Cython = "*"
+Kivy = "*"
 path = "*"
+pexpect = "*"
+pifacedigitalio = "*"
 pydantic = "*"
+pyzmq = "*"
+qrcode = "*"
+strictyaml = "*"
+pysha3 = "*"
+
+[requires]
+python_version = "3.9"
