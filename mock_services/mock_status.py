@@ -74,5 +74,10 @@ try:  # Command Interpreter
         sleep(1)
 
 except KeyboardInterrupt:  # If user do CTRL+C
+    # send not in sync
+    obeuhjeuh['blockchain']['is_in_sync'] = False
+    socket.send_multipart(["status".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
+    print("cucu")
+    print(obeuhjeuh)
     print("Exiting")
     exit(0)

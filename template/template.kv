@@ -15,16 +15,6 @@
 
 #:include template/colors.kv
 
-<LayoutPopup@BoxLayout>:
-    canvas.before:
-        Rectangle:
-            pos: self.pos
-            size: self.size
-            source: 'assets/img/bgreen.jpg'
-
-<FullScreenPopup@ModalView>:
-    size_hint_y: 1
-    size_hint_x: 1
 
 <BoxLayoutBackground@BoxLayout>:
     canvas.before:
@@ -47,11 +37,6 @@
     spacing: 20
     size_hint_y: .2
     orientation: 'horizontal'
-
-<SyncPopup@FullScreenPopup>:
-    BoxLayout:
-        LabelTitle:
-            text_id: "not_sync"
 
 <ScreenWelcome>:
     BoxLayout:
@@ -88,9 +73,14 @@
             ButtonDark:
                 size_hint_x: 1
                 text: "?"
+                on_press:
+                    root.show_help()
             ButtonLight:
                 size_hint_x: 1
                 text: "Stop"
+                on_press:
+                    root.back_to_menu()
+
 
         ScreenManager:
             id: sm_content

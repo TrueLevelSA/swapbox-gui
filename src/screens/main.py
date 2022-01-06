@@ -15,8 +15,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
 
 from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto
@@ -29,8 +27,7 @@ class ScreenWelcome(Screen):
         # if we are not connected by the time we leave the welcome screen
         # then we show a popup
         app = App.get_running_app()
-        if not app._first_status_message_received:
-            App.get_running_app()._create_popup()
+        app.toggle_sync_popup()
 
 
 class ScreenMain(Screen):
@@ -60,9 +57,13 @@ class ScreenMain(Screen):
         self._sm.transition.direction = "down"
         self._sm.current = screen_id
 
+    def show_help(self):
+        # TODO
+        print("show help")
 
-class LayoutPopup(BoxLayout):
-    pass
+    def back_to_menu(self):
+        self._sm.transition.direction = "right"
+        self._sm.current = 'menu'
 
 
 class ScreenMenu(Screen):
@@ -71,15 +72,8 @@ class ScreenMenu(Screen):
         self.manager.current = "buy_select"
 
     def sell_crypto(self):
-        print("sell yo")
-
-
-class FullScreenPopup(ModalView):
-    pass
-
-
-class SyncPopup(FullScreenPopup):
-    pass
+        self.manager.transition.direction = "left"
+        self.manager.current = "sell1"
 
 
 class ScreenSettings(Screen):

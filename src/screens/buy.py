@@ -123,7 +123,8 @@ class ScreenBuyScan(Screen):
             self.manager.current = 'buy_insert'
         else:
             print("QR not found")
-            self._screen_parent.go_to_menu()
+            self.manager.transition.direction = "right"
+            self.manager.current = "menu"
 
 
 class ScreenBuyInsert(Screen):

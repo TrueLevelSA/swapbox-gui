@@ -16,7 +16,7 @@
 
 import json
 from threading import Lock
-from typing import List
+from typing import List, Dict
 
 import strictyaml
 from kivy.app import App
@@ -29,11 +29,12 @@ from path import Path
 from pydantic import ValidationError
 
 from src.components.label_sb import LabelSB
-from src.screens.main import SyncPopup, ScreenWelcome, ScreenMain
+from src.screens.main import ScreenWelcome, ScreenMain
 from src.types.pricefeed import PricefeedMessage, PriceFeedSubscriber
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
+from template.overlay import OverlayNotSync
 
 
 def set_kivy_log_level(debug: bool):
@@ -63,14 +64,30 @@ class Manager(ScreenManager):
         self._main_screen.set_current_screen(screen_id)
 
 
+def _retrieve_lang(path: str) -> Dict[str, Dict[str, str]]:
+    """
+    Load and parses language file...
+    :param path: path of the language file
+    :return: language dict
+    """
+    languages_yaml = strictyaml.load(Path(path).bytes().decode('utf8')).data
+    return {k: dict(v) for k, v in languages_yaml.items()}
+
+
 class TemplateApp(App):
-    _selected_language = StringProperty('en')
+    """True if the node communicates a synchronized status"""
+    _node_in_sync = False
+
+    """Selected language as an kivy's Observable"""
+    _selected_language = StringProperty('EN')
     _stablecoin_reserve = NumericProperty(-1e18)
     _eth_reserve = NumericProperty(-1e18)
     kv_directory = 'template'
 
     def __init__(self, config: Config):
         super().__init__()
+
+        LabelBase.register(name='SpaceGrotesk', fn_regular='assets/fonts/SpaceGrotesk-Regular.ttf')
 
         self._labels: List[LabelSB] = []
         self._config = config
@@ -96,14 +113,11 @@ class TemplateApp(App):
         self._machine_currency = config.note_machine.currency
 
         self._manager = None
-        self._popup_sync = None
+        self._languages = _retrieve_lang('lang_template.yaml')
+        self._popup_sync = OverlayNotSync()
         self._overlay_lock = Lock()
-        self._popup_count = 0
-        self._first_status_message_received = False
-        languages_yaml = strictyaml.load(Path("lang_template.yaml").bytes().decode('utf8')).data
-        self._languages = {k: dict(v) for k, v in languages_yaml.items()}
 
-        LabelBase.register(name='SpaceGrotesk', fn_regular='assets/fonts/SpaceGrotesk-Regular.ttf')
+        self._popup_count = 0
 
     def build(self):
         # Get a language
@@ -210,29 +224,32 @@ class TemplateApp(App):
             callback(self._prices)
 
     def _update_message_status(self, message):
-        self._first_status_message_received = True
+        """
+        Called when there's a message from the node
+        :param message: node's data
+        """
         msg_json = json.loads(message)
-        is_in_sync = msg_json["blockchain"]["is_in_sync"]
+        self._node_in_sync = msg_json["blockchain"]["is_in_sync"]
+        self.toggle_sync_popup()
 
-        self._show_sync_popup(is_in_sync)
+    def is_node_in_sync(self) -> bool:
+        """
+        Return true if the node is connected and in sync.
+        :return: A boolean representing the state of the node.
+        """
+        return self._node_in_sync
 
-    def _show_sync_popup(self, is_in_sync):
-        if not is_in_sync:
-            self._create_popup()
-        if is_in_sync:
-            self._delete_popup()
-
-    def _create_popup(self):
-        if self._popup_sync is None:
-            self.before_popup()
-            self._popup_sync = SyncPopup()
-            self._popup_sync.open()
-
-    def _delete_popup(self):
-        if self._popup_sync is not None:
+    def toggle_sync_popup(self):
+        """
+        Show -not sync- popup if not synced.
+        :return:
+        """
+        # show
+        if self._node_in_sync:
             self._popup_sync.dismiss()
-            self._popup_sync = None
-            self.after_popup()
+        else:
+            # self._popup_sync = OverlayNotSync()
+            self._popup_sync.open()
 
     def on_stop(self):
         self._config.NODE_RPC.stop()
