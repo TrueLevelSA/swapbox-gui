@@ -16,9 +16,10 @@ pexpect = "*"
 pifacedigitalio = "*"
 pydantic = "*"
 pyzmq = "*"
-qrcode = "*"
 strictyaml = "*"
 pysha3 = "*"
+qrcode = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.9"

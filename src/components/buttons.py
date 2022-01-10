@@ -24,3 +24,15 @@ class ButtonSB(Button):
     def update_text(self):
         if self.text_id != "":
             self.text = App.get_running_app().get_string(self.text_id)
+
+
+class ButtonBase(ButtonSB):
+    pass
+
+
+class ButtonLight(ButtonBase):
+    pass
+
+
+class ButtonDark(ButtonBase):
+    pass
