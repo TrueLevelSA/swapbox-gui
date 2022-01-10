@@ -24,7 +24,8 @@ EN:
   customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
-  sellselect: SELECT CASHOUT AMOUNT
+  sellselect: Enter cash amount to withdraw
+  amount_to_withdraw: Cash amount to withdraw
   thank: THANK YOU
   cryptovalue: Estimated Crypto value
   cryptoslippage: Minimum Crypto value
@@ -45,6 +46,11 @@ EN:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  note: Note
+  how_to_send_1: Open your wallet and select SEND
+  how_to_send_2: Scan the QR code
+  how_to_send_3: Send {} to the QR code address
+  how_to_send_note: Transaction fee is included. Excess funds will be sent back to your wallet.
 
 DE:
   select_action: Select action
@@ -73,6 +79,7 @@ DE:
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
+  amount_to_withdraw: Cash amount to withdraw
   thank: Danke
   cryptovalue: Kryptowährung
   cryptoslippage: Minimum Crypto value
@@ -121,6 +128,7 @@ ES:
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
+  amount_to_withdraw: Cash amount to withdraw
   thank: Gracias
   cryptovalue: Valor en crypto
   cryptoslippage: Minimum Crypto value
@@ -168,7 +176,8 @@ FR:
   customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
-  sellselect: Please select amount to cashout
+  sellselect: Sélectionnez le montant à retirer
+  amount_to_withdraw: Montant à retirer
   thank: Merci
   cryptovalue: Valeur en Crypto
   cryptoslippage: Minimum Crypto value
@@ -217,6 +226,7 @@ IT:
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
+  amount_to_withdraw: Cash amount to withdraw
   thank: Grazie
   cryptovalue: Valore in Crypto
   cryptoslippage: Minimum Crypto value
@@ -265,6 +275,7 @@ PT:
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Por favor escolha o montante a retirar
+  amount_to_withdraw: Cash amount to withdraw
   thank: Obrigado
   cryptovalue: Valor em Crypto
   cryptoslippage: Minimum Crypto value

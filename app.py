@@ -19,6 +19,7 @@ from threading import Lock
 from typing import List, Dict
 
 import strictyaml
+from kivy import Logger
 from kivy.app import App
 from kivy.config import Config as KivyConfig
 from kivy.core.text import LabelBase
@@ -29,12 +30,12 @@ from path import Path
 from pydantic import ValidationError
 
 from src.components.label_sb import LabelSB
+from src.components.overlay import OverlayNotSync
 from src.screens.main import ScreenWelcome, ScreenMain
 from src.types.pricefeed import PricefeedMessage, PriceFeedSubscriber
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
 from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
-from template.overlay import OverlayNotSync
 
 
 def set_kivy_log_level(debug: bool):
@@ -156,7 +157,11 @@ class TemplateApp(App):
 
         :param str_id: id of the requested string
         """
-        return self._languages[self._selected_language][str_id]
+        try:
+            return self._languages[self._selected_language][str_id]
+        except KeyError:
+            Logger.error(f"swapbox: translations missing for: dict={self._selected_language};key={str_id}")
+            return "[undefined]"
 
     def format_fiat_price(self, value: int, decimals: int = 0) -> str:
         """
