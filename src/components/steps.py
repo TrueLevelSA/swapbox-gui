@@ -1,3 +1,19 @@
+#  Swap-box
+#  Copyright (c) 2022 TrueLevel SA
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from enum import Enum
 from typing import Optional
 
@@ -88,7 +104,7 @@ class TransactionOrder:
     Attributes:
         action          The type of order, buy or sell.
         token           The token the user want to buy.
-        backend         The backend of the token.
+        network         The network the token is on.
         to              To whom the token will be forwarded while/after the tx.
         amount_fiat     The amount of fiat the user cashed in.
         amount_crypto   The amount of crypto the user has received.
@@ -98,7 +114,7 @@ class TransactionOrder:
     def __init__(self):
         self.action: Optional[Action] = None
         self.token: Optional[str] = None
-        self.backend: str = None
+        self.network: Optional[str] = None
         self.to: Optional[str] = None
         self.amount_fiat: Optional[int] = None
         self.amount_crypto: Optional[int] = None
@@ -123,11 +139,11 @@ class StepsWidget(BoxLayoutBackground):
             elif tx_order.action == Action.SELL:
                 l.text_id = "step_action_withdraw"
 
-        if tx_order.backend is not None:
+        if tx_order.network is not None:
             self.ids.img_network.disabled = False
             l: LabelSB = self.ids.label_network
             l.disabled = False
-            l.text = tx_order.backend
+            l.text = tx_order.network
 
         if tx_order.token is not None:
             self.ids.img_currency.disabled = False

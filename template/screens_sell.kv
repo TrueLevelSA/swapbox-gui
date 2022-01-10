@@ -1,52 +1,134 @@
-<ScreenSell1>:
-    BoxLayout:
-        orientation: "vertical"
-        MainBox:
-            orientation: "vertical"
-            BoxLayout:
-                size_hint_y: 0.05
-            WhiteLabelLarge:
-                text: app._languages[app._selected_language]["sellselect"]
-                size_hint_y: 0.1
-            BoxLayout:
-                size_hint_y: 0.05
-            GridLayout:
-                id: grid_notes
-                cols: 2
-                spacing: 10
-                padding:  [80, 20, 80, 20]
-                # Dynamically populated with buttons corresponding to config
-        ButtonBox:
-            MediumButton:
-                text: app._languages[app._selected_language]["menu"]
-                on_press:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-            MediumButton:
-                # disabled: root._cash_in <= 0
-                text: app._languages[app._selected_language]["confirm"]
-                on_press:
-                    root._buy()
+<ScreenSellAmount>:
+    MainLayout:
+        ScreenTitle:
+            text_id: 'sellselect'
 
-<ScreenSell2>:
-    id: sell2
-    BoxLayout:
-        orientation: "vertical"
-        MainBox:
+        BoxLayout:
             orientation: "horizontal"
-            BlackLabelSmall:
-                text: "Please pay {}".format(root._sell_amount)
-            Image:
-                id: 'generate_qr'
-                source: root._qr_image
-        ButtonBox:
-            MediumButton:
+            spacing: 10
 
-                text: app._languages[app._selected_language]["menu"]
-                on_press:
-                    root.manager.transition.direction = 'right'
-                    root.manager.current = "menu"
-
+            StepsWidget:
+                id: steps
+                size_hint_x: 3
             BoxLayout:
+                orientation: "vertical"
+                size_hint_x: 6
+                spacing: 10
+                GridLayout:
+                    id: grid_notes
+                    cols: 3
+                    spacing: 10
+                    size_hint_y: 2
+                ShowBox:
+                    size_hint_y: 1
+                    LabelLeft:
+                        text_id: "amount_to_withdraw"
+                    LabelRight:
+                        text: app.format_fiat_price(root._amount)
+            Widget:
+                size_hint_x: 3
+
+        BoxLayout:
+            size_hint_y: .3
+            spacing: 10
+            ButtonDark:
+                id: button_back
+                text_id: 'go_back'
+                size_hint_x: 3
+                on_release: root.button_back()
+            ButtonLight:
+                id: button_confirm
+                text_id: 'confirm'
+                size_hint_x: 9
+                on_release: root.button_confirm()
+
+
+<ScreenSellSelectToken>:
+    MainLayout:
+        ScreenTitle:
+            text_id: 'select_currency'
+
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 10
+
+            StepsWidget:
+                id: steps
+                size_hint_x: 3
+            TokensRecycleView:
+                id: rv_tokens
+                size_hint_x: 9
+                halign: "center"
+
+        BoxLayout:
+            size_hint_y: .3
+            spacing: 10
+            ButtonDark:
+                id: button_back
+                text_id: 'go_back'
+                size_hint_x: 3
+                on_release: root.button_back()
+            ButtonLight:
+                id: button_confirm
+                text_id: 'confirm'
+                size_hint_x: 9
+                on_release: root.button_confirm()
+
+<ScreenSellScan>:
+    MainLayout:
+        ScreenTitle:
+            text_id: 'send_eth'
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 10
+
+            StepsWidget:
+                id: steps
+                size_hint_x: 3
+
+            BoxLayoutBackground:
                 orientation: "horizontal"
-                size_hint_x : .2
+                size_hint_x: 9
+                background_color: color_darker_black
+                padding: 20
+
+                BoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    LabelLeft:
+                        text: "1."
+                    LabelLeft:
+                        text: "2."
+                    LabelLeft:
+                        text: "3."
+                    LabelLeft:
+                        text_id: "note"
+                BoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 5
+                    LabelLeft:
+                        text_id: "how_to_send_1"
+                    LabelLeft:
+                        text_id: "how_to_send_2"
+                    LabelLeft:
+                        text_id: "how_to_send_3"
+                        text_params: [root._sell_amount]
+                    LabelLeft:
+                        text_id: "how_to_send_note"
+
+                Image:
+                    source: 'assets/img/phoneqr.png'
+                    allow_stretch: True
+                    keep_ratio: True
+                    size_hint_x: 3
+
+        BoxLayout:
+            size_hint_y: .3
+            spacing: 20
+            ButtonDark:
+                id: button_back
+                text_id: 'go_back'
+                size_hint_x: 3
+                on_release: root.button_back()
+            Widget:
+                size_hint_x: 9

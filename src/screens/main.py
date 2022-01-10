@@ -13,12 +13,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import json
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 
 from src.screens.buy import ScreenBuyScan, ScreenBuyInsert, ScreenBuyFinal, ScreenSelectCrypto
-from src.screens.sell import ScreenSell1, ScreenSell2, ScreenSell3
+from src.screens.sell import ScreenSellAmount, ScreenSellScan, ScreenSellSelectToken
 from src.screens.setup import ScreenSetup1, ScreenSetup2, ScreenSetup3
 
 
@@ -37,16 +36,17 @@ class ScreenMain(Screen):
         super().__init__(**kwargs)
         sm = self.ids.sm_content
         sm.add_widget(ScreenMenu(name='menu'))
+        sm.add_widget(ScreenSettings(name='settings'))
 
         sm.add_widget(ScreenSelectCrypto(config, name='buy_select'))
         sm.add_widget(ScreenBuyScan(config, name='buy_scan'))
         sm.add_widget(ScreenBuyInsert(config, name='buy_insert'))
         sm.add_widget(ScreenBuyFinal(name='buy_final'))
 
-        sm.add_widget(ScreenSettings(name='settings'))
-        sm.add_widget(ScreenSell1(config, name='sell1'))
-        sm.add_widget(ScreenSell2(config, name='sell2'))
-        sm.add_widget(ScreenSell3(name='sell3'))
+        sm.add_widget(ScreenSellAmount(config, name='sell_amount'))
+        sm.add_widget(ScreenSellSelectToken(config, name='sell_select_token'))
+        sm.add_widget(ScreenSellScan(config, name='sell_scan'))
+
         sm.add_widget(ScreenSetup1(name='setup_1'))
         sm.add_widget(ScreenSetup2(name='setup_2'))
         sm.add_widget(ScreenSetup3(name='setup_3'))
@@ -73,7 +73,7 @@ class ScreenMenu(Screen):
 
     def sell_crypto(self):
         self.manager.transition.direction = "left"
-        self.manager.current = "sell1"
+        self.manager.current = "sell_amount"
 
 
 class ScreenSettings(Screen):
