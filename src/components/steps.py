@@ -23,52 +23,54 @@ from kivy.lang import Builder
 from src.components.boxlayout_bg import BoxLayoutBackground
 from src.components.label_sb import LabelSB
 
-Builder.load_string('''    
-<ImageStep@Image>
+Builder.load_string('''
+<IconStep@Image>
     disabled: True
-    color: color_gray_3 if self.disabled else color_off_white
+    color: color_off_white
+    disabled_color: color_gray_3
 
 <StepLabel@LabelLeft>
     disabled: True
-    color: color_gray_3 if self.disabled else color_off_white
+    color: color_off_white
+    disabled_color: color_gray_3
 
-<StepsWidget>
+<StepsWidgetBuy>
     padding: (30, 30)
     background_color: color_darker_black
     BoxLayout:
         orientation: "vertical"
         spacing: 10
-        
+
         LabelLeft:
             size_hint_y: 0.1
             text_id: 'your_selection'
-        
+
         BoxLayout:
             orientation: "horizontal"
-        
+
             BoxLayout:
                 orientation: "vertical"
                 size_hint_x: 0.4
-        
-                ImageStep:
-                    id: img_action
+
+                IconStep:
+                    id: ico_action
                     source: "assets/img/action.png"
-                ImageStep:
-                    id: img_network
+                IconStep:
+                    id: ico_network
                     source: "assets/img/network.png"
-                ImageStep:
-                    id: img_currency
+                IconStep:
+                    id: ico_currency
                     source: "assets/img/currency.png"
-                ImageStep:
-                    id: img_wallet
+                IconStep:
+                    id: ico_wallet
                     source: "assets/img/wallet.png"
-                ImageStep:
-                    id: img_amount
+                IconStep:
+                    id: ico_amount
                     source: "assets/img/cash.png"
-        
+
             BoxLayout:
                 orientation: "vertical"
-        
+
                 StepLabel:
                     id: label_action
                 StepLabel:
@@ -83,6 +85,58 @@ Builder.load_string('''
                 StepLabel:
                     id: label_amount
                     text_id: "step_amount" if self.disabled else ""
+
+<StepsWidgetSell>
+    padding: (30, 30)
+    background_color: color_darker_black
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 10
+
+        LabelLeft:
+            size_hint_y: 0.1
+            text_id: 'your_selection'
+
+        BoxLayout:
+            orientation: "horizontal"
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: 0.4
+
+                IconStep:
+                    id: ico_action
+                    source: "assets/img/action.png"
+                IconStep:
+                    id: ico_amount
+                    source: "assets/img/cash.png"
+                IconStep:
+                    id: ico_network
+                    source: "assets/img/network.png"
+                IconStep:
+                    id: ico_currency
+                    source: "assets/img/currency.png"
+                IconStep:
+                    id: ico_wallet
+                    source: "assets/img/wallet.png"
+
+            BoxLayout:
+                orientation: "vertical"
+
+                StepLabel:
+                    id: label_action
+                StepLabel:
+                    id: label_amount
+                    text_id: "step_amount" if self.disabled else ""
+                StepLabel:
+                    id: label_network
+                    text_id: "step_network" if self.disabled else ""
+                StepLabel:
+                    id: label_currency
+                    text_id: "step_currency" if self.disabled else ""
+                StepLabel:
+                    id: label_wallet
+                    text_id: "step_wallet" if self.disabled else ""
 ''')
 
 
@@ -121,16 +175,15 @@ class TransactionOrder:
         self.wallet_type: Optional[Wallet] = None
 
 
-class StepsWidget(BoxLayoutBackground):
+class StepsWidgetBase(BoxLayoutBackground):
 
     def __init__(self, **kwargs):
-        super(StepsWidget, self).__init__(**kwargs)
+        super(StepsWidgetBase, self).__init__(**kwargs)
         self._app = App.get_running_app()
 
     def set_tx_order(self, tx_order: TransactionOrder):
-
         if tx_order.action is not None:
-            self.ids.img_action.disabled = False
+            self.ids.ico_action.disabled = False
             l: LabelSB = self.ids.label_action
             l.disabled = False
 
@@ -140,25 +193,33 @@ class StepsWidget(BoxLayoutBackground):
                 l.text_id = "step_action_withdraw"
 
         if tx_order.network is not None:
-            self.ids.img_network.disabled = False
+            self.ids.ico_network.disabled = False
             l: LabelSB = self.ids.label_network
             l.disabled = False
             l.text = tx_order.network
 
         if tx_order.token is not None:
-            self.ids.img_currency.disabled = False
+            self.ids.ico_currency.disabled = False
             l: LabelSB = self.ids.label_currency
             l.disabled = False
             l.text = tx_order.token
 
         if tx_order.wallet_type is not None:
-            self.ids.img_wallet.disabled = False
+            self.ids.ico_wallet.disabled = False
             l: LabelSB = self.ids.label_wallet
             l.disabled = False
             l.text = tx_order.wallet_type
 
         if tx_order.amount_fiat is not None and tx_order.amount_fiat > 0:
-            self.ids.img_amount.disabled = False
+            self.ids.ico_amount.disabled = False
             l: LabelSB = self.ids.label_amount
             l.disabled = False
             l.text = self._app.format_fiat_price(tx_order.amount_fiat)
+
+
+class StepsWidgetBuy(StepsWidgetBase):
+    pass
+
+
+class StepsWidgetSell(StepsWidgetBase):
+    pass

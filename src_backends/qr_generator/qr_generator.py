@@ -29,7 +29,7 @@ class QRGenerator:
         )
         qr.add_data(text)
         qr.make(fit=True)
-        image_binary = qr.make_image()
+        image_binary = qr.make_image(fill_color="white", back_color="transparent")
 
         with open(path, 'wb') as img_tmp_file:
             image_binary.save(img_tmp_file, 'PNG')

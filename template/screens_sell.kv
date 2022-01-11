@@ -7,7 +7,7 @@
             orientation: "horizontal"
             spacing: 10
 
-            StepsWidget:
+            StepsWidgetSell:
                 id: steps
                 size_hint_x: 3
             BoxLayout:
@@ -24,9 +24,23 @@
                     LabelLeft:
                         text_id: "amount_to_withdraw"
                     LabelRight:
+                        font_size: 40
                         text: app.format_fiat_price(root._amount)
-            Widget:
+            BoxLayout:
                 size_hint_x: 3
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: 10
+                    Widget:
+                        size_hint_y: 2
+                    SideBox:
+                        LabelLeft:
+                            id: max_amount_title
+                            text_id: 'max_amount'
+                        LabelRight:
+                            id: max_amount_text
+                            size_hint_x: 0.5
+                            text: root._label_max_amount
 
         BoxLayout:
             size_hint_y: .3
@@ -39,6 +53,7 @@
             ButtonLight:
                 id: button_confirm
                 text_id: 'confirm'
+                disabled: root._amount <= 0
                 size_hint_x: 9
                 on_release: root.button_confirm()
 
@@ -52,7 +67,7 @@
             orientation: "horizontal"
             spacing: 10
 
-            StepsWidget:
+            StepsWidgetSell:
                 id: steps
                 size_hint_x: 3
             TokensRecycleView:
@@ -82,7 +97,7 @@
             orientation: "horizontal"
             spacing: 10
 
-            StepsWidget:
+            StepsWidgetSell:
                 id: steps
                 size_hint_x: 3
 
@@ -117,7 +132,7 @@
                         text_id: "how_to_send_note"
 
                 Image:
-                    source: 'assets/img/phoneqr.png'
+                    source: root._qr_image_uri
                     allow_stretch: True
                     keep_ratio: True
                     size_hint_x: 3

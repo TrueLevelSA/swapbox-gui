@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from enum import Enum
 from threading import Thread
 from typing import Optional, Dict
 
@@ -23,7 +22,7 @@ from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen, ScreenManager
 
 from src.components.recycle_view_crypto import TokensRecycleView
-from src.components.steps import StepsWidget, TransactionOrder, Action
+from src.components.steps import TransactionOrder, Action, StepsWidgetBuy
 from src.types.pricefeed import Price
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.config_tools import Config
@@ -56,8 +55,8 @@ class ScreenSelectCrypto(Screen):
         # init tx order
         self._tx_order = TransactionOrder()
         self._tx_order.action = Action.BUY
-        self._tx_order.backend = "zkSync"
-        steps: StepsWidget = self.ids.steps
+        self._tx_order.network = "zkSync"
+        steps: StepsWidgetBuy = self.ids.steps
         steps.set_tx_order(self._tx_order)
 
     def on_leave(self, *args):
@@ -93,7 +92,6 @@ class ScreenBuyScan(Screen):
         self._tx_order: Optional[TransactionOrder] = None
 
     def on_pre_enter(self, *args):
-        # self.ids.steps.clear()
         self.ids.steps.set_tx_order(self._tx_order)
 
     def on_enter(self):

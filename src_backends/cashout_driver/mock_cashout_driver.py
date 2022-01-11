@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from src_backends.cashout_driver.cashout_driver_base import CashoutDriver
 import time
+
+from src_backends.cashout_driver.cashout_driver_base import CashoutDriver
+
 
 class MockCashoutDriver(CashoutDriver):
 

@@ -51,6 +51,7 @@ EN:
   how_to_send_2: Scan the QR code
   how_to_send_3: Send {} to the QR code address
   how_to_send_note: Transaction fee is included. Excess funds will be sent back to your wallet.
+  loading: Loading...
 
 DE:
   select_action: Select action
@@ -100,6 +101,7 @@ DE:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  loading: Loading...
 
 ES:
   select_action: Select action
@@ -149,6 +151,7 @@ ES:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  loading: Loading...
 
 FR:
   select_action: Selectionnez une action
