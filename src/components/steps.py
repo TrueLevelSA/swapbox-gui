@@ -165,14 +165,15 @@ class TransactionOrder:
         wallet_type     The type of the wallet.
     """
 
-    def __init__(self):
-        self.action: Optional[Action] = None
-        self.token: Optional[str] = None
-        self.network: Optional[str] = None
-        self.to: Optional[str] = None
-        self.amount_fiat: Optional[int] = None
-        self.amount_crypto: Optional[int] = None
-        self.wallet_type: Optional[Wallet] = None
+    def __init__(self, action=None, token=None, network=None, to=None, amount_fiat=None, amount_crypto=None,
+                 wallet_type=None):
+        self.action: Optional[Action] = action
+        self.token: Optional[str] = token
+        self.network: Optional[str] = network
+        self.to: Optional[str] = to
+        self.amount_fiat: Optional[int] = amount_fiat
+        self.amount_crypto: Optional[int] = amount_crypto
+        self.wallet_type: Optional[Wallet] = wallet_type
 
 
 class StepsWidgetBase(BoxLayoutBackground):

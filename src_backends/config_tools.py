@@ -15,15 +15,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
+import os
 from enum import auto, Enum
+
 import strictyaml
 from strictyaml import Seq, Str, Map, Bool, Int, Float
-import os
 
-from src_backends.cashin_driver.cashin_driver_base import CashinDriver
-from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
 from src_backends.node_rpc.node_rpc import NodeRPC
-from src_backends.qr_generator.qr_generator import QRGenerator
 
 
 class CameraMethod(Enum):
@@ -166,7 +164,6 @@ class Config(object):
         # setup drivers
         self.LED_DRIVER = Config._select_led_driver(self.RELAY_METHOD)
         self.QR_SCANNER = Config._select_qr_scanner(self.camera)
-        self.QR_GENERATOR = QRGenerator()
         self.CASHOUT_DRIVER = Config._select_cashout_driver(self)
         self.NODE_RPC = NodeRPC(self.zmq.rpc)
 

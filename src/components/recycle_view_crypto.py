@@ -47,6 +47,7 @@ class TokensRecycleView(RecycleView):
         super(TokensRecycleView, self).__init__(**kwargs)
         self.selected = -1
         self._backends: List[Backend] = []
+        self._last_prices: Dict[str, float] = {}
 
     def populate(self, backends: List[Backend]):
         self._backends = backends
@@ -68,6 +69,7 @@ class TokensRecycleView(RecycleView):
         :param prices: key is the token name, value is the price. It will try to match token name
         with existing rows, if it exists in the list, then the price is updated.
         """
+        self._last_prices = prices
         for i, data in enumerate(self.data):
             token: str = data['symbol.text']
             if token in prices:
@@ -77,11 +79,11 @@ class TokensRecycleView(RecycleView):
     def set_selected(self, index):
         self.selected = index
 
-    def get_selected_token(self) -> str:
+    def get_selected_token(self) -> tuple[str, float]:
         """Return currently selected token in list view."""
         selected_item = self.data[self.selected]
         token_name = selected_item['symbol.text']
-        return token_name
+        return token_name, self._last_prices[token_name]
 
     def deselect(self):
         self.layout_manager.deselect_node(self.selected)

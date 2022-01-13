@@ -46,6 +46,7 @@ EN:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  send_token: Send {} to payment address
   note: Note
   how_to_send_1: Open your wallet and select SEND
   how_to_send_2: Scan the QR code

@@ -144,23 +144,27 @@ class TemplateApp(App):
         for label in self._labels:
             label.update_text()
 
-    def add_label_cool(self, label: LabelSB):
+    def add_translatable(self, label: LabelSB):
         self._labels.append(label)
 
     def get_config(self) -> Config:
         """Get app config"""
         return self._config
 
-    def get_string(self, str_id: str):
+    def get_string(self, id: str, params: List[object]):
         """
         Get a specific string by ID, using the current language.
 
-        :param str_id: id of the requested string
+        :param id:      id of the requested string
+        :param params:  params for string formatting
         """
         try:
-            return self._languages[self._selected_language][str_id]
+            t = self._languages[self._selected_language][id]
+            if params:
+                t = t.format(*params)
+            return t
         except KeyError:
-            Logger.error(f"swapbox: translations missing for: dict={self._selected_language};key={str_id}")
+            Logger.error(f"swapbox: translations missing for: dict={self._selected_language};key={id}")
             return "[undefined]"
 
     def format_fiat_price(self, value: int, decimals: int = 0) -> str:

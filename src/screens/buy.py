@@ -63,7 +63,7 @@ class ScreenSelectCrypto(Screen):
         self._app.unsubscribe_prices(self._update_prices)
 
     def button_confirm(self):
-        token = self._list_view.get_selected_token()
+        token, _ = self._list_view.get_selected_token()
         self._tx_order.token = token
 
         self.manager.get_screen('buy_scan').set_tx_order(self._tx_order)

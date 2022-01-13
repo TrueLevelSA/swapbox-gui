@@ -9,9 +9,9 @@ default_lang: EN
 
 # Crypto backends. Can only be one of: [zksync] for now lol.
 backends:
-  - type: zksync
+  - type: zkSync
     base_currency: CHF
-    address: 0xaaaaaaaaaaaaaaaaa
+    address: 0x8dE0d002DC83478f479dC31F76cB0a8aa7CcEa17
     ticker: 0xfffffffffffffffff
     tokens:
       - symbol: DAI

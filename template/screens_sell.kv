@@ -92,7 +92,8 @@
 <ScreenSellScan>:
     MainLayout:
         ScreenTitle:
-            text_id: 'send_eth'
+            text_id: 'send_token'
+            text_params: [root._token]
         BoxLayout:
             orientation: "horizontal"
             spacing: 10
@@ -127,7 +128,7 @@
                         text_id: "how_to_send_2"
                     LabelLeft:
                         text_id: "how_to_send_3"
-                        text_params: [root._sell_amount]
+                        text_params: [app.format_crypto_price(root._sell_amount, root._token, 12)]
                     LabelLeft:
                         text_id: "how_to_send_note"
 

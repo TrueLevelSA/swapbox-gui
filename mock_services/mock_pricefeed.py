@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import zmq
-import math
-from time import time, sleep
 import json
+import math
+from time import sleep
+
 import argument
+import zmq
 
 port = '5556'
 
@@ -72,7 +73,7 @@ try:  # Command Interpreter
     while True:
         for token, price in pricefeed['prices'].items():
             p = price['price']
-            pricefeed['prices'][token]['price'] = noise_this_number(p, p/1000)
+            pricefeed['prices'][token]['price'] = noise_this_number(p, p / 1000)
 
         if arguments["verbose"]:
             print(" Sending {}".format(pricefeed))

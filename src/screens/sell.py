@@ -18,6 +18,7 @@ import os
 import threading
 from typing import Optional, Dict
 
+from kivy import Logger
 from kivy.app import App
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty
 from kivy.uix.screenmanager import Screen
@@ -25,6 +26,9 @@ from kivy.uix.screenmanager import Screen
 from src.components.buttons import ButtonLight, ButtonDark
 from src.components.recycle_view_crypto import TokensRecycleView
 from src.components.steps import StepsWidgetSell, TransactionOrder, Action
+from src.types.pricefeed import Price
+from src_backends.config_tools import Config
+from src_backends.qr_generator.qr_generator import QRGenerator
 
 
 class NoteButton(ButtonLight):
@@ -39,15 +43,24 @@ class NoteButton(ButtonLight):
 
 
 class StepsScreen(Screen):
+    """Base class for screens that uses a StepsWidget.
+
+    A StepsWidget must exist in the screen layout with `id: steps`
+    """
+    _tx_order: Optional[TransactionOrder] = None
+
     def __init__(self, **kwargs):
         super(StepsScreen, self).__init__(**kwargs)
         self.steps: StepsWidgetSell = self.ids.steps
 
     def set_tx_order(self, tx_order: TransactionOrder):
+        self._tx_order = tx_order
         self.steps.set_tx_order(tx_order)
 
 
 class ScreenSellAmount(StepsScreen):
+    """Screen in the sell process to choose the amount to withdraw."""
+
     _amount = NumericProperty(0)
     _label_max_amount = StringProperty("")
 
@@ -56,15 +69,34 @@ class ScreenSellAmount(StepsScreen):
         self._app = App.get_running_app()
 
         self._CASHOUT = config.CASHOUT_DRIVER
-        self._note_balance = {}
         self._valid_notes = config.notes_values
         self._currency = config.note_machine.currency
-
         self._buy_limit = config.buy_limit
         self._label_max_amount = self._app.format_fiat_price(self._buy_limit)
 
-        self._tx_order = TransactionOrder()
-        self._tx_order.action = Action.SELL
+        self._note_balance = {}
+        self._reset()
+
+    def on_pre_enter(self):
+        self.set_tx_order(self._tx_order)
+
+        t = threading.Thread(target=self._create_note_buttons, daemon=True)
+        t.start()
+        self._CASHOUT.start_cashout()
+        # success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
+
+    def on_leave(self, *args):
+        self._reset()
+
+    def button_back(self):
+        self.manager.transition.direction = "right"
+        self.manager.current = "menu"
+
+    def button_confirm(self):
+        self._tx_order.amount_fiat = self._amount
+        self.manager.get_screen("sell_select_token").set_tx_order(self._tx_order)
+        self.manager.transition.direction = "left"
+        self.manager.current = "sell_select_token"
 
     def _create_note_buttons(self):
         """Create the note buttons.
@@ -84,34 +116,16 @@ class ScreenSellAmount(StepsScreen):
 
         self.ids.grid_notes.add_widget(ButtonDark(text="clear", on_release=self._reset))
 
-    def on_pre_enter(self):
-        self.set_tx_order(self._tx_order)
-
-        t = threading.Thread(target=self._create_note_buttons, daemon=True)
-        t.start()
-        self._CASHOUT.start_cashout()
-        # success, value = self._node_rpc.buy(self._cash_in, self._address_ether)
-
     def _retrieve_note_balance(self) -> Dict[int, int]:
         return self._CASHOUT.get_balance()
 
-    def _reset(self, *args):
+    def _reset(self):
+        """Resets screen to be ready for next use."""
         self._amount = 0
-
-    def on_leave(self, *args):
-        self._reset(*args)
-
-    def button_back(self):
-        self.manager.transition.direction = "right"
-        self.manager.current = "menu"
-
-    def button_confirm(self):
-        self._tx_order.amount_fiat = self._amount
-        self.manager.get_screen("sell_select_token").set_tx_order(self._tx_order)
-        self.manager.transition.direction = "left"
-        self.manager.current = "sell_select_token"
+        self._tx_order = TransactionOrder(action=Action.SELL)
 
     def _add_amount(self, amount):
+        """Adds amount chose by the user to internal count."""
         if self._CASHOUT.check_available_notes(self._note_balance, amount):
             if self._amount + amount <= self._buy_limit:
                 self._amount += amount
@@ -128,47 +142,71 @@ class ScreenSellSelectToken(StepsScreen):
     def __init__(self, config, **kwargs):
         super().__init__(**kwargs)
 
+        self._app = App.get_running_app()
+
         self._tx_order: Optional[TransactionOrder] = None
 
         # init recycle view
         self._list_view: TokensRecycleView = self.ids.rv_tokens
         self._list_view.populate(config.backends)
 
-    def set_tx_order(self, tx_order):
-        self._tx_order = tx_order
-        self.steps.set_tx_order(self._tx_order)
+    def on_pre_enter(self, *args):
+        self._app.subscribe_prices(self._update_prices)
 
     def button_back(self):
         self.manager.transition.direction = "right"
         self.manager.current = "sell_amount"
 
     def button_confirm(self):
+        token, price = self._list_view.get_selected_token()
+        self._tx_order.network = "zkSync"
+        self._tx_order.token = token
+        self._tx_order.amount_crypto = self._tx_order.amount_fiat / price
         self.manager.get_screen("sell_scan").set_tx_order(self._tx_order)
         self.manager.transition.direction = "left"
         self.manager.current = "sell_scan"
 
+    def _update_prices(self, prices: Dict[str, Price]):
+        self._list_view.update_prices({k: v.price for (k, v) in prices.items()})
+
 
 class ScreenSellScan(StepsScreen):
-    _payment_address_ether = StringProperty("0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e2")
+    _payment_address_ether = StringProperty("")
     _qr_image_uri = ObjectProperty()
-    _sell_amount = NumericProperty()
 
-    def __init__(self, config, **kwargs):
+    _sell_amount = NumericProperty()
+    _token = StringProperty()
+
+    def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
+
         self._CASHOUT = config.CASHOUT_DRIVER
-        self._QR_GENERATOR = config.QR_GENERATOR
         self._NOTE_BALANCE = {}
         self._valid_notes = config.notes_values
         self._node_rpc = config.NODE_RPC
 
+        self._backends = config.backends
+
         self._tx_order: Optional[TransactionOrder] = None
 
     def on_pre_enter(self):
-        self.ids.steps.set_tx_order(self._tx_order)
+        self._payment_address_ether = self._get_backend_address()
         # TODO: generate qr code for any target currency
-        # request backend for the tx string
-        self._qr_image_uri = os.path.join('tmp', 'qr.png')
-        self._QR_GENERATOR.generate_qr_image("some address", self._qr_image_uri)
+        img_uri = os.path.join('tmp', 'qr.png')
+        QRGenerator.generate_qr_image(self._payment_address_ether, img_uri)
+        self._qr_image_uri = img_uri
+
+    def button_back(self):
+        self.manager.transition.direction = "right"
+        self.manager.current = "sell_select_token"
 
     def set_tx_order(self, tx_order: TransactionOrder):
-        self._tx_order = tx_order
+        super(ScreenSellScan, self).set_tx_order(tx_order)
+        self._sell_amount = tx_order.amount_crypto
+        self._token = tx_order.token
+
+    def _get_backend_address(self):
+        for backend in self._backends:
+            if backend.type == self._tx_order.network:
+                return backend.address
+        Logger.error(f"swapbox: no backend address for: {self._tx_order.network}")
