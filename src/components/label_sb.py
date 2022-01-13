@@ -1,5 +1,5 @@
 from kivy.app import App
-from kivy.properties import StringProperty, ListProperty
+from kivy.properties import StringProperty, ListProperty, BooleanProperty
 from kivy.uix.label import Label
 
 
@@ -13,6 +13,8 @@ class LabelSB(Label):
     text_id = StringProperty("")
     text_params = ListProperty()
 
+    translate = BooleanProperty(True)
+
     def __init__(self, **kwargs):
         super(LabelSB, self).__init__(**kwargs)
 
@@ -23,5 +25,5 @@ class LabelSB(Label):
         self.bind(text_params=self.update_text)
 
     def update_text(self, *args):
-        if self.text_id != "":
+        if self.text_id != "" and self.translate:
             self.text = App.get_running_app().get_string(self.text_id, self.text_params)

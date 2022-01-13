@@ -58,7 +58,7 @@ class TokensRecycleView(RecycleView):
                 self.data.append({
                     'symbol.text': token.symbol,
                     'name.text': token.name,
-                    'price.text': "loading...",
+                    'price.text_id': "loading",
                     'value': TokensRecycleView.ICONS_FOLDER.format(token.symbol.lower())
                 })
 
@@ -73,6 +73,9 @@ class TokensRecycleView(RecycleView):
         for i, data in enumerate(self.data):
             token: str = data['symbol.text']
             if token in prices:
+                # disable translations now
+                self.data[i]["price.translate"] = False
+                # set new price
                 self.data[i]["price.text"] = "{:4f} CHF".format(prices[token])
         self.refresh_from_data()
 

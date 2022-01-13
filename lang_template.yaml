@@ -202,6 +202,7 @@ FR:
   step_currency: Devise
   step_wallet: Porte-monnaie
   step_amount: Quantité
+  loading: Chargement...
 
 IT:
   select_action: Select action
@@ -251,6 +252,7 @@ IT:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  loading: Loading...
 
 PT:
   select_action: Select action
@@ -300,3 +302,4 @@ PT:
   step_currency: Currency
   step_wallet: Wallet
   step_amount: Cash amount
+  loading: Loading...
