@@ -21,6 +21,8 @@ class LabelSB(Label):
         # adds label ref to main app. it will call update_text when selected language is updated
         App.get_running_app().add_translatable(self)
 
+        self.update_text()
+
         self.bind(text_id=self.update_text)
         self.bind(text_params=self.update_text)
 
