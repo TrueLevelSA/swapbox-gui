@@ -203,6 +203,12 @@ FR:
   step_wallet: Porte-monnaie
   step_amount: Quantité
   loading: Chargement...
+  note: Note
+  send_token: Envoyez du {} à l'adresse de paiement
+  how_to_send_1: Ouvrez votre portefeuille et choisissez ENVOYER.
+  how_to_send_2: Scannez le code QR.
+  how_to_send_3: Envoyez {} à l'addresse du code QR.
+  how_to_send_note: Les frais de transactions sont inclus. Les fonds excédents seront renvoyés dans votre portefeuille.
 
 IT:
   select_action: Select action
