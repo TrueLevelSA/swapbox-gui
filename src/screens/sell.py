@@ -26,7 +26,7 @@ from kivy.uix.screenmanager import Screen
 from src.components.buttons import ButtonLight, ButtonDark
 from src.components.recycle_view_crypto import TokensRecycleView
 from src.components.steps import StepsWidgetSell, TransactionOrder, Action
-from src.types.pricefeed import Price
+from src.zmq.pricefeed_subscriber import Prices
 from src_backends.config_tools import Config
 from src_backends.qr_generator.qr_generator import QRGenerator
 
@@ -166,7 +166,7 @@ class ScreenSellSelectToken(StepsScreen):
         self.manager.transition.direction = "left"
         self.manager.current = "sell_scan"
 
-    def _update_prices(self, prices: Dict[str, Price]):
+    def _update_prices(self, prices: Prices):
         self._list_view.update_prices({k: v.price for (k, v) in prices.items()})
 
 

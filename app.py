@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import json
 from threading import Lock
 from typing import List, Dict
 
@@ -27,15 +26,14 @@ from kivy.core.window import Window
 from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.screenmanager import RiseInTransition, ScreenManager
 from path import Path
-from pydantic import ValidationError
 
 from src.components.label_sb import LabelSB
 from src.components.overlay import OverlayNotSync
 from src.screens.main import ScreenWelcome, ScreenMain
-from src.types.pricefeed import PricefeedMessage, PriceFeedSubscriber
+from src.zmq.pricefeed_subscriber import PricefeedSubscriber, PricefeedCallback
+from src.zmq.status_subscriber import StatusSubscriber, Status
 from src_backends.config_tools import Config
 from src_backends.config_tools import parse_args as parse_args
-from src_backends.custom_threads.zmq_subscriber import ZMQSubscriber
 
 
 def set_kivy_log_level(debug: bool):
@@ -94,21 +92,11 @@ class TemplateApp(App):
         self._config = config
 
         # Thread for node(s) status updates
-        self._thread_status = ZMQSubscriber(
-            self._update_message_status,
-            config.zmq.status,
-            ZMQSubscriber.TOPIC_STATUS
-        )
+        self.status = StatusSubscriber(config.zmq.status)
+        self.status.subscribe(self._update_message_status)
 
         # Thread for currency prices updates
-        self._thread_pricefeed = ZMQSubscriber(
-            self._update_prices,
-            config.zmq.pricefeed,
-            ZMQSubscriber.TOPIC_PRICEFEED
-        )
-
-        # Subscribers of pricefeed price updates
-        self._subscribers_prices: List[PriceFeedSubscriber] = []
+        self.pricefeed = PricefeedSubscriber(config.zmq.pricefeed)
 
         # Physical fiat currency supported by the banknote validator
         self._machine_currency = config.note_machine.currency
@@ -128,8 +116,8 @@ class TemplateApp(App):
         self._manager = Manager(self._config, transition=RiseInTransition())
 
         # Start threads
-        self._thread_status.start()
-        self._thread_pricefeed.start()
+        self.pricefeed.start()
+        self.status.start()
 
         return self._manager
 
@@ -197,49 +185,28 @@ class TemplateApp(App):
     def format_small_address(address: str) -> str:
         return f"{address[0:9]}...{address[-8:-1]}"
 
-    def subscribe_prices(self, callback: PriceFeedSubscriber):
+    def subscribe_prices(self, callback: PricefeedCallback):
         """
         Subscribe to prices update
 
         :param callback: called each time a price update happens.
         """
-        self._subscribers_prices.append(callback)
+        self.pricefeed.subscribe(callback)
 
-    def unsubscribe_prices(self, callback: PriceFeedSubscriber):
-        """
-        Unsubscribe from prices update
-
-        :param callback: the one callback who should stop being called.
-        """
-        try:
-            self._subscribers_prices.remove(callback)
-        except ValueError as e:
-            print("already unsubscribed price", e)
-
-    def _update_prices(self, message: str):
-        """
-        Parses message back from pricefeed raw message and update internal self._prices.
-
-        You can subscribe to it via the subscribe_prices method.
-
-        :argument message raw message from pricefeed
-        """
-        try:
-            self._prices = PricefeedMessage(**json.loads(message)).prices
-        except ValidationError as e:
-            print(e.json())
-
-        for callback in self._subscribers_prices:
-            callback(self._prices)
-
-    def _update_message_status(self, message):
+    def _update_message_status(self, status: Status):
         """
         Called when there's a message from the node
         :param message: node's data
         """
-        msg_json = json.loads(message)
-        self._node_in_sync = msg_json["blockchain"]["is_in_sync"]
-        self.toggle_sync_popup()
+        self._node_in_sync = status.blockchain.is_in_sync
+        self.update_sync_popup_visibility()
+
+    def update_sync_popup_visibility(self):
+        """Update sync popup visibility depending on last known status."""
+        if self._node_in_sync:
+            self._popup_sync.dismiss()
+        else:
+            self._popup_sync.open()
 
     def is_node_in_sync(self) -> bool:
         """
@@ -248,23 +215,12 @@ class TemplateApp(App):
         """
         return self._node_in_sync
 
-    def toggle_sync_popup(self):
-        """
-        Show -not sync- popup if not synced.
-        :return:
-        """
-        # show
-        if self._node_in_sync:
-            self._popup_sync.dismiss()
-        else:
-            # self._popup_sync = OverlayNotSync()
-            self._popup_sync.open()
-
     def on_stop(self):
         self._config.NODE_RPC.stop()
 
     # this method is ugly but we play with the raspicam overlay and have no choice
     def before_popup(self):
+        # TODO: Find out the purpose of this @tshabs
         """ used to cleanup the overlay in case a popup is opened while in scanning mode
         this method must be called before a popup is opened"""
         driver = self._config.QR_SCANNER
@@ -281,6 +237,7 @@ class TemplateApp(App):
 
     # this method is ugly but we play with the raspicam overlay and have no choice
     def after_popup(self):
+        # TODO: Find out the purpose of this @tshabs
         """ used to show the overlay in case a popup is closed while in scanning mode
         this method must be called after a popup is closed"""
         driver = self._config.QR_SCANNER

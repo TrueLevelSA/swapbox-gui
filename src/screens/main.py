@@ -26,7 +26,7 @@ class ScreenWelcome(Screen):
         # if we are not connected by the time we leave the welcome screen
         # then we show a popup
         app = App.get_running_app()
-        app.toggle_sync_popup()
+        app.update_sync_popup_visibility()
 
 
 class ScreenMain(Screen):

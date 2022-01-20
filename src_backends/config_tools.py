@@ -65,9 +65,17 @@ class Camera:
         self.device = cfg["device"]
 
 
+class Pricefeed:
+    def __init__(self, cfg):
+        self.address = cfg["address"]
+        self.port_sub = cfg["port_sub"]
+        self.port_req = cfg["port_req"]
+
+
 class Zmq:
     def __init__(self, cfg):
-        self.pricefeed = cfg["pricefeed"]
+        self.machin: int = 2
+        self.pricefeed = Pricefeed(cfg["pricefeed"])
         self.rpc = cfg["rpc"]
         self.status = cfg["status"]
 
@@ -119,7 +127,11 @@ class Config(object):
             "device": Str()
         }),
         "zmq": Map({
-            "pricefeed": Str(),
+            "pricefeed": Map({
+                "address": Str(),
+                "port_sub": Int(),
+                "port_req": Int()
+            }),
             "rpc": Str(),
             "status": Str(),
         }),

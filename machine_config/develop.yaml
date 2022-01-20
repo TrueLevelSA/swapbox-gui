@@ -45,7 +45,10 @@ camera:
 
 # ZMQ settings
 zmq:
-  pricefeed: tcp://localhost:5556
+  pricefeed:
+    address: tcp://localhost
+    port_sub: 5556
+    port_req: 5559
   rpc: tcp://localhost:5557
   status: tcp://localhost:5558
 

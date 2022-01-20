@@ -13,74 +13,77 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import json
 import math
 from time import sleep
 
 import argument
 import zmq
-
-port = '5556'
-
-context = zmq.Context()
-socket = context.socket(zmq.PUB)
-socket.bind('tcp://*:{}'.format(port))
-
-value = 100e18
-index = 0.1
-increment = 0.1 / 4
-
-f = argument.Arguments()
-# add a switch, a flag with no argument
-f.switch("verbose",
-         help="Verbose output",
-         abbr="v"
-         )
-arguments, errors = f.parse()
+from zmq import Socket
 
 
-def noise_this_number(number, amplitude):
-    global index
-    global increment
-    index += increment
-    return number + amplitude * math.sin(index)
+class MockPricefeed:
+    base_url = 'tcp://*'
+    port_prices = 5556
+    port_rep = 5559
+    name = 'mock_pricefeed'
 
+    increment = 0.025
 
-def noise_this_number_hex(number, amplitude):
-    return hex(round(noise_this_number(number, amplitude)))[2:]
+    def __init__(self, verbose: bool):
+        context = zmq.Context()
 
+        # prepare sockets
+        self.socket_prices: Socket = context.socket(zmq.PUB)
+        self.socket_rep: Socket = context.socket(zmq.REP)
+        self.socket_prices.bind(f'{self.base_url}:{self.port_prices}')
+        self.socket_rep.bind(f'{self.base_url}:{self.port_rep}')
 
-pricefeed = {
-    'backend': 'zksync',
-    'base_currency': 'CHF',
-    'prices': {
-        'ETH': {
-            'price': 4000.0,
-            'buy_fee': 120,
-            'sell_fee': 120,
-        },
-        'DAI': {
-            'price': 0.9,
-            'buy_fee': 110,
-            'sell_fee': 110,
+        # base prices then sinus over +- 0.1% of the price
+        self.base_prices = {
+            'ETH': {
+                'price': 4000.0,
+                'buy_fee': 120,
+                'sell_fee': 120,
+            },
+            'DAI': {
+                'price': 0.9,
+                'buy_fee': 110,
+                'sell_fee': 110,
+            }
         }
-    }
 
-}
+        # how much we move over the sinus each time next_price is called
+        self.price_i = 0.1
 
-try:  # Command Interpreter
-    while True:
-        for token, price in pricefeed['prices'].items():
-            p = price['price']
-            pricefeed['prices'][token]['price'] = noise_this_number(p, p / 1000)
+        self.verbose = verbose
 
-        if arguments["verbose"]:
-            print(" Sending {}".format(pricefeed))
+    def next_price(self):
+        self.price_i += self.increment
 
-        socket.send_multipart(["priceticker".encode('utf-8'), json.dumps(pricefeed).encode('utf-8')])
-        sleep(1)
+        prices = self.base_prices.copy()
+        for token, price in self.base_prices.items():
+            p = price['price'] + price['price'] / 1000.0 * math.sin(self.price_i)
+            prices[token]['price'] = p
+        return prices
 
-except KeyboardInterrupt:  # If user do CTRL+C
-    print("Exiting")
-    exit(0)
+    def start(self):
+        try:  # Command Interpreter
+            while True:
+                msg = {'prices': self.next_price()}
+                if self.verbose:
+                    print(json.dumps(msg, indent=2))
+                self.socket_prices.send_string(f"pricefeed {json.dumps(msg)}")
+                sleep(1)
+        except KeyboardInterrupt:  # If user do CTRL+C
+            print("Exiting")
+            exit(0)
+
+
+if __name__ == '__main__':
+    f = argument.Arguments()
+    f.switch("verbose", help="Verbose output", abbr="v")
+    arguments, errors = f.parse()
+
+    m = MockPricefeed(arguments["verbose"])
+    m.start()

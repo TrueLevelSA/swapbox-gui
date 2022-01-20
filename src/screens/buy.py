@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from threading import Thread
-from typing import Optional, Dict
+from typing import Optional
 
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
@@ -23,7 +23,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 
 from src.components.recycle_view_crypto import TokensRecycleView
 from src.components.steps import TransactionOrder, Action, StepsWidgetBuy
-from src.types.pricefeed import Price
+from src.zmq.pricefeed_subscriber import Prices
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.config_tools import Config
 from src_backends.qr_scanner.util import parse_ethereum_address
@@ -45,12 +45,13 @@ class ScreenSelectCrypto(Screen):
         self._list_view: TokensRecycleView = self.ids.rv_tokens
         self._list_view.populate(config.backends)
 
+        self._app.pricefeed.subscribe(self._update_prices)
+
     # KV screen life cycle hooks
     ################################
     def on_pre_enter(self, *args):
         # select first node default
         self.ids.rv_tokens.ids.controller.selected_nodes = [0]
-        self._app.subscribe_prices(self._update_prices)
 
         # init tx order
         self._tx_order = TransactionOrder()
@@ -58,9 +59,6 @@ class ScreenSelectCrypto(Screen):
         self._tx_order.network = "zkSync"
         steps: StepsWidgetBuy = self.ids.steps
         steps.set_tx_order(self._tx_order)
-
-    def on_leave(self, *args):
-        self._app.unsubscribe_prices(self._update_prices)
 
     def button_confirm(self):
         token, _ = self._list_view.get_selected_token()
@@ -77,7 +75,7 @@ class ScreenSelectCrypto(Screen):
     def set_tx_order(self, tx_order):
         self._tx_order = tx_order
 
-    def _update_prices(self, prices: Dict[str, Price]):
+    def _update_prices(self, prices: Prices):
         self.ids.rv_tokens.update_prices({k: v.price for (k, v) in prices.items()})
 
 
@@ -181,8 +179,8 @@ class ScreenBuyInsert(Screen):
     def set_tx_order(self, tx_order: TransactionOrder):
         self._tx_order = tx_order
 
-    def _update_prices(self, prices: Dict[str, Price]):
-        if self._tx_order.token not in prices:
+    def _update_prices(self, prices: Prices):
+        if self._tx_order.token not in prices.keys():
             print("token price not received")
             return
         self._token_price = prices[self._tx_order.token].price

@@ -14,15 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import zmq
-from time import sleep
 import json
+from time import sleep
+
 import argument
+import zmq
+from zmq import Socket
 
 port = '5558'
 
 context = zmq.Context()
-socket = context.socket(zmq.PUB)
+socket: Socket = context.socket(zmq.PUB)
 socket.bind('tcp://*:{}'.format(port))
 
 current_block = 1000
@@ -68,16 +70,13 @@ try:  # Command Interpreter
         obeuhjeuh['blockchain']['current_block'] = current_block
         obeuhjeuh['blockchain']['sync_block'] = sync_block
         obeuhjeuh['blockchain']['is_in_sync'] = is_in_sync
+        msg = json.dumps(obeuhjeuh)
+
         if arguments["verbose"]:
-            print(" Sending {}".format(obeuhjeuh))
-        socket.send_multipart(["status".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
+            print(f" Sending {msg}")
+        socket.send_string(f"status {msg}")
         sleep(1)
 
 except KeyboardInterrupt:  # If user do CTRL+C
-    # send not in sync
-    obeuhjeuh['blockchain']['is_in_sync'] = False
-    socket.send_multipart(["status".encode('utf-8'), json.dumps(obeuhjeuh).encode('utf-8')])
-    print("cucu")
-    print(obeuhjeuh)
     print("Exiting")
     exit(0)

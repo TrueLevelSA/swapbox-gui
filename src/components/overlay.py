@@ -28,4 +28,18 @@ Builder.load_string('''
 
 
 class OverlayNotSync(ModalView):
-    pass
+    def __init__(self, **kwargs):
+        super(OverlayNotSync, self).__init__(**kwargs)
+
+        # adds a boolean to easily check it's current state
+        self.visible = False
+
+    def open(self, *largs, **kwargs):
+        if not self.visible:
+            super(OverlayNotSync, self).open(*largs, **kwargs)
+        self.visible = True
+
+    def dismiss(self, *largs, **kwargs):
+        if self.visible:
+            super(OverlayNotSync, self).dismiss(*largs, **kwargs)
+        self.visible = False

@@ -14,19 +14,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from src_backends.qr_scanner.qr_scanner_base import QrScanner
 import subprocess
 from pathlib import Path
+
+from src_backends.qr_scanner.qr_scanner_base import QrScanner
+
 
 class QrScannerOpenCV(QrScanner):
     # path to the opencv executable
     _PATH_OPENCV = str(Path(__file__).absolute().parent) + "/zbar_c/main.run"
     _CMD_OVERLAY = "v4l2-ctl --set-fmt-overlay top={},left={},width={},height={}".format(
-        180, # top
-        615, # left
-        508, # width
-        310, # height
-        )
+        180,  # top
+        615,  # left
+        508,  # width
+        310,  # height
+    )
 
     def __init__(self):
         super().__init__(QrScannerOpenCV._PATH_OPENCV)
