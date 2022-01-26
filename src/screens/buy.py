@@ -130,7 +130,7 @@ class ScreenBuyInsert(Screen):
     _token_symbol = StringProperty("")
     _token_price = NumericProperty(1)
 
-    _inserted_cash = NumericProperty(0)
+    _total_cash_in = NumericProperty(0)
     _estimated_eth = NumericProperty(0)
     _minimum_wei = NumericProperty(0)
 
@@ -161,9 +161,8 @@ class ScreenBuyInsert(Screen):
     def on_leave(self):
         """Screen.on_leave()"""
         self._thread_cashin.stop_cashin()
-        self._app.unsubscribe_prices(self._update_prices)
 
-        self._inserted_cash = 0
+        self._total_cash_in = 0
         self._minimum_wei = 0
         self._label_address_to = '0x0'
 
@@ -192,18 +191,18 @@ class ScreenBuyInsert(Screen):
         :param message: The cashin thread raw message. Format: <currency>:<amount>
         """
         try:
-            amount_received = int(message.split(':')[1])
+            cash_in = int(message.split(':')[1])
         except ValueError as e:
             print("failed to parse cashin message", e)
             # cash out whatever happened here ?
             return
 
-        if amount_received in self._valid_notes:
-            self._inserted_cash += amount_received
+        if cash_in in self._valid_notes:
+            self._total_cash_in += cash_in
             self._update_price_labels()
 
             # for this limit to be half effective we must only accept notes smaller than the limit
-            if self._inserted_cash >= self._buy_limit:
+            if self._total_cash_in >= self._buy_limit:
                 self._thread_cashin.stop_cashin()
                 self._highlight_max_amount()
 
@@ -213,7 +212,7 @@ class ScreenBuyInsert(Screen):
         self.ids.max_amount_text.color = "red"
 
     def _update_price_labels(self):
-        self._estimated_eth = self._inserted_cash / self._token_price
+        self._estimated_eth = self._total_cash_in / self._token_price
 
     def _async_buy(self):
         """Sends a buy order to the node RPC, in a thread"""
@@ -227,15 +226,15 @@ class ScreenBuyInsert(Screen):
 
     def _buy(self):
         """Sends a buy order to the node RPC."""
-        min_eth = self._minimum_wei / 1e18
-        print("exact min wei", self._minimum_wei)
-        print("min eth", min_eth)
-        success, value = self._node_rpc.buy(str(int(1e18 * self._inserted_cash)), self._label_address_to,
-                                            self._minimum_wei)
-        print(success, value)
-        if success:
-            self._tx_order.amount_fiat = self._inserted_cash
-            self._tx_order.amount_crypto = value
+        response = self._node_rpc.buy(
+            self._total_cash_in,
+            self._tx_order.token,
+            self._minimum_wei,
+            self._label_address_to
+        )
+        if response.status == "success":
+            self._tx_order.amount_fiat = self._total_cash_in
+            self._tx_order.amount_crypto = float(response.result)
             self.manager.get_screen("buy_final").set_tx_order(self._tx_order)
             self.manager.transition.direction = 'left'
             self.manager.current = "buy_final"

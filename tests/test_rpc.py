@@ -14,20 +14,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
-import sys
-# i hate importes in python
-sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/..")
 from src_backends.node_rpc.node_rpc import NodeRPC
 
+
 def test():
-    address = "0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e1"
     amount = 10
+    token = "UNI"
+    min_buy = 20
+    address = "0x6129A2F6a9CA0Cf814ED278DA8f30ddAD5B424e1"
 
     zmq_url = "tcp://localhost:5557"
     node_rpc = NodeRPC(zmq_url)
 
-    print(node_rpc.buy(amount, address))
+    r = node_rpc.buy(amount, token, min_buy, address)
+    assert r.status == "success"
+
 
 if __name__ == "__main__":
     test()

@@ -20,6 +20,12 @@ backends:
       - symbol: ETH
         name: Ethereum
         address: 0xccccccccccccccccc
+      - symbol: UNI
+        name: Uniswap
+        address: 0xddddddddddddddddd
+      - symbol: XMR
+        name: Monero
+        address: 0xeeeeeeeeeeeeeeeee
 
 # Banknote validator settings
 note_machine:

@@ -8,18 +8,10 @@
     # Background
     canvas.before:
         Color:
-            rgba: color_gray_5 if self.selected else color_off_black
+            rgba: color_gray_3 if self.selected else color_gray_5
         Rectangle:
             size: self.size
             pos: self.pos
-
-    # Border
-    canvas.after:
-        Color:
-            rgba: color_off_white if self.selected else color_transparent
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
 
     value: ''
     padding: 10
@@ -43,13 +35,6 @@
         size_hint_x: 0.1
 
 <TokensRecycleView@RecycleView>:
-    canvas.after:
-        Color:
-            rgba: color_gray_3
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
-
     viewclass: 'TokenListItem'
     SelectableRecycleBoxLayout:
         id: controller
@@ -58,3 +43,4 @@
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
+        spacing: 10

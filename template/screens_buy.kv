@@ -122,13 +122,13 @@
                             text_id: 'inserted_cash'
                         LabelRight:
                             font_size: 40
-                            text: app.format_fiat_price(root._inserted_cash)
+                            text: app.format_fiat_price(root._total_cash_in)
 
                     ShowBox:
                         LabelLeft:
                             text_id: 'minimum_received'
                         LabelRight:
-                            text: app.format_crypto_price(root._inserted_cash / root._token_price, root._token_symbol, 6)
+                            text: app.format_crypto_price(root._total_cash_in / root._token_price, root._token_symbol, 6)
 
                 BoxLayout:
                     orientation: "vertical"
@@ -157,13 +157,13 @@
 
             ButtonDark:
                 id: button_back
-                disabled: root._inserted_cash > 0
+                disabled: root._total_cash_in > 0
                 text_id: 'cancel'
                 size_hint_x: 3
                 on_release: root.button_back()
             ButtonLight:
                 id: button_confirm
-                disabled: root._inserted_cash <= 0
+                disabled: root._total_cash_in <= 0
                 size_hint_x: 9
                 text_id: 'buy'
                 on_release: root.button_confirm()
@@ -190,12 +190,14 @@
                 ShowBox:
                     LabelLeft:
                         size_hint_x: 0.3
+                        font_size: 30
                         text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
                     LabelSB:
                         size_hint_x: 0.3
                         text: "----->"
                     LabelRight:
                         size_hint_x: 0.3
+                        font_size: 30
                         text: app.format_fiat_price(root._inserted_cash)
 
                 ShowBox:
@@ -224,7 +226,7 @@
                                 text: app.format_fiat_price(root._network_fee_percent * root._inserted_cash)
                 ShowBox:
                     LabelLeft:
-                        text_id: "customeraddress"
+                        text_id: "receiving_address"
                     LabelRight:
                         text: app.format_small_address(root._label_address_to)
 

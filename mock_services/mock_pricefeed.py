@@ -50,6 +50,16 @@ class MockPricefeed:
                 'price': 0.9,
                 'buy_fee': 110,
                 'sell_fee': 110,
+            },
+            'UNI': {
+                'price': 16.13,
+                'buy_fee': 5,
+                'sell_fee': 5,
+            },
+            'XMR': {
+                'price': 208.42,
+                'buy_fee': 11,
+                'sell_fee': 13,
             }
         }
 

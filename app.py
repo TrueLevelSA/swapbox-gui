@@ -139,7 +139,7 @@ class TemplateApp(App):
         """Get app config"""
         return self._config
 
-    def get_string(self, id: str, params: List[object]):
+    def get_string(self, id: str, params: List[object] = None):
         """
         Get a specific string by ID, using the current language.
 

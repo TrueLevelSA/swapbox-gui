@@ -21,7 +21,6 @@ EN:
   inputkey: Scan your address
   inputwallet: Please, place your destination wallet in front of the camera
   inputfiat: Insert cash
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Enter cash amount to withdraw
@@ -77,7 +76,6 @@ DE:
   inputkey: Public-Key einscannen
   inputwallet: Bitte Ziel-Wallet vor die Kamera halten.
   inputfiat: Geldscheine in die Swap-Box einlegen
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
@@ -127,7 +125,6 @@ ES:
   inputkey: Escanee su dirección pública
   inputwallet: Por favor, coloque su billetera de destino frente a la cámara
   inputfiat: Introduzca sus billetes de banco en la Swap-box
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
@@ -177,7 +174,6 @@ FR:
   inputkey: Scannez votre adresse publique
   inputwallet: S'il vous plait, mettez votre portefeuille de destination devant la camera
   inputfiat: Inserez vos billets de banque dans la Swap-box
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Sélectionnez le montant à retirer
@@ -233,7 +229,6 @@ IT:
   inputkey: Scansiona il tuo indirizzo pubblico
   inputwallet: Per favore, metti il portafoglio di destinazione davanti alla telecamera.
   inputfiat: Inserisci le vostre banconote nel Swap-box
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Please select amount to cashout
@@ -283,7 +278,6 @@ PT:
   inputkey: Digitalizar o seu endereço público
   inputwallet: Por favor, coloque o seu porta moedas de destino à frente da câmera
   inputfiat: Insira as suas notas na Swap-Box
-  customeraddress: Funds will be sent to
   please_wait: .. please wait ..
   limitreached: LIMIT REACHED
   sellselect: Por favor escolha o montante a retirar
