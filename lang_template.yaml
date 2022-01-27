@@ -52,6 +52,8 @@ EN:
   how_to_send_3: Send {} to the QR code address
   how_to_send_note: Transaction fee is included. Excess funds will be sent back to your wallet.
   loading: Loading...
+  fee_total: Total fees paid
+  fee_show_details: Show details
 
 DE:
   select_action: Select action
@@ -205,6 +207,8 @@ FR:
   how_to_send_2: Scannez le code QR.
   how_to_send_3: Envoyez {} à l'addresse du code QR.
   how_to_send_note: Les frais de transactions sont inclus. Les fonds excédents seront renvoyés dans votre portefeuille.
+  fee_total: Total des frais
+  fee_show_details: Afficher détails
 
 IT:
   select_action: Select action

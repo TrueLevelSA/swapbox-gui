@@ -21,6 +21,7 @@ from typing import Any
 
 import argument
 import zmq
+from pydantic import BaseModel
 from zmq import Socket
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
@@ -47,10 +48,13 @@ class MockBackend:
         print("Received request: \n", req)
 
         if req['method'] in self.methods:
-            self.methods[req['method']]()
+            self.methods[req['method']](req)
         else:
             print("unknown method")
             print(message)
+
+    def _send_response(self, message: BaseModel):
+        self.socket.send_string(message.json())
 
     def start(self):
         try:
@@ -60,22 +64,33 @@ class MockBackend:
             print("Exiting")
             exit(0)
 
-    def buy(self):
+    def buy(self, req):
         print("buy order:")
         if self.auto_success:
-            self._buy(True)
+            self._buy_success(req)
         else:
             choice = input("What to do: (s)uccess (f)ail or (q)uit + Enter\n")
             if choice in ("q", "quit"):
                 exit(0)
+            elif choice in ("s", "success"):
+                self._buy_success(req)
             else:
-                success = choice in ("s", "success")
-                self._buy(success)
+                response = ResponseBuy(status="error", errors="this is a failure message")
+                self._send_response(response)
 
-    def _buy(self, success: bool):
-        status = "success" if success else "error"
-        response = ResponseBuy(status=status, result=0.2)
-        self.socket.send_string(response.json())
+    def _buy_success(self, req):
+        minimum_buy_amount = int(req['minimum_buy_amount'] * 1.01)
+        fees = int(req['minimum_buy_amount'] * 0.035)
+        tx_url = "https://etherscan.io/tx/0xc215b9356db58ce05412439f49a842f8a3abe6c1792ff8f2c3ee425c3501023c"
+        response = ResponseBuy(
+            status="success",
+            amount_bought=minimum_buy_amount,
+            fees_network=fees,
+            fees_operator=fees * 2,
+            fees_liquidity_provider=fees * 3,
+            tx_url=tx_url
+        )
+        self._send_response(response)
 
 
 if __name__ == '__main__':

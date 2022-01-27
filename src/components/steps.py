@@ -153,20 +153,29 @@ class Wallet(Enum):
 class TransactionOrder:
     """A transaction order representing what the user want to do.
 
-    It is gradually built screen after screen, until when it's ready and will be sent to the connector.
+    It is gradually built screen after screen, until when it's ready and will be
+    sent to the connector.
 
     Attributes:
-        action          The type of order, buy or sell.
-        token           The token the user want to buy.
-        network         The network the token is on.
-        to              To whom the token will be forwarded while/after the tx.
-        amount_fiat     The amount of fiat the user cashed in.
-        amount_crypto   The amount of crypto the user has received.
-        wallet_type     The type of the wallet.
+        action:         The type of order, buy or sell.
+        token:          The token the user want to buy.
+        network:        The network the token is on.
+        to:             To whom the token will be forwarded while/after the tx.
+        amount_fiat:    The amount of fiat the user cashed in.
+        amount_crypto:  The amount of crypto the user has received.
+        wallet_type:    The type of the wallet.
     """
 
-    def __init__(self, action=None, token=None, network=None, to=None, amount_fiat=None, amount_crypto=None,
-                 wallet_type=None):
+    def __init__(
+            self,
+            action=None,
+            token=None,
+            network=None,
+            to=None,
+            amount_fiat=None,
+            amount_crypto=None,
+            wallet_type=None,
+    ):
         self.action: Optional[Action] = action
         self.token: Optional[str] = token
         self.network: Optional[str] = network

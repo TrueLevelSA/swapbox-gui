@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import os
 from threading import Thread
 from typing import Optional
 
@@ -23,9 +24,11 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 
 from src.components.recycle_view_crypto import TokensRecycleView
 from src.components.steps import TransactionOrder, Action, StepsWidgetBuy
+from src.types.tx import Transaction, Fees
 from src.zmq.pricefeed_subscriber import Prices
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.config_tools import Config
+from src_backends.qr_generator.qr_generator import QRGenerator
 from src_backends.qr_scanner.util import parse_ethereum_address
 
 
@@ -232,10 +235,23 @@ class ScreenBuyInsert(Screen):
             self._minimum_wei,
             self._label_address_to
         )
+        print(response)
         if response.status == "success":
+            tx = Transaction(
+                amount_bought=response.amount_bought,
+                url=response.tx_url,
+                fees=Fees(
+                    network=response.fees_network,
+                    operator=response.fees_operator,
+                    liquidity_provider=response.fees_liquidity_provider,
+                )
+            )
             self._tx_order.amount_fiat = self._total_cash_in
-            self._tx_order.amount_crypto = float(response.result)
-            self.manager.get_screen("buy_final").set_tx_order(self._tx_order)
+
+            next_screen = self.manager.get_screen("buy_final")
+            next_screen.set_tx_order(self._tx_order)
+            next_screen.set_tx(tx)
+
             self.manager.transition.direction = 'left'
             self.manager.current = "buy_final"
         else:
@@ -260,14 +276,17 @@ class ScreenBuyFinal(Screen):
     _crypto_bought = NumericProperty(0.0)
     _token_symbol = StringProperty("")
 
-    # TODO: Real fees
-    _operator_fee_percent = NumericProperty(0.5)
-    _network_fee_percent = NumericProperty(0.3)
+    _fees_operator = NumericProperty(0.0)
+    _fees_network = NumericProperty(0.0)
+    _fees_liquidity_provider = NumericProperty(0.0)
+    _fees_total = NumericProperty(0.0)
+    _fee_percent = NumericProperty(0.0)
+
+    _qr_tx_url_uri = StringProperty('assets/img/fake_tx_qr.png')
 
     def __init__(self, **kw):
         super().__init__(**kw)
         self._app = App.get_running_app()
-
         self._tx_order: Optional[TransactionOrder] = None
 
     def button_confirm(self):
@@ -287,4 +306,15 @@ class ScreenBuyFinal(Screen):
         self._label_address_to = self._tx_order.to
         self._inserted_cash = self._tx_order.amount_fiat
         self._token_symbol = self._tx_order.token
-        self._crypto_bought = self._tx_order.amount_crypto
+
+    def set_tx(self, tx: Transaction):
+        self._crypto_bought = tx.amount_bought
+
+        self._fees_operator = tx.fees.operator
+        self._fees_network = tx.fees.network
+        self._fees_liquidity_provider = tx.fees.liquidity_provider
+        self._fees_total = tx.fees.total
+
+        img_uri = os.path.join('tmp', 'tx_url_qr.png')
+        QRGenerator.generate_qr_image(tx.url, img_uri)
+        self._qr_tx_url_uri = img_uri

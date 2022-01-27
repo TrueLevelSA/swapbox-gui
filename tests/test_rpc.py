@@ -28,6 +28,7 @@ def test():
 
     r = node_rpc.buy(amount, token, min_buy, address)
     assert r.status == "success"
+    print(r)
 
 
 if __name__ == "__main__":

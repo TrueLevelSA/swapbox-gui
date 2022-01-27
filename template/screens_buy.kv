@@ -202,28 +202,16 @@
 
                 ShowBox:
                     BoxLayout:
-                        orientation: "vertical"
-                        BoxLayout:
-                            orientation: "horizontal"
-                            LabelLeft:
-                                size_hint_x: 0.3
-                                text: "Operator fees paid"
-                            LabelRight:
-                                size_hint_x: 0.1
-                                color: color_gray_3
-                                text: "{} %".format(root._operator_fee_percent)
-                            LabelRight:
-                                size_hint_x: 0.2
-                                text: app.format_fiat_price(root._operator_fee_percent * root._inserted_cash)
-                        BoxLayout:
-                            orientation: "horizontal"
-                            LabelLeft:
-                                text: "Network + LP fees"
-                            LabelRight:
-                                text: "{} %".format(root._network_fee_percent)
-                                color: color_gray_3
-                            LabelRight:
-                                text: app.format_fiat_price(root._network_fee_percent * root._inserted_cash)
+                        orientation: "horizontal"
+                        LabelLeft:
+                            text_id: "fee_total"
+                        LabelLeft:
+                            text: f"{root._fee_percent} %"
+                            color: color_gray_3
+                        LabelLeft:
+                            text: app.format_fiat_price(root._fees_total)
+                        ButtonDark:
+                            text_id: "fee_show_details"
                 ShowBox:
                     LabelLeft:
                         text_id: "receiving_address"
@@ -239,7 +227,7 @@
                     text: "View transaction order (WIP)"
                     size_hint_y: 0.1
                 Image:
-                    source: 'assets/img/fake_tx_qr.png'
+                    source: root._qr_tx_url_uri
                     allow_stretch: True
                     keep_ratio: True
 

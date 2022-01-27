@@ -14,16 +14,45 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
-from typing import Any
+from typing import Any, List
 
 import zmq
 from pydantic import BaseModel
 from zmq import Socket
 
 
-class ResponseBuy(BaseModel):
+class BaseResponse(BaseModel):
+    """
+    The base response for backend interactions.
+
+    If the request succeeded, the status should be `"success"` and the wrapping
+    response should add relevant attributes. If it failed, the errors list
+    should contain at least one error.
+
+    Attributes:
+        status  The status of the order
+        errors  Potential list of errors
+    """
     status: str
-    result: Any
+    errors: List[str] = []
+
+
+class ResponseBuy(BaseResponse):
+    """
+    A Backend response structure after a buy order request.
+
+    Attributes:
+        amount_bought   Confirmed bought amount after tx success
+        fees            total amount of paid fees
+        tx_url          The transaction URL, the gui will generate a QR Code for
+                        it. It can be empty if the network doesn't have a block
+                        explorer.
+    """
+    amount_bought: int
+    fees_network: int
+    fees_operator: int
+    fees_liquidity_provider: int
+    tx_url: str
 
 
 class NodeRPC:
@@ -43,13 +72,20 @@ class NodeRPC:
         self._zmq_socket.close()
         self._zmq_context.destroy()
 
-    def buy(self, fiat_amount: int, token: str, minimum_buy_amount: int, client_address: str) -> ResponseBuy:
+    def buy(
+            self,
+            fiat_amount: int,
+            token: str,
+            minimum_buy_amount: int,
+            client_address: str
+    ) -> ResponseBuy:
         """
         Sends a buy token order to the backend.
 
         :param fiat_amount:         Fiat amount user cashed in.
         :param token:               The token name.
-        :param minimum_buy_amount:  Under this threshold the order shouldn't pass
+        :param minimum_buy_amount:  Under this threshold the order shouldn't
+                                    pass.
         :param client_address:      Destination for bought token
         :returns: Backend response
         """
@@ -58,7 +94,7 @@ class NodeRPC:
             token=token,
             fiat_amount=fiat_amount,
             client_address=client_address,
-            min_eth=str(int(minimum_buy_amount))
+            minimum_buy_amount=minimum_buy_amount
         )
         return ResponseBuy(**json.loads(response_str))
 
