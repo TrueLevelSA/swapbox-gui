@@ -20,11 +20,13 @@ from typing import Optional
 from kivy.app import App
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen, ScreenManager
 
 from src.components.recycle_view_crypto import TokensRecycleView
 from src.components.steps import TransactionOrder, Action, StepsWidgetBuy
-from src.types.tx import Transaction, Fees
+from src.types.tx import Transaction
 from src.zmq.pricefeed_subscriber import Prices
 from src_backends.cashin_driver.cashin_driver_base import CashinDriver
 from src_backends.config_tools import Config
@@ -134,8 +136,7 @@ class ScreenBuyInsert(Screen):
     _token_price = NumericProperty(1)
 
     _total_cash_in = NumericProperty(0)
-    _estimated_eth = NumericProperty(0)
-    _minimum_wei = NumericProperty(0)
+    _estimated_crypto_amount = NumericProperty(0)
 
     def __init__(self, config: Config, **kwargs):
         super().__init__(**kwargs)
@@ -166,7 +167,6 @@ class ScreenBuyInsert(Screen):
         self._thread_cashin.stop_cashin()
 
         self._total_cash_in = 0
-        self._minimum_wei = 0
         self._label_address_to = '0x0'
 
         self.ids.button_confirm.text = self._app.get_string('buy')
@@ -215,7 +215,7 @@ class ScreenBuyInsert(Screen):
         self.ids.max_amount_text.color = "red"
 
     def _update_price_labels(self):
-        self._estimated_eth = self._total_cash_in / self._token_price
+        self._estimated_crypto_amount = self._total_cash_in / self._token_price
 
     def _async_buy(self):
         """Sends a buy order to the node RPC, in a thread"""
@@ -232,25 +232,16 @@ class ScreenBuyInsert(Screen):
         response = self._node_rpc.buy(
             self._total_cash_in,
             self._tx_order.token,
-            self._minimum_wei,
-            self._label_address_to
+            self._estimated_crypto_amount,
+            self._label_address_to,
         )
-        print(response)
+
         if response.status == "success":
-            tx = Transaction(
-                amount_bought=response.amount_bought,
-                url=response.tx_url,
-                fees=Fees(
-                    network=response.fees_network,
-                    operator=response.fees_operator,
-                    liquidity_provider=response.fees_liquidity_provider,
-                )
-            )
             self._tx_order.amount_fiat = self._total_cash_in
 
             next_screen = self.manager.get_screen("buy_final")
             next_screen.set_tx_order(self._tx_order)
-            next_screen.set_tx(tx)
+            next_screen.set_tx(response.tx)
 
             self.manager.transition.direction = 'left'
             self.manager.current = "buy_final"
@@ -282,23 +273,30 @@ class ScreenBuyFinal(Screen):
     _fees_total = NumericProperty(0.0)
     _fee_percent = NumericProperty(0.0)
 
-    _qr_tx_url_uri = StringProperty('assets/img/fake_tx_qr.png')
+    _qr_uri = ObjectProperty()
 
     def __init__(self, **kw):
         super().__init__(**kw)
         self._app = App.get_running_app()
         self._tx_order: Optional[TransactionOrder] = None
+        self._tx: Optional[Transaction] = None
+        self._fee_percent = 9.0
+
+        self.img_qr: Image = self.ids.img_qr
 
     def button_confirm(self):
         self.manager.transition.direction = "right"
         self.manager.current = "menu"
 
     def on_pre_enter(self, *args):
-        # TODO: Print
         pass
 
     def on_leave(self):
         pass
+
+    def show_details(self):
+        view = FeesDetailsModal(self._tx, size_hint=(0.5, 0.4))
+        view.open()
 
     def set_tx_order(self, tx_order: TransactionOrder):
         self._tx_order = tx_order
@@ -308,13 +306,42 @@ class ScreenBuyFinal(Screen):
         self._token_symbol = self._tx_order.token
 
     def set_tx(self, tx: Transaction):
-        self._crypto_bought = tx.amount_bought
+        self._tx = tx
+        self._crypto_bought = tx.amount_bought / 10 ** tx.decimals
 
         self._fees_operator = tx.fees.operator
         self._fees_network = tx.fees.network
         self._fees_liquidity_provider = tx.fees.liquidity_provider
-        self._fees_total = tx.fees.total
+        self._fees_total = tx.fees.total / 10 ** tx.decimals
+        self._fee_percent = tx.fees.total / tx.amount_bought * 100.0
 
+        # set qr (FAILS: black image)
         img_uri = os.path.join('tmp', 'tx_url_qr.png')
         QRGenerator.generate_qr_image(tx.url, img_uri)
-        self._qr_tx_url_uri = img_uri
+        self._qr_uri = img_uri
+
+
+class FeesDetailsModal(ModalView):
+    fee_operator = NumericProperty()
+    fee_operator_percent = NumericProperty()
+    fee_network = NumericProperty()
+    fee_network_percent = NumericProperty()
+    fee_lp = NumericProperty()
+    fee_lp_percent = NumericProperty()
+    fee_total = NumericProperty()
+    fee_total_percent = NumericProperty()
+
+    def __init__(self, tx: Transaction, **kwargs):
+        super().__init__(**kwargs)
+        self._set_fees(tx)
+
+    def _set_fees(self, tx: Transaction):
+        granularity = 10.0 ** tx.decimals
+        self.fee_operator = tx.fees.operator / granularity
+        self.fee_operator_percent = tx.fees.percent_operator(tx.amount_bought)
+        self.fee_network = tx.fees.network / granularity
+        self.fee_network_percent = tx.fees.percent_network(tx.amount_bought)
+        self.fee_lp = tx.fees.liquidity_provider / granularity
+        self.fee_lp_percent = tx.fees.percent_lp(tx.amount_bought)
+        self.fee_total = tx.fees.total / granularity
+        self.fee_total_percent = tx.fees.percent_total(tx.amount_bought)

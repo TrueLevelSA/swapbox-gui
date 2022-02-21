@@ -25,6 +25,8 @@ from pydantic import BaseModel
 from zmq import Socket
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
+
+from src.types.tx import Fees, Transaction
 from src_backends.node_rpc.node_rpc import ResponseBuy
 
 
@@ -79,16 +81,22 @@ class MockBackend:
                 self._send_response(response)
 
     def _buy_success(self, req):
-        minimum_buy_amount = int(req['minimum_buy_amount'] * 1.01)
-        fees = int(req['minimum_buy_amount'] * 0.035)
+        decimals = 18
+        minimum_buy_amount = float(req['minimum_buy_amount'] * 10 ** decimals) * 1.01
+        fees = minimum_buy_amount * 0.015
         tx_url = "https://etherscan.io/tx/0xc215b9356db58ce05412439f49a842f8a3abe6c1792ff8f2c3ee425c3501023c"
         response = ResponseBuy(
             status="success",
-            amount_bought=minimum_buy_amount,
-            fees_network=fees,
-            fees_operator=fees * 2,
-            fees_liquidity_provider=fees * 3,
-            tx_url=tx_url
+            tx=Transaction(
+                decimals=decimals,
+                amount_bought=minimum_buy_amount,
+                fees=Fees(
+                    network=fees,
+                    operator=fees * 2,
+                    liquidity_provider=fees * 3
+                ),
+                url=tx_url
+            )
         )
         self._send_response(response)
 

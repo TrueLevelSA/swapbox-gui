@@ -191,27 +191,32 @@
                     LabelLeft:
                         size_hint_x: 0.3
                         font_size: 30
-                        text: app.format_crypto_price(root._crypto_bought, root._token_symbol)
+                        text: app.format_fiat_price(root._inserted_cash)
                     LabelSB:
                         size_hint_x: 0.3
                         text: "----->"
                     LabelRight:
                         size_hint_x: 0.3
                         font_size: 30
-                        text: app.format_fiat_price(root._inserted_cash)
+                        text: app.format_crypto_price(root._crypto_bought, root._token_symbol, 3)
 
                 ShowBox:
                     BoxLayout:
                         orientation: "horizontal"
                         LabelLeft:
                             text_id: "fee_total"
+                            size_hint_x: 2
                         LabelLeft:
-                            text: f"{root._fee_percent} %"
+                            text: "{:.2f} %".format(root._fee_percent)
                             color: color_gray_3
+                            size_hint_x: 1
                         LabelLeft:
-                            text: app.format_fiat_price(root._fees_total)
+                            text: app.format_fiat_price(root._fees_total, 2)
+                            size_hint_x: 1
                         ButtonDark:
                             text_id: "fee_show_details"
+                            size_hint_x: 2
+                            on_release: root.show_details()
                 ShowBox:
                     LabelLeft:
                         text_id: "receiving_address"
@@ -227,7 +232,8 @@
                     text: "View transaction order (WIP)"
                     size_hint_y: 0.1
                 Image:
-                    source: root._qr_tx_url_uri
+                    id: img_qr
+                    source: root._qr_uri
                     allow_stretch: True
                     keep_ratio: True
 
@@ -238,3 +244,64 @@
             ButtonLight:
                 text_id: 'go_home'
                 on_release: root.button_confirm()
+
+<FeesDetailsModal>:
+    background_color: color_darker_black
+    padding: (40, 40)
+
+    BoxLayout:
+        orientation: "vertical"
+
+        BoxLayout:
+            LabelLeft:
+                size_hint_x: 3
+                text_id: 'fee_operator'
+            LabelLeft:
+                color: color_gray_3
+                text:  "{:.2f} %".format(root.fee_operator_percent)
+            LabelRight:
+                text: app.format_fiat_price(root.fee_operator, 2)
+
+        BoxLayout:
+            LabelLeft:
+                size_hint_x: 3
+                text_id: 'fee_network'
+            LabelLeft:
+                color: color_gray_3
+                text:  "{:.2f} %".format(root.fee_network_percent)
+            LabelRight:
+                text: app.format_fiat_price(root.fee_network, 2)
+
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: color_gray_3
+                Line:
+                    width: 1
+                    points: self.x, self.y, self.x + self.width, self.y
+
+            LabelLeft:
+                size_hint_x: 3
+                text_id: 'fee_lp'
+            LabelLeft:
+                color: color_gray_3
+                text:  "{:.2f} %".format(root.fee_lp_percent)
+            LabelRight:
+                text: app.format_fiat_price(root.fee_lp, 2)
+
+        Widget:
+        BoxLayout:
+            LabelLeft:
+                size_hint_x: 3
+                text_id: 'fee_total'
+            LabelLeft:
+                color: color_gray_3
+                text:  "{:.2f} %".format(root.fee_total_percent)
+            LabelRight:
+                text: app.format_fiat_price(root.fee_total, 2)
+        Widget:
+
+        ButtonDark:
+            size_hint_y: 2
+            text_id: 'fee_hide_details'
+            on_release: root.dismiss()

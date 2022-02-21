@@ -20,6 +20,8 @@ import zmq
 from pydantic import BaseModel
 from zmq import Socket
 
+from src.types.tx import Transaction
+
 
 class BaseResponse(BaseModel):
     """
@@ -40,19 +42,8 @@ class BaseResponse(BaseModel):
 class ResponseBuy(BaseResponse):
     """
     A Backend response structure after a buy order request.
-
-    Attributes:
-        amount_bought   Confirmed bought amount after tx success
-        fees            total amount of paid fees
-        tx_url          The transaction URL, the gui will generate a QR Code for
-                        it. It can be empty if the network doesn't have a block
-                        explorer.
     """
-    amount_bought: int
-    fees_network: int
-    fees_operator: int
-    fees_liquidity_provider: int
-    tx_url: str
+    tx: Transaction
 
 
 class NodeRPC:
