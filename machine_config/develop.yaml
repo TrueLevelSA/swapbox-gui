@@ -17,15 +17,19 @@ backends:
       - symbol: DAI
         name: DAI Stablecoin
         address: 0xbbbbbbbbbbbbbbbbb
+        decimals: 18
       - symbol: ETH
         name: Ethereum
         address: 0xccccccccccccccccc
+        decimals: 18
       - symbol: UNI
         name: Uniswap
         address: 0xddddddddddddddddd
+        decimals: 18
       - symbol: XMR
         name: Monero
         address: 0xeeeeeeeeeeeeeeeee
+        decimals: 12
 
 # Banknote validator settings
 note_machine:

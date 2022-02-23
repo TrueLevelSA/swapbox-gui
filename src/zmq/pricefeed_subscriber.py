@@ -24,8 +24,8 @@ from src_backends import config_tools
 
 class Price(BaseModel):
     price: float
-    buy_fee: float
-    sell_fee: float
+    buy_fee: int
+    sell_fee: int
 
 
 Prices = Dict[str, Price]

@@ -148,7 +148,7 @@ class ScreenSellSelectToken(StepsScreen):
 
         # init recycle view
         self._list_view: TokensRecycleView = self.ids.rv_tokens
-        self._list_view.populate(config.backends)
+        self._list_view.populate(config.backends[0].tokens)
 
     def on_pre_enter(self, *args):
         self._app.subscribe_prices(self._update_prices)

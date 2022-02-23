@@ -17,32 +17,20 @@ from pydantic import BaseModel
 
 
 class Fees(BaseModel):
-    network: int
-    operator: int
-    liquidity_provider: int
+    """
+    Fee percentages
+    """
+
+    network: float
+    operator: float
+    liquidity_provider: float
 
     @property
     def total(self):
         return self.network + self.operator + self.liquidity_provider
 
-    def percent_network(self, total: int):
-        return self._percent(self.network, total)
 
-    def percent_operator(self, total: int):
-        return self._percent(self.operator, total)
-
-    def percent_lp(self, total: int):
-        return self._percent(self.liquidity_provider, total)
-
-    def percent_total(self, total: int):
-        return self._percent(self.total, total)
-
-    @staticmethod
-    def _percent(fee: int, total: int):
-        return fee / total * 100.0
-
-
-class Transaction(BaseModel):
+class TransactionReceipt(BaseModel):
     """
     Attributes:
         decimals        The decimals of bought token
@@ -53,6 +41,7 @@ class Transaction(BaseModel):
                         explorer.
     """
     decimals: int
+    token: str
     amount_bought: int
     url: str
     fees: Fees

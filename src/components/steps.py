@@ -22,6 +22,7 @@ from kivy.lang import Builder
 
 from src.components.boxlayout_bg import BoxLayoutBackground
 from src.components.label_sb import LabelSB
+from src_backends.config_tools import Token
 
 Builder.load_string('''
 <IconStep@Image>
@@ -177,7 +178,7 @@ class TransactionOrder:
             wallet_type=None,
     ):
         self.action: Optional[Action] = action
-        self.token: Optional[str] = token
+        self.token: Optional[Token] = token
         self.network: Optional[str] = network
         self.to: Optional[str] = to
         self.amount_fiat: Optional[int] = amount_fiat
@@ -212,7 +213,7 @@ class StepsWidgetBase(BoxLayoutBackground):
             self.ids.ico_currency.disabled = False
             l: LabelSB = self.ids.label_currency
             l.disabled = False
-            l.text = tx_order.token
+            l.text = tx_order.token.symbol
 
         if tx_order.wallet_type is not None:
             self.ids.ico_wallet.disabled = False

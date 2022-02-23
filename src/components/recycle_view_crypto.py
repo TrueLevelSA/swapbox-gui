@@ -8,7 +8,7 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleKVIDsDataViewBehavior
 
-from src_backends.config_tools import Backend
+from src_backends.config_tools import Token
 
 
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
@@ -40,27 +40,33 @@ class TokenListItem(RecycleKVIDsDataViewBehavior, BoxLayout):
             rv.set_selected(index)
 
 
+class TokenPrice:
+    def __init__(self, token: Token, price: float):
+        self.token = token
+        self.price = price
+
+
 class TokensRecycleView(RecycleView):
     ICONS_FOLDER = "assets/img/currency_icons/{}.png"
 
     def __init__(self, **kwargs):
         super(TokensRecycleView, self).__init__(**kwargs)
         self.selected = -1
-        self._backends: List[Backend] = []
-        self._last_prices: Dict[str, float] = {}
+        # list of token,price tuples
+        self.tps: List[TokenPrice] = []
 
-    def populate(self, backends: List[Backend]):
-        self._backends = backends
+    def populate(self, tokens: List[Token]):
         self.data = []
 
-        for backend in backends:
-            for token in backend.tokens:
-                self.data.append({
-                    'symbol.text': token.symbol,
-                    'name.text': token.name,
-                    'price.text_id': "loading",
-                    'value': TokensRecycleView.ICONS_FOLDER.format(token.symbol.lower())
-                })
+        for i in range(len(tokens)):
+            token = tokens[i]
+            self.tps.insert(i, TokenPrice(token, 0.0))
+            self.data.insert(i, {
+                'symbol.text': token.symbol,
+                'name.text': token.name,
+                'price.text_id': "loading",
+                'value': TokensRecycleView.ICONS_FOLDER.format(token.symbol.lower())
+            })
 
     def update_prices(self, prices: Dict[str, float]):
         """
@@ -69,24 +75,22 @@ class TokensRecycleView(RecycleView):
         :param prices: key is the token name, value is the price. It will try to match token name
         with existing rows, if it exists in the list, then the price is updated.
         """
-        self._last_prices = prices
-        for i, data in enumerate(self.data):
-            token: str = data['symbol.text']
-            if token in prices:
-                # disable translations now
-                self.data[i]["price.translate"] = False
-                # set new price
-                self.data[i]["price.text"] = "{:4f} CHF".format(prices[token])
+        # update data model prices
+        for i, (tp, data) in enumerate(zip(self.tps, self.data)):
+            data["price.translate"] = False
+
+            if tp.token.symbol in prices.keys():
+                tp.price = prices[tp.token.symbol]
+                data["price.text"] = "{:4f} CHF".format(tp.price)
+
         self.refresh_from_data()
 
     def set_selected(self, index):
         self.selected = index
 
-    def get_selected_token(self) -> tuple[str, float]:
+    def get_selected_token(self) -> TokenPrice:
         """Return currently selected token in list view."""
-        selected_item = self.data[self.selected]
-        token_name = selected_item['symbol.text']
-        return token_name, self._last_prices[token_name]
+        return self.tps[self.selected]
 
     def deselect(self):
         self.layout_manager.deselect_node(self.selected)

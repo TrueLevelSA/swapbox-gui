@@ -20,7 +20,7 @@ import zmq
 from pydantic import BaseModel
 from zmq import Socket
 
-from src.types.tx import Transaction
+from src.types.tx import TransactionReceipt
 
 
 class BaseResponse(BaseModel):
@@ -43,7 +43,7 @@ class ResponseBuy(BaseResponse):
     """
     A Backend response structure after a buy order request.
     """
-    tx: Transaction
+    receipt: TransactionReceipt
 
 
 class NodeRPC:

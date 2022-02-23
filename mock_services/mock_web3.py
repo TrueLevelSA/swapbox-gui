@@ -26,7 +26,7 @@ from zmq import Socket
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
-from src.types.tx import Fees, Transaction
+from src.types.tx import Fees, TransactionReceipt
 from src_backends.node_rpc.node_rpc import ResponseBuy
 
 
@@ -82,14 +82,16 @@ class MockBackend:
 
     def _buy_success(self, req):
         decimals = 18
-        minimum_buy_amount = float(req['minimum_buy_amount'] * 10 ** decimals) * 1.01
-        fees = minimum_buy_amount * 0.015
+        amount_bought = float(req['minimum_buy_amount']) * 1.01
+        fiat_amount = req['fiat_amount']
+        fees = 0.015
         tx_url = "https://etherscan.io/tx/0xc215b9356db58ce05412439f49a842f8a3abe6c1792ff8f2c3ee425c3501023c"
         response = ResponseBuy(
             status="success",
-            tx=Transaction(
+            receipt=TransactionReceipt(
                 decimals=decimals,
-                amount_bought=minimum_buy_amount,
+                token=req['token'],
+                amount_bought=amount_bought,
                 fees=Fees(
                     network=fees,
                     operator=fees * 2,
