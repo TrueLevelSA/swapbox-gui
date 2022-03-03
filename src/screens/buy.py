@@ -276,7 +276,8 @@ class ScreenBuyInsert(Screen):
             self._tx_order.amount_fiat = self._total_cash_in
             next_screen = self.manager.get_screen("buy_final")
             next_screen.set_tx(self._tx_order, response.receipt)
-            self.manager.switch_to(next_screen, direction='left')
+            self.manager.transition.direction = 'left'
+            self.manager.current = "buy_final"
         else:
             # TODO: handle failure better than this ?
             self.manager.transition.direction = 'right'
