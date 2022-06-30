@@ -114,7 +114,9 @@ class ScreenSellAmount(StepsScreen):
             note_button = NoteButton(note, self._add_amount)
             self.ids.grid_notes.add_widget(note_button)
 
-        self.ids.grid_notes.add_widget(ButtonDark(text="clear", on_release=self._reset))
+        self.ids.grid_notes.add_widget(
+            ButtonDark(text="clear", on_release=lambda _: self._reset())
+        )
 
     def _retrieve_note_balance(self) -> Dict[int, int]:
         return self._CASHOUT.get_balance()
