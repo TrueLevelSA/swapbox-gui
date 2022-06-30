@@ -158,10 +158,10 @@ class ScreenSellSelectToken(StepsScreen):
         self.manager.current = "sell_amount"
 
     def button_confirm(self):
-        token, price = self._list_view.get_selected_token()
+        tp = self._list_view.get_selected_token()
         self._tx_order.network = "zkSync"
-        self._tx_order.token = token
-        self._tx_order.amount_crypto = self._tx_order.amount_fiat / price
+        self._tx_order.token = tp.token
+        self._tx_order.amount_crypto = self._tx_order.amount_fiat / tp.price
         self.manager.get_screen("sell_scan").set_tx_order(self._tx_order)
         self.manager.transition.direction = "left"
         self.manager.current = "sell_scan"
@@ -203,7 +203,7 @@ class ScreenSellScan(StepsScreen):
     def set_tx_order(self, tx_order: TransactionOrder):
         super(ScreenSellScan, self).set_tx_order(tx_order)
         self._sell_amount = tx_order.amount_crypto
-        self._token = tx_order.token
+        self._token = tx_order.token.symbol
 
     def _get_backend_address(self):
         for backend in self._backends:
