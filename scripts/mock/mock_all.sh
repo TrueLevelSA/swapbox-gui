@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# Swap-box
+# Copyright (c) 2022 TrueLevel SA
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+base=`dirname $0`
+
+killbg() {
+  for p in "${pids[@]}"; do
+    kill "$p"
+  done
+}
+trap killbg EXIT
+pids=()
+pipenv run python $base/web3.py -s &
+pids+=($!)
+pipenv run python $base/pricefeed.py &
+pids+=($!)
+pipenv run python $base/status.py &
+pids+=($!)
+pipenv run python $base/validator.py

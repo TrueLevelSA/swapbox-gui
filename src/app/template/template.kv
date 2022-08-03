@@ -1,0 +1,108 @@
+#:kivy 2.0.0
+
+#:import Factory kivy.factory.Factory
+#:import HomeLogo src.app.components.home_logo
+#:import ColorDownButton src.app.components.button_color_down
+#:import MediumButton src.app.components.button_color_down
+#:import LanguageBar src.app.components.language_bar
+
+#:include src/app/template/screen_menu.kv
+#:include src/app/template/screens_buy.kv
+#:include src/app/template/screens_sell.kv
+#:include src/app/template/screens_setup.kv
+
+#:include src/app/template/button.kv
+#:include src/app/template/label.kv
+#:include src/app/template/listview_tokens.kv
+
+#:include src/app/template/colors.kv
+
+
+<BoxLayoutBackground@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: self.background_color if self.background_color else color_transparent
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<MainBox@BoxLayout>:
+    size_hint_y: .8
+    canvas.before:
+        Color:
+            rgba: 5,5,5,.3
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ButtonBox@BoxLayout>:
+    spacing: 20
+    size_hint_y: .2
+    orientation: 'horizontal'
+
+<ScreenWelcome>:
+    BoxLayout:
+        Button:
+            id: "welcome_Button"
+            text: app._languages[app._selected_language]["welcome"].format(app._config.operator_name)
+            font_size: 20
+            on_press: root.manager.current = "main"
+
+<ScreenMain>:
+    BoxLayoutBackground:
+        background_color: color_off_black
+        orientation: "vertical"
+        padding: 20
+
+        # Header
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: 0.2
+            spacing: 10
+            HomeLogo:
+                size_hint_x: 2
+                allow_stretch: True
+                keep_ratio: True
+                source: "assets/img/swapbox_bg.png"
+                on_triple_tap: root.set_current_screen('setup_1')
+
+            Widget:
+                size_hint_x: 1
+
+            LanguageBar:
+                size_hint_x: 7
+                spacing: 10
+            ButtonDark:
+                size_hint_x: 1
+                text: "?"
+                on_press:
+                    root.show_help()
+            ButtonLight:
+                size_hint_x: 1
+                text: "Stop"
+                on_press:
+                    root.back_to_menu()
+
+
+        ScreenManager:
+            id: sm_content
+            size_hint_y: 2
+
+<ScreenSettings>:
+    MainBox:
+        orientation: "horizontal"
+        TabbedPanel:
+            tab_pos: 'bottom_right'
+            do_default_tab: False
+            TabbedPanelItem:
+                text: app._languages[app._selected_language]["connectivity"]
+                MainBox:
+                    Label:
+                        text: "Wifi Menu"
+
+            TabbedPanelItem:
+                text: app._languages[app._selected_language]["crypto"]
+                MainBox:
+                    Button:
+                        text: "crypto keys config"
+                        on_press: root.manager.current = 'main'

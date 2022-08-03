@@ -1,0 +1,17 @@
+#:import ButtonSB src.app.components.buttons
+<ButtonBase@ButtonSB>:
+    text: self.text.upper() if self.text is not None and not self.markup else self.text
+    background_normal: ''
+    font_size: 25
+    halign: 'center'
+    font_name: "SpaceGrotesk"
+    background_disabled_normal: ''
+    disabled_color: color_gray_4
+
+<ButtonDark@ButtonBase>
+    color: color_off_white
+    background_color: color_gray_5 if not self.disabled else color_darker_black
+
+<ButtonLight@ButtonBase>:
+    color: color_off_black
+    background_color: color_off_white if not self.disabled else color_darker_black
