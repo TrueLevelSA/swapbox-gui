@@ -58,6 +58,7 @@ EN:
   fee_network: Network fees
   fee_lp: Liquidity provider fees
   fee_total: Total fees paid
+  view_tx_order: "View transaction order"
 
 DE:
   select_action: Select action
@@ -213,6 +214,7 @@ FR:
   how_to_send_note: Les frais de transactions sont inclus. Les fonds excédents seront renvoyés dans votre portefeuille.
   fee_total: Total des frais
   fee_show_details: Détails
+  view_tx_order: "Voir la transaction"
 
 IT:
   select_action: Select action

@@ -17,7 +17,7 @@ from threading import Thread
 from typing import Optional
 
 from kivy.app import App
-from kivy.properties import StringProperty, NumericProperty, ObjectProperty
+from kivy.properties import StringProperty, NumericProperty
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.modalview import ModalView
@@ -302,7 +302,7 @@ class ScreenBuyFinal(Screen):
 
     _label_address_to = StringProperty('')
 
-    _qr_uri = ObjectProperty()
+    _qr_uri = StringProperty('')
 
     def __init__(self, **kw):
         super().__init__(**kw)
@@ -318,6 +318,9 @@ class ScreenBuyFinal(Screen):
 
     def on_pre_enter(self, *args):
         pass
+
+    def on_enter(self, *args):
+        self.img_qr.source = self._qr_uri
 
     def on_leave(self):
         pass
@@ -342,9 +345,7 @@ class ScreenBuyFinal(Screen):
 
         # last box
         self._label_address_to = self._tx_order.to
-        # set qr (FAILS: black image)
-        img_uri = QRGenerator.generate_qr_image(receipt.url)
-        self._qr_uri = img_uri
+        self._qr_uri = QRGenerator.generate_qr_image(receipt.url)
 
 
 class FeesDetailsModal(ModalView):
